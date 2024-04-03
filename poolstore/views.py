@@ -4,4 +4,4 @@ from django.shortcuts import render
 
 
 def poolhouse(request, poolhouse):
-    return render(request, 'poolstore/poolhouse.html')
+    return render(request, 'poolstore/poolhouse.html', {'poolhouse': poolhouse})
