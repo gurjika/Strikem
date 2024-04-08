@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('east').addEventListener('click', () => { navigate('east'); });
     document.getElementById('south').addEventListener('click', () => { navigate('south'); });
 
-
     
 
 
@@ -20,8 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const imgContainer = document.getElementById('imageContainer');
 
-        console.log(imgContainer.offsetHeight);
-        console.log(imgContainer.offsetWidth);
+        
 
 
 

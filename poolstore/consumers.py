@@ -46,3 +46,25 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
                 'changed': changed
             }
         ))
+
+class MatchMakeConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.GROUP_NAME = 'matchmake'
+
+
+        await self.channel_layer.group_add(
+            self.GROUP_NAME,
+            self.channel_name
+        )
+        
+
+
+        await self.accept()
+
+    async def disconnect(self, code):
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    
