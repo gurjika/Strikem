@@ -73,21 +73,47 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         username = text_data_json['username']
 
+        
 
-        await self.channel_layer.group_send(
-            self.GROUP_NAME,
-            {
-                'type': 'add_user',
-                'username': username
-            }
-        )
-
-    async def add_user(self, event):
-        username = event['username']
-        print(username)
         player = await database_sync_to_async(Player.objects.get)(user__username=username)
 
-        await database_sync_to_async(MatchMake.objects.create)(player=player)
+        if not player.inviting_to_play:
+
+
+            player.inviting_to_play = True
+            await database_sync_to_async(player.save)()
+
+            await database_sync_to_async(MatchMake.objects.create)(player=player)
+
+
+            await self.channel_layer.group_send(
+                self.GROUP_NAME,
+                {
+                    'type': 'control_user',
+                    'username': username,
+                    'protocol': 'add'
+                }
+            )
+        else:
+            player.inviting_to_play = False
+            await database_sync_to_async(player.save)()
+
+            match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=player)
+
+            await database_sync_to_async(match_make_instance.delete)()
+
+            await self.channel_layer.group_send(
+                self.GROUP_NAME,
+                {
+                    'type': 'control_user',
+                    'username': username,
+                    'protocol': 'delete'
+                }
+            )
+
+    async def control_user(self, event):
+        username = event['username']
+        protocol = event['protocol']
 
         # html = get_template('poolstore/partials/matchmakers.html').render(
         #     context={'username': username}
@@ -95,7 +121,8 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps(
             {
-                'username': username
+                'username': username,
+                'protocol': protocol
             }
         ))
 
