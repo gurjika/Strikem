@@ -3,5 +3,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('<str:poolhouse>/', views.poolhouse, name='poolhouse'),    
+    path('poolhouses/<str:poolhouse>/', views.poolhouse, name='poolhouse'), 
+    path('matchmake/', views.matchmakings, name='matchmake')  
 ]

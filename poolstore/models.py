@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+import uuid 
+
 # Create your models here.
 
 class Player(models.Model):
@@ -7,10 +9,16 @@ class Player(models.Model):
     games_played = models.PositiveIntegerField()
     opponents_met = models.PositiveIntegerField()
     games_won = models.PositiveIntegerField()
+    inviting_to_play = models.BooleanField(default=False)
 
 class PoolHouse(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
+    
+
+class MatchMake(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matchmakings')
+    time_created = models.DateTimeField(auto_now_add=True)
     
     
 class PoolTable(models.Model):
@@ -18,6 +26,12 @@ class PoolTable(models.Model):
 
 
 class GameSession(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
     pooltable = models.ForeignKey(PoolTable, on_delete=models.SET_NULL, related_name='game_sessions', null=True)
     players = models.ManyToManyField(Player, through='PlayerGameSession', related_name='game_session')
     result = models.CharField(max_length=50)

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/ws.js"></script>
+
+</head>
+<body>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100%;">
+        <div id="matchamaking-users" style="width: 300px;">
+
+        {% if matches %}
+            
+            <div style="display: flex; flex-direction: column;" id="matches-container">
+                {% for match in matches %}
+                <div style="display: flex; align-items: center; justify-content: space-between;" id="matches">
+                   
+                    <div>
+                        {{ match.player.user.username }}
+                    </div>
+
+                    <div>
+                        <button>
+                            INVITE
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        {% endif %}
+
+        
+        </div>
+
+        <div>
+            <button id="add">
+                ADD MYSELF
+            </button>
+        </div>
+
+
+        
+    </div>
+
+    {{ request.user.username|json_script:"username" }}
+
+    <script>
+        const username = JSON.parse(document.getElementById('username').textContent);
+        console.log(username);
+        const matchSocket = new WebSocket(
+            'ws://' + 
+            window.location.host + 
+            '/ws/matchmake/'
+        );
+
+
+        
+        document.getElementById('add').addEventListener('click', (e) => {
+            matchSocket.send(JSON.stringify(
+                {
+                    'username': username
+                }
+            ));
+        });
+
+
+        matchSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+
+
+            const html = ` 
+            <div style="display: flex; align-items: center; justify-content: space-between;" id="matches">
+                   
+                   <div>
+                       ${data.username}
+                   </div>
+
+                   <div>
+                       <button>
+                           INVITE
+                       </button>
+                   </div>
+            </div>`
+
+            console.log(document.getElementById('matches-container').innerHTML);
+            document.getElementById('matches-container').innerHTML += html;
+
+
+
+        };
+
+        
+
+
+
+
+
+
+
+
+
+    </script>
+
+
+</body>
+
+
+</html>

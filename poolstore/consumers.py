@@ -2,7 +2,8 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.template.loader import get_template
-
+from .models import MatchMake, Player
+from channels.db import database_sync_to_async
 
 class PoolhouseConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -63,8 +64,45 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, code):
         await self.channel_layer.group_discard(
-            self.room_group_name,
+            self.GROUP_NAME,
             self.channel_name
         )
 
+
+    async def receive(self, text_data=None, bytes_data=None):
+        text_data_json = json.loads(text_data)
+        username = text_data_json['username']
+
+
+        await self.channel_layer.group_send(
+            self.GROUP_NAME,
+            {
+                'type': 'add_user',
+                'username': username
+            }
+        )
+
+    async def add_user(self, event):
+        username = event['username']
+        print(username)
+        player = await database_sync_to_async(Player.objects.get)(user__username=username)
+
+        await database_sync_to_async(MatchMake.objects.create)(player=player)
+
+        # html = get_template('poolstore/partials/matchmakers.html').render(
+        #     context={'username': username}
+        # )
+
+        await self.send(text_data=json.dumps(
+            {
+                'username': username
+            }
+        ))
+
+
+        # await self.send(text_data=html)
+
+        
+
     
+
