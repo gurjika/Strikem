@@ -11,11 +11,15 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['poolhouse']
         self.room_group_name = f'poolhouse_{self.room_name}'
 
+
+        print(self.room_name_for_specific_user)
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
 
+
+      
         await self.accept()
 
 
@@ -49,22 +53,33 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
         ))
 
 class MatchMakeConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
         self.GROUP_NAME = 'matchmake'
-
+        self.room_name_for_specific_user = f"user_{self.scope['user'].id}"
 
         await self.channel_layer.group_add(
             self.GROUP_NAME,
             self.channel_name
         )
-        
 
+
+        await self.channel_layer.group_add(
+            self.room_name_for_specific_user,
+            self.channel_name
+        )
+        
 
         await self.accept()
 
     async def disconnect(self, code):
         await self.channel_layer.group_discard(
             self.GROUP_NAME,
+            self.channel_name
+        )
+
+        await self.channel_layer.group_discard(
+            self.room_name_for_specific_user,
             self.channel_name
         )
 
@@ -94,7 +109,9 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                     'protocol': 'add'
                 }
             )
+
         else:
+
             player.inviting_to_play = False
             await database_sync_to_async(player.save)()
 
@@ -115,9 +132,11 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         username = event['username']
         protocol = event['protocol']
 
+        # FOR HTMX 
         # html = get_template('poolstore/partials/matchmakers.html').render(
         #     context={'username': username}
         # )
+        # await self.send(text_data=html)
 
         await self.send(text_data=json.dumps(
             {
@@ -127,7 +146,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         ))
 
 
-        # await self.send(text_data=html)
+        
 
         
 
