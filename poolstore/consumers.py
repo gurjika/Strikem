@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.template.loader import get_template
-from .models import MatchMake, Player
+from .models import Invitation, MatchMake, Player
 from channels.db import database_sync_to_async
 
 class PoolhouseConsumer(AsyncWebsocketConsumer):
@@ -56,7 +56,9 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.GROUP_NAME = 'matchmake'
-        self.room_name_for_specific_user = f"user_{self.scope['user'].id}"
+        self.room_name_for_specific_user = f"user_{self.scope['user'].username}"
+
+        print(self.room_name_for_specific_user)
 
         await self.channel_layer.group_add(
             self.GROUP_NAME,
@@ -87,10 +89,28 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
         username = text_data_json['username']
-
-        
+        matchmaker_username = text_data_json.get('matchmaker_username')
 
         player = await database_sync_to_async(Player.objects.get)(user__username=username)
+
+        if matchmaker_username:
+            print('her??')
+            player_inviting = player
+            player_invited = await database_sync_to_async(Player.objects.get)(user__username=matchmaker_username)
+
+            await database_sync_to_async(Invitation.objects.create)(player_inviting=player_inviting, player_invited=player_invited)
+
+            await self.channel_layer.group_send(
+                f'user_{matchmaker_username}',
+                {
+                    'type': 'display_invite',
+                    'invite_sender_username': username
+                }
+            )
+
+
+            return
+            
 
         if not player.inviting_to_play:
 
@@ -142,6 +162,16 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
             {
                 'username': username,
                 'protocol': protocol
+            }
+        ))
+
+    async def display_invite(self, event):
+        invite_sender_username = event['invite_sender_username']
+
+        print(invite_sender_username)
+        await self.send(text_data=json.dumps(
+            {
+                'inviteSenderUsername': invite_sender_username,
             }
         ))
 

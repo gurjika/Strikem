@@ -18,40 +18,63 @@
             
         <div style="display: flex; flex-direction: column;" id="matches-container">
             {% for match in matches %}
-            <div style="display: flex; align-items: center; justify-content: space-between;" id="matches" data-user-username="{{ request.user.username }}">
+            <div style="display: flex; align-items: center; justify-content: space-between;" id="matches" data-user-username="{{ match.player.user.username }}">
                 
                 <div>
                     {{ match.player.user.username }}
                 </div>
 
                 <div>
-                    <button>
+                    <button class="invite-btn" data-invitee-user-username="{{ match.player.user.username }}">
                         INVITE
                     </button>
                 </div>
             </div>
             {% endfor %}
+
+
+            
+        </div>
+        {% if not request.user.player.inviting_to_play %}
+            <div>
+                <button id="control-btn">
+                    ADD MYSELF
+                </button>
+            </div>
+        {% else %}
+            <div>
+                <button id="control-btn">
+                    REMOVE MYSELF
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        
+        <div class="invite-notification-container" style="display: flex; flex-direction: column;">
+            {% for invite in invites %}
+            <div>
+                <div>
+                    {{ invite.player_inviting.user.username }} invited you.
+                </div>
+
+                <div>
+                    <button>
+                        ACCEPT
+                    </button>
+                </div>
+
+                <div>
+                    <button>
+                        DENY
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            
         </div>
 
     
-
-        
-        </div>
-        {% if not request.user.player.inviting_to_play %}
-        <div>
-            <button id="add">
-                ADD MYSELF
-            </button>
-        </div>
-        {% else %}
-        <div>
-            <button id="add">
-                REMOVE MYSELF
-            </button>
-        </div>
-        {% endif %}
-
-
 
         
     </div>

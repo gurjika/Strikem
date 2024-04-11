@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import MatchMake
+from .models import Invitation, MatchMake
 # Create your views here.
 
 
@@ -9,7 +9,12 @@ def poolhouse(request, poolhouse):
 
 def matchmakings(request):
     matches = MatchMake.objects.all()
+
+    invites = Invitation.objects.filter(player_invited__user=request.user)
+
+
     context = {
+        'invites': invites,
         'matches': matches
     }
     

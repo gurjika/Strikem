@@ -47,3 +47,8 @@ class Rating(models.Model):
 class PlayerGameSession(models.Model):
     game_session = models.ForeignKey(GameSession, on_delete=models.CASCADE)
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
+
+
+class Invitation(models.Model):
+    player_invited = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='invited_player')
+    player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='inviting_player')
