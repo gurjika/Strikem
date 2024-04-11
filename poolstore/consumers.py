@@ -172,6 +172,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(
             {
                 'inviteSenderUsername': invite_sender_username,
+                'protocol': 'invited',
             }
         ))
 

@@ -43,35 +43,34 @@ document.getElementById('matches-container').addEventListener('click', function(
 
 matchSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
-    if ('protocol' in data) {
-        if (data.protocol === 'add'){
-            const html = ` 
-            <div style="display: flex; align-items: center; justify-content: space-between;" id="matches" data-user-username=${data.username}>
-                
-            
-                <div>
-                    ${data.username}
-                </div>
+    
+    if (data.protocol === 'add'){
+        const html = ` 
+        <div id="matches" data-user-username=${data.username}>
 
-                <div>
-                    <button class='invite-btn' data-invitee-user-username="${data.username}">
-                        INVITE
-                    </button>
-                </div>
-            </div>`
+            <div>
+                ${data.username}
+            </div>
 
-            document.getElementById('matches-container').innerHTML += html;
+            <div>
+                <button class='invite-btn' data-invitee-user-username="${data.username}">
+                    INVITE
+                </button>
+            </div>
+        </div>`
+
+        document.getElementById('matches-container').innerHTML += html;
+    }
+    else if (data.protocol === 'delete') {
+        var element = document.querySelector(`[data-user-username="${data.username}"]`);
+
+        if (element) {
+            element.remove();
         }
-        else {
-            var element = document.querySelector(`[data-user-username="${data.username}"]`);
+    }
 
-            if (element) {
-                element.remove();
-            }
-        }
-    };
 
-    if ('inviteSenderUsername' in data) {
+    else if (data.protocol === 'invited') {
 
         const html = `<div>${data.inviteSenderUsername} Sent you an invitation </div>`;
         console.log(html);
