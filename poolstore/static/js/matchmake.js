@@ -30,7 +30,7 @@ document.getElementById('control-btn').onclick = function (e) {
 };
 
 document.getElementById('matches-container').addEventListener('click', function(e) {
-    
+
     if (e.target && e.target.classList.contains('invite-btn')) {
         const matchMakerUsername = e.target.dataset.inviteeUserUsername;
         matchSocket.send(JSON.stringify({
@@ -48,6 +48,7 @@ matchSocket.onmessage = function (e) {
             const html = ` 
             <div style="display: flex; align-items: center; justify-content: space-between;" id="matches" data-user-username=${data.username}>
                 
+            
                 <div>
                     ${data.username}
                 </div>
@@ -76,7 +77,4 @@ matchSocket.onmessage = function (e) {
         console.log(html);
         document.querySelector('.invite-notification-container').innerHTML += html;
     }
-
-
-
 };

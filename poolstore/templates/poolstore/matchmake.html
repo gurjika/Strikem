@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,50 +10,52 @@
 
     <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/ws.js"></script>
 
+    <link rel="stylesheet" href="{% static 'css/matchmake.css' %}">
 </head>
 <body>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100%;">
-        <div id="matchamaking-users" style="width: 300px;">
+    <div class="matchamaking-users-container">
+        <div id="matchamaking-users">
 
         
             
-        <div style="display: flex; flex-direction: column;" id="matches-container">
-            {% for match in matches %}
-            <div style="display: flex; align-items: center; justify-content: space-between;" id="matches" data-user-username="{{ match.player.user.username }}">
-                
-                <div>
-                    {{ match.player.user.username }}
-                </div>
+            <div id="matches-container">
+                {% for match in matches %}
+                <div id="matches" data-user-username="{{ match.player.user.username }}">
+                    
+                    <div>
+                        {{ match.player.user.username }}
+                    </div>
 
+                    <div>
+                        <button class="invite-btn" data-invitee-user-username="{{ match.player.user.username }}">
+                            INVITE
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+                
+            </div>
+
+            {% if not request.user.player.inviting_to_play %}
                 <div>
-                    <button class="invite-btn" data-invitee-user-username="{{ match.player.user.username }}">
-                        INVITE
+                    <button id="control-btn">
+                        ADD MYSELF
                     </button>
                 </div>
-            </div>
-            {% endfor %}
+            {% else %}
+                <div>
+                    <button id="control-btn">
+                        REMOVE MYSELF
+                    </button>
+                </div>
+                {% endif %}
 
 
-            
-        </div>
-        {% if not request.user.player.inviting_to_play %}
-            <div>
-                <button id="control-btn">
-                    ADD MYSELF
-                </button>
-            </div>
-        {% else %}
-            <div>
-                <button id="control-btn">
-                    REMOVE MYSELF
-                </button>
-            </div>
-            {% endif %}
         </div>
 
         
-        <div class="invite-notification-container" style="display: flex; flex-direction: column;">
+        <div class="invite-notification-container">
             {% for invite in invites %}
             <div>
                 <div>
@@ -59,13 +63,14 @@
                 </div>
 
                 <div>
-                    <button>
+                    <button class="accept-btn">
                         ACCEPT
                     </button>
                 </div>
+                
 
                 <div>
-                    <button>
+                    <button class="deny-btn">
                         DENY
                     </button>
                 </div>

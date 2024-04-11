@@ -52,3 +52,6 @@ class PlayerGameSession(models.Model):
 class Invitation(models.Model):
     player_invited = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='invited_player')
     player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='inviting_player')
+
+class Matchups(models.Model):
+    pass
