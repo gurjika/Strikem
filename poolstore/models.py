@@ -50,8 +50,9 @@ class PlayerGameSession(models.Model):
 
 
 class Invitation(models.Model):
-    player_invited = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='invited_player')
-    player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='inviting_player')
+    player_invited = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='received_invitations')
+    player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_invitations')
 
-class Matchups(models.Model):
-    pass
+class Matchup(models.Model):
+    player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_matchup_invitings')
+    player_accepting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='accepted_matchups')

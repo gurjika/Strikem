@@ -63,14 +63,14 @@
                 </div>
 
                 <div>
-                    <button class="accept-btn">
+                    <button class="accept-btn" data-inviter-username="{{ invite.player_inviting.user.username }}">
                         ACCEPT
                     </button>
                 </div>
-                
+
 
                 <div>
-                    <button class="deny-btn">
+                    <button class="deny-btn"  data-inviter-username="{{ invite.player_inviting.user.username }}">
                         DENY
                     </button>
                 </div>

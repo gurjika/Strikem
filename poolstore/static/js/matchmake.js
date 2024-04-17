@@ -41,6 +41,8 @@ document.getElementById('matches-container').addEventListener('click', function(
 });
 
 
+
+
 matchSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     
@@ -72,8 +74,60 @@ matchSocket.onmessage = function (e) {
 
     else if (data.protocol === 'invited') {
 
-        const html = `<div>${data.inviteSenderUsername} Sent you an invitation </div>`;
-        console.log(html);
+        const html = `
+        <div>
+            <div data-inviter-username=${data.inviteSenderUsername}>
+                ${data.inviteSenderUsername} Sent you an invitation 
+            </div>
+
+
+            <div>
+                <button class="accept-btn" data-inviter-username=${data.inviteSenderUsername}>
+                    ACCEPT
+                </button>
+            </div>
+
+
+            <div>
+                <button class="deny-btn" data-inviter-username=${data.inviteSenderUsername}>
+                    DENY
+                </button>
+            </div>
+
+        </div>`;
+        document.querySelector('.invite-notification-container').innerHTML += html;
+    }
+
+    else if (data.protocol === 'handling_invite_response'){
+        const html = `<div>${data.accepterUsername} ${data.invite_response} your invitation </div>`;
         document.querySelector('.invite-notification-container').innerHTML += html;
     }
 };
+
+
+
+
+document.querySelector('.invite-notification-container').addEventListener('click', function(e) {
+
+    if (e.target && e.target.classList.contains('accept-btn')) {
+        const inviteSender = e.target.dataset.inviterUsername;
+        matchSocket.send(JSON.stringify({
+            'username': username,
+            'invite_sender_username': inviteSender,
+            'invite_response': 'accept'
+        }));
+    }
+
+    else if(e.target && e.target.classList.contains('deny-btn')) {
+        const inviteSender = e.target.dataset.inviterUsername;
+        matchSocket.send(JSON.stringify({
+            'username': username,
+            'invite_sender_username': inviteSender,
+            'invite_response': 'deny'
+        }));
+    }
+});
+
+
+
+

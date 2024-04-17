@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.template.loader import get_template
-from .models import Invitation, MatchMake, Player
+from .models import Invitation, MatchMake, Matchup, Player
 from channels.db import database_sync_to_async
 
 class PoolhouseConsumer(AsyncWebsocketConsumer):
@@ -12,7 +12,6 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f'poolhouse_{self.room_name}'
 
 
-        print(self.room_name_for_specific_user)
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -58,7 +57,6 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         self.GROUP_NAME = 'matchmake'
         self.room_name_for_specific_user = f"user_{self.scope['user'].username}"
 
-        print(self.room_name_for_specific_user)
 
         await self.channel_layer.group_add(
             self.GROUP_NAME,
@@ -90,11 +88,37 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         username = text_data_json['username']
         matchmaker_username = text_data_json.get('matchmaker_username')
+        invite_response = text_data_json.get('invite_response')
+        print('received')
 
         player = await database_sync_to_async(Player.objects.get)(user__username=username)
 
+        if invite_response:
+            invite_sender_username = text_data_json['invite_sender_username']
+            
+            
+            accepter_player = await database_sync_to_async(Player.objects.get)(user__username=username)
+            inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
+
+            match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=accepter_player)
+
+            await database_sync_to_async(match_make_instance.delete)()
+
+            await database_sync_to_async(Matchup.objects.create)(player_accepting=accepter_player, player_inviting=inviter_player)
+
+            await self.channel_layer.group_send(
+                f'user_{invite_sender_username}',
+                {
+                    'type': 'handle_invite_response',
+                    'invite_response': invite_response,
+                    'invite_sender_username': invite_sender_username,
+                    'username': username
+                }
+            )
+            
+            return
+
         if matchmaker_username:
-            print('her??')
             player_inviting = player
             player_invited = await database_sync_to_async(Player.objects.get)(user__username=matchmaker_username)
 
@@ -168,13 +192,39 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
     async def display_invite(self, event):
         invite_sender_username = event['invite_sender_username']
 
-        print(invite_sender_username)
         await self.send(text_data=json.dumps(
             {
                 'inviteSenderUsername': invite_sender_username,
                 'protocol': 'invited',
             }
         ))
+
+
+    async def handle_invite_response(self, event):
+        username = event['username']
+        response = event['invite_response']
+
+        if response == 'accept':
+
+
+            await self.send(text_data=json.dumps(
+                {   
+                    'invite_response': 'ACCEPTED',
+                    'accepterUsername': username,
+                    'protocol': 'handling_invite_response'
+                }
+            ))
+
+        elif response == 'deny':
+            await self.send(text_data=json.dumps(
+                {   
+                    'invite_response': 'DENIED',
+                    'accepterUsername': username,
+                    'protocol': 'handling_invite_response'
+                }
+            ))
+
+
 
 
 
