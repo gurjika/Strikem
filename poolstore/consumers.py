@@ -89,9 +89,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         username = text_data_json['username']
         matchmaker_username = text_data_json.get('matchmaker_username')
         invite_response = text_data_json.get('invite_response')
-        print('received')
-
-        print(invite_response)
+       
 
         player = await database_sync_to_async(Player.objects.get)(user__username=username)
 
@@ -239,7 +237,6 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                 'protocol': 'accepter_player_cleanup',
                 'username': event['accepter_username']
             }
-            
         ))
 
 
