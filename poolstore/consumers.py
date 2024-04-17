@@ -91,6 +91,8 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         invite_response = text_data_json.get('invite_response')
         print('received')
 
+        print(invite_response)
+
         player = await database_sync_to_async(Player.objects.get)(user__username=username)
 
         if invite_response:
@@ -102,7 +104,12 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
             match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=accepter_player)
 
+            accepter_player.inviting_to_play = False
+            await database_sync_to_async(accepter_player.save)()
+
             await database_sync_to_async(match_make_instance.delete)()
+
+            
 
             await database_sync_to_async(Matchup.objects.create)(player_accepting=accepter_player, player_inviting=inviter_player)
 
@@ -116,9 +123,9 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                 }
             )
             
-            return
+            
 
-        if matchmaker_username:
+        elif matchmaker_username:
             player_inviting = player
             player_invited = await database_sync_to_async(Player.objects.get)(user__username=matchmaker_username)
 
@@ -133,10 +140,10 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
             )
 
 
-            return
+            
             
 
-        if not player.inviting_to_play:
+        elif not player.inviting_to_play:
 
 
             player.inviting_to_play = True
@@ -154,7 +161,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-        else:
+        elif player.inviting_to_play:
 
             player.inviting_to_play = False
             await database_sync_to_async(player.save)()
@@ -223,6 +230,18 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                     'protocol': 'handling_invite_response'
                 }
             ))
+
+
+    async def accepting_player_cleanup(self, event):
+
+        await self.send(text_data=json.dumps(
+            {
+                'protocol': 'accepter_player_cleanup',
+                'username': event['accepter_username']
+            }
+            
+        ))
+
 
 
 

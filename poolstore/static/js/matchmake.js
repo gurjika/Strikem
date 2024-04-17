@@ -102,6 +102,18 @@ matchSocket.onmessage = function (e) {
         const html = `<div>${data.accepterUsername} ${data.invite_response} your invitation </div>`;
         document.querySelector('.invite-notification-container').innerHTML += html;
     }
+
+    else if (data.protocol === 'accepter_player_cleanup') {
+        var element = document.querySelector(`[data-user-username="${data.username}"]`);
+
+        if (element) {
+            element.remove();
+        }
+
+        const controlButton = document.getElementById('control-btn').innerText = 'ADD MYSELF';
+
+
+    }
 };
 
 
@@ -116,6 +128,8 @@ document.querySelector('.invite-notification-container').addEventListener('click
             'invite_sender_username': inviteSender,
             'invite_response': 'accept'
         }));
+
+        
     }
 
     else if(e.target && e.target.classList.contains('deny-btn')) {
