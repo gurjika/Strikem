@@ -137,6 +137,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                         'sub_protocol': 'accepter'
                     }
                 )
+            # SENDING NOTIFICATION ONLY TO THE DENIED PLAYER
             elif invite_response == 'deny':
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
