@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Invitation, MatchMake
+from .models import Invitation, MatchMake, Matchup
 # Create your views here.
 
 
@@ -21,6 +21,7 @@ def matchmakings(request):
     return render(request, 'poolstore/matchmake.html', context)
 
 
-def matchup(request):
-
-    return render(request, 'poolstore/matchup.html')
+def matchup(request, matchup_id):
+    matchup = Matchup.objects.get(id=matchup_id)
+    context = {'matchup': matchup}
+    return render(request, 'poolstore/matchup.html', context)

@@ -95,31 +95,58 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
         if invite_response:
             invite_sender_username = text_data_json['invite_sender_username']
-            
-            
-            accepter_player = await database_sync_to_async(Player.objects.get)(user__username=username)
-            inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
+            if invite_response == 'accept':
+                accepter_player = await database_sync_to_async(Player.objects.get)(user__username=username)
+                inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
 
-            match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=accepter_player)
+                match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=accepter_player)
 
-            accepter_player.inviting_to_play = False
-            await database_sync_to_async(accepter_player.save)()
+                accepter_player.inviting_to_play = False
+                await database_sync_to_async(accepter_player.save)()
 
-            await database_sync_to_async(match_make_instance.delete)()
+                await database_sync_to_async(match_make_instance.delete)()
 
-            
+                mathup_object = await database_sync_to_async(Matchup.objects.create)(player_accepting=accepter_player, player_inviting=inviter_player)
 
-            await database_sync_to_async(Matchup.objects.create)(player_accepting=accepter_player, player_inviting=inviter_player)
+                
+                print(mathup_object.id)
+                # SENDING ACCEPTING NOTIFICATION TO THE SENDER
 
-            await self.channel_layer.group_send(
-                f'user_{invite_sender_username}',
-                {
-                    'type': 'handle_invite_response',
-                    'invite_response': invite_response,
-                    'invite_sender_username': invite_sender_username,
-                    'username': username
-                }
-            )
+                await self.channel_layer.group_send(
+                    f'user_{invite_sender_username}',
+                    {
+                        'type': 'handle_invite_response',
+                        'invite_response': invite_response,
+                        'invite_sender_username': invite_sender_username,
+                        'username': username,
+                        'matchup_id': mathup_object.id
+                    }
+                )
+
+
+                # SENDING ACCEPTING NOTIFICATION TO THE ACCEPTER
+
+                await self.channel_layer.group_send(
+                    f'user_{username}',
+                    {
+                        'type': 'handle_invite_response',
+                        'invite_response': invite_response,
+                        'invite_sender_username': invite_sender_username,
+                        'username': username,
+                        'matchup_id': mathup_object.id,
+                        'sub_protocol': 'accepter'
+                    }
+                )
+            elif invite_response == 'deny':
+                await self.channel_layer.group_send(
+                    f'user_{invite_sender_username}',
+                    {
+                        'type': 'handle_invite_response',
+                        'invite_response': invite_response,
+                        'invite_sender_username': invite_sender_username,
+                        'username': username,
+                    }
+                )
             
             
 
@@ -208,6 +235,9 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
     async def handle_invite_response(self, event):
         username = event['username']
         response = event['invite_response']
+        invite_sender_username = event['invite_sender_username']
+        sub_protocol = event.get('sub_protocol')
+        matchup_id = event.get('matchup_id')
 
         if response == 'accept':
 
@@ -216,8 +246,11 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                 {   
                     'invite_response': 'ACCEPTED',
                     'accepterUsername': username,
-                    'protocol': 'handling_invite_response'
-                }
+                    'inviteSenderUsername': invite_sender_username,
+                    'protocol': 'handling_invite_response',
+                    'sub_protocol': sub_protocol,
+                    'matchup_id': matchup_id
+                }, default=str
             ))
 
         elif response == 'deny':

@@ -102,15 +102,36 @@ matchSocket.onmessage = function (e) {
     }
 
     else if (data.protocol === 'handling_invite_response'){
-        const html = `
-        <div>
+        
+
+
+        if (data.invite_response === 'ACCEPTED') {
+            const url = `http://127.0.0.1:8000/matchup/${data.matchup_id}`
+            const htmlMatchup = `
+            <div style="width: 200px; height: 200px; display: flex; flex-direction: column;">
+                <div>
+                    ${data.accepterUsername} vs ${data.inviteSenderUsername}
+                </div>
+    
+                <a href='${url}'>
+                    GO TO MATCHUP PAGE  
+                </a>
+            </div>
+        `
+        document.querySelector('.matchup-div').innerHTML = htmlMatchup;
+        }
+        
+
+
+        if (data.sub_protocol !== 'accepter'){
+            const html = `
             <div>
                 ${data.accepterUsername} ${data.invite_response} your invitation
-            </div>
+            </div>`;
 
-            
-         </div>`;
-        document.querySelector('.invite-notification-container').innerHTML += html;
+            document.querySelector('.invite-notification-container').innerHTML += html;
+        }
+
     }
 
     else if (data.protocol === 'accepter_player_cleanup') {
@@ -120,8 +141,7 @@ matchSocket.onmessage = function (e) {
             element.remove();
         }
 
-        const controlButton = document.getElementById('control-btn').innerText = 'ADD MYSELF';
-
+        document.getElementById('control-btn').innerText = 'ADD MYSELF';
 
     }
 };
@@ -132,6 +152,9 @@ matchSocket.onmessage = function (e) {
 document.querySelector('.invite-notification-container').addEventListener('click', function(e) {
 
     if (e.target && e.target.classList.contains('accept-btn')) {
+
+
+       
         const inviteSender = e.target.dataset.inviterUsername;
         matchSocket.send(JSON.stringify({
             'username': username,
@@ -139,7 +162,9 @@ document.querySelector('.invite-notification-container').addEventListener('click
             'invite_response': 'accept'
         }));
 
-        
+
+       
+
     }
 
     else if(e.target && e.target.classList.contains('deny-btn')) {

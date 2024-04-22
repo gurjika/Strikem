@@ -5,5 +5,5 @@ from . import views
 urlpatterns = [
     path('poolhouses/<str:poolhouse>/', views.poolhouse, name='poolhouse'), 
     path('matchmake/', views.matchmakings, name='matchmake'),
-    path('matchup/',  views.matchup, name='matchup')  
+    path('matchup/<uuid:matchup_id>',  views.matchup, name='matchup')  
 ]
