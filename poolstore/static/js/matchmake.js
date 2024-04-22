@@ -106,6 +106,7 @@ matchSocket.onmessage = function (e) {
 
 
         if (data.invite_response === 'ACCEPTED') {
+            // FOR TESTING
             const url = `http://127.0.0.1:8000/matchup/${data.matchup_id}`
             const htmlMatchup = `
             <div style="width: 200px; height: 200px; display: flex; flex-direction: column;">

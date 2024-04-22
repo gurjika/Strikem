@@ -96,6 +96,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         if invite_response:
             invite_sender_username = text_data_json['invite_sender_username']
             if invite_response == 'accept':
+                # IF PLAYER ACCEPTS CREATE MATCHUP AND REMOVE THE PLAYER FROM THE INVITING PLAYERS' LIST
                 accepter_player = await database_sync_to_async(Player.objects.get)(user__username=username)
                 inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
 
@@ -109,7 +110,6 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                 mathup_object = await database_sync_to_async(Matchup.objects.create)(player_accepting=accepter_player, player_inviting=inviter_player)
 
                 
-                print(mathup_object.id)
                 # SENDING ACCEPTING NOTIFICATION TO THE SENDER
 
                 await self.channel_layer.group_send(
@@ -250,7 +250,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                     'protocol': 'handling_invite_response',
                     'sub_protocol': sub_protocol,
                     'matchup_id': matchup_id
-                }, default=str
+                }, default=str #FOR UUID SERIALIZATION ISSUES
             ))
 
         elif response == 'deny':
