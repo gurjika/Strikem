@@ -22,6 +22,6 @@ def remove_player_from_matchmake_list_on_accept(sender, instance, created, **kwa
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_customer_for_new_user(sender, instance, created, **kwargs):
+def create_player_for_new_user(sender, instance, created, **kwargs):
     if created:
         Player.objects.create(user=instance, games_played=0, opponents_met=0, games_won=0)

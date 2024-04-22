@@ -4,5 +4,6 @@ from . import views
 
 urlpatterns = [
     path('poolhouses/<str:poolhouse>/', views.poolhouse, name='poolhouse'), 
-    path('matchmake/', views.matchmakings, name='matchmake')  
+    path('matchmake/', views.matchmakings, name='matchmake'),
+    path('matchup/',  views.matchup, name='matchup')  
 ]

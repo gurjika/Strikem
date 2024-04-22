@@ -95,11 +95,21 @@ matchSocket.onmessage = function (e) {
             </div>
 
         </div>`;
+
+        // window.location.href = 'http://127.0.0.1:8000/matchup/'
+
         document.querySelector('.invite-notification-container').innerHTML += html;
     }
 
     else if (data.protocol === 'handling_invite_response'){
-        const html = `<div>${data.accepterUsername} ${data.invite_response} your invitation </div>`;
+        const html = `
+        <div>
+            <div>
+                ${data.accepterUsername} ${data.invite_response} your invitation
+            </div>
+
+            
+         </div>`;
         document.querySelector('.invite-notification-container').innerHTML += html;
     }
 

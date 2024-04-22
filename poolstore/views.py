@@ -19,3 +19,8 @@ def matchmakings(request):
     }
     
     return render(request, 'poolstore/matchmake.html', context)
+
+
+def matchup(request):
+
+    return render(request, 'poolstore/matchup.html')
