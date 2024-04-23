@@ -279,8 +279,53 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
 
         
+class MatchupConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        matchup_id = self.scope['url_route']['kwargs']['matchup_id']
+        self.GROUP_NAME = f'matchup_{matchup_id}'
+
+
+        await self.channel_layer.group_add(
+            self.GROUP_NAME,
+            self.channel_name
+        )
+
+      
+        
+
+        await self.accept()
+
+    async def disconnect(self, code):
+        await self.channel_layer.group_discard(
+            self.GROUP_NAME,
+            self.channel_name
+        )
+
+
+
+        self.accept()
+        
+    
+    async def receive(self, text_data=None, bytes_data=None):
+        text_data_json = json.loads(text_data)
+        username = text_data_json['username']
 
         
 
+        self.channel_layer.group_send(
+            self.GROUP_NAME, 
+            {
+                'type': 'handle_user_joined',
+                'username': username
+            }
+        )
+
+    async def handle_user_joined(self, event):
+        username = event['username']
+        await self.send(json.dumps(
+            {
+                'username': username,
+            }
+        ))
     
 

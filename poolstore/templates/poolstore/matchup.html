@@ -7,5 +7,15 @@
 </head>
 <body>
    <h1>{{ matchup.id }}</h1>
+
+   {{ request.user.username|json_script:"username" }}
+
+   {{ matchup.id|json_script:"matchup_id" }}
+
+   <div class="username-test-holder">
+        
+    </div>   
+
+   <script src="../../static/js/matchup.js"></script>
 </body>
 </html>
