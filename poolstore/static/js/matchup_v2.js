@@ -13,6 +13,7 @@ const matchUpSocket = new WebSocket(
 matchUpSocket.onopen = function (e) {
     matchUpSocket.send(JSON.stringify({
         'username': username,
+        'user_state': 'joined'
     }));
 }
 
@@ -20,9 +21,16 @@ matchUpSocket.onopen = function (e) {
 
 matchUpSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
+    const joinedUsername = data.username;
+    
+    if (data.user_state === 'joined') {
+        document.querySelector('.username-test-holder').innerHTML += joinedUsername + ' joined' + '\n';
+    }
+    else {
+        document.querySelector('.username-test-holder').innerHTML += joinedUsername + ' left' + '\n';
 
-    const username = data.username;
-    document.querySelector('.username-test-holder').innerHTML += username + '\n';
+    }
 
 
 };
+

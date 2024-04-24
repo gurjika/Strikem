@@ -69,7 +69,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         
-
+        print('*' * 5)
         await self.accept()
 
     async def disconnect(self, code):
@@ -274,58 +274,62 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         ))
 
 
-
-
-
-
         
 class MatchupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         matchup_id = self.scope['url_route']['kwargs']['matchup_id']
         self.GROUP_NAME = f'matchup_{matchup_id}'
 
-
         await self.channel_layer.group_add(
             self.GROUP_NAME,
             self.channel_name
         )
 
-      
-        
-
+    
         await self.accept()
 
     async def disconnect(self, code):
+        username = self.scope['user'].username
+        await self.channel_layer.group_send(
+            self.GROUP_NAME, 
+            {
+                'type': 'handle_user_state',
+                'username': username,
+                'user_state': 'left'
+            }
+        )
         await self.channel_layer.group_discard(
             self.GROUP_NAME,
             self.channel_name
         )
-
-
-
-        self.accept()
         
     
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
         username = text_data_json['username']
-
-        
-
-        self.channel_layer.group_send(
+        user_state = text_data_json['user_state']
+      
+    
+        await self.channel_layer.group_send(
             self.GROUP_NAME, 
             {
-                'type': 'handle_user_joined',
-                'username': username
+                'type': 'handle_user_state',
+                'username': username,
+                'user_state': user_state
             }
         )
 
-    async def handle_user_joined(self, event):
+    async def handle_user_state(self, event):
         username = event['username']
+        user_state = event['user_state']
+
         await self.send(json.dumps(
             {
                 'username': username,
+                'user_state': user_state,
             }
         ))
-    
+
+
+
 
