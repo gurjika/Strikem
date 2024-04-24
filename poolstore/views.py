@@ -1,6 +1,9 @@
 from django.shortcuts import render
-from .models import Invitation, MatchMake, Matchup
+from .models import Invitation, MatchMake, Matchup, PoolHouse
+from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 # Create your views here.
+
 
 
 def poolhouse(request, poolhouse):
@@ -25,3 +28,9 @@ def matchup(request, matchup_id):
     matchup = Matchup.objects.get(id=matchup_id)
     context = {'matchup': matchup}
     return render(request, 'poolstore/matchup.html', context)
+
+
+class PoolHouseListView(ListView):
+    queryset = PoolHouse.objects.all()
+    template_name = 'poolstore/poolhouses.html'
+    context_object_name = 'poolhouses'
