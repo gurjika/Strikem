@@ -156,13 +156,14 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
             player_inviting = player
             player_invited = await database_sync_to_async(Player.objects.get)(user__username=matchmaker_username)
 
-            await database_sync_to_async(Invitation.objects.create)(player_inviting=player_inviting, player_invited=player_invited)
+            invitation_instance = await database_sync_to_async(Invitation.objects.create)(player_inviting=player_inviting, player_invited=player_invited)
 
             await self.channel_layer.group_send(
                 f'user_{matchmaker_username}',
                 {
                     'type': 'display_invite',
-                    'invite_sender_username': username
+                    'invite_sender_username': username,
+                    'invitationId': invitation_instance.id,
                 }
             )
 
@@ -196,6 +197,11 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
             match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=player)
 
             await database_sync_to_async(match_make_instance.delete)()
+
+            player_invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=player)
+
+            await database_sync_to_async(player_invitations.delete)()
+
 
             await self.channel_layer.group_send(
                 self.GROUP_NAME,

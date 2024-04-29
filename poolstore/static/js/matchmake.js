@@ -20,10 +20,20 @@ document.getElementById('control-btn').onclick = function (e) {
 
     if (controlButton.innerText === 'ADD MYSELF') {
         newControl = 'REMOVE MYSELF';
+        controlButton.classList.remove('btn-outline-success');
+        controlButton.classList.add('btn-outline-danger');
     }
 
     else {
+        const invitationContainer = document.querySelector('.invite-notification-container');
+
+        while (invitationContainer.firstChild) {
+            invitationContainer.removeChild(invitationContainer.firstChild); 
+        }
+
         newControl = 'ADD MYSELF';
+        controlButton.classList.add('btn-outline-success');
+        controlButton.classList.remove('btn-outline-danger');
     }
 
     controlButton.innerText = newControl;
@@ -47,19 +57,27 @@ matchSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     
     if (data.protocol === 'add'){
-        const html = ` 
-        <div id="matches" data-user-username=${data.username}>
+        const html =
+        `
+        <div data-user-username="${data.username}">
+            <div class="mt-3 d-flex justify-content-between">
+                
+                <div class='h4'>
+                    ${data.username}
+                </div>
 
-            <div>
-                ${data.username}
+                <div>
+                    <button class="invite-btn  btn btn-primary" data-invitee-user-username="${data.username}">
+                        INVITE
+                    </button>
+                </div>
             </div>
+            <hr>
+        </div>
 
-            <div>
-                <button class='invite-btn' data-invitee-user-username="${data.username}">
-                    INVITE
-                </button>
-            </div>
-        </div>`
+       `
+
+
 
         document.getElementById('matches-container').innerHTML += html;
     }
@@ -74,31 +92,44 @@ matchSocket.onmessage = function (e) {
 
     else if (data.protocol === 'invited') {
 
+        var toastLiveExample = document.getElementById('liveToast');
+        var toast = new bootstrap.Toast(toastLiveExample);
+        const toastBody = document.querySelector('.toast-body').innerText = `${data.inviteSenderUsername} Sent you an invitation`;
+        toast.show();
+       
+        
+
         const html = `
-        <div>
-            <div data-inviter-username=${data.inviteSenderUsername}>
-                ${data.inviteSenderUsername} Sent you an invitation 
+        <div class='d-flex justify-content-between mt-3'>
+            <div class='h5'>
+                ${data.inviteSenderUsername} Invited You 
             </div>
 
+            <div class='d-flex'>
+                <div style='margin-right: 15px;'>
+                    <button class="accept-btn btn btn-success" data-inviter-username=${data.inviteSenderUsername}>
+                        ACCEPT
+                    </button>
+                </div>
 
-            <div>
-                <button class="accept-btn" data-inviter-username=${data.inviteSenderUsername}>
-                    ACCEPT
-                </button>
+
+                <div>
+                    <button class="deny-btn btn btn-danger" data-inviter-username=${data.inviteSenderUsername}>
+                        DENY
+                    </button>
+                </div>
             </div>
+         
 
-
-            <div>
-                <button class="deny-btn" data-inviter-username=${data.inviteSenderUsername}>
-                    DENY
-                </button>
-            </div>
-
-        </div>`;
+        </div>`
+        
+        ;
 
         // window.location.href = 'http://127.0.0.1:8000/matchup/'
 
-        document.querySelector('.invite-notification-container').innerHTML += html;
+         document.querySelector('.invite-notification-container').innerHTML += html;
+
+       
     }
 
     else if (data.protocol === 'handling_invite_response'){
@@ -153,8 +184,6 @@ matchSocket.onmessage = function (e) {
 document.querySelector('.invite-notification-container').addEventListener('click', function(e) {
 
     if (e.target && e.target.classList.contains('accept-btn')) {
-
-
        
         const inviteSender = e.target.dataset.inviterUsername;
         matchSocket.send(JSON.stringify({
