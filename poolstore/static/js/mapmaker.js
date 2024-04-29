@@ -5,39 +5,25 @@ const containerDiv = document.querySelector('.div-container');
 
 
 document.addEventListener("DOMContentLoaded", () => {
+    
     document.getElementById('north').addEventListener('click', () => { navigate('north'); });
     document.getElementById('west').addEventListener('click', () => { navigate('west'); });
     document.getElementById('east').addEventListener('click', () => { navigate('east'); });
     document.getElementById('south').addEventListener('click', () => { navigate('south'); });
 
-    
-
-
     function handleResize() {
         navigate('', true);
 
-        
         const imgContainer = document.getElementById('imageContainer');
-
-        
-
 
 
         containerDiv.style.height = `${imgContainer.offsetHeight * 2}px`;
         containerDiv.style.width = `${imgContainer.offsetWidth * 3}px`;
 
 
-       
-      
-
     }
 
-
-
     window.addEventListener('resize', handleResize);
-
-
-
     handleResize();
 });
 
@@ -85,20 +71,20 @@ function navigate(direction, resizing) {
         img.style.top = `${imageTop + stepVertical}px`;
         containerDiv.style.top = `${containerTop + stepVertical}px`;
         break;
+
         case 'south':
         img.style.top = `${imageTop - stepVertical}px`;
         containerDiv.style.top = `${containerTop - stepVertical}px`;
-
         break;
+
         case 'west':
         img.style.left = `${imageLeft + stepHorizontal}px`;
         containerDiv.style.left = `${containerLeft + stepHorizontal}px`;
-
         break;
+
         case 'east':
         img.style.left = `${imageLeft - stepHorizontal}px`;
         containerDiv.style.left = `${containerLeft - stepHorizontal}px`;
-
         break;
     }
 

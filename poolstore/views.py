@@ -34,3 +34,5 @@ class PoolHouseListView(ListView):
     queryset = PoolHouse.objects.all()
     template_name = 'poolstore/poolhouses.html'
     context_object_name = 'poolhouses'
+
+
