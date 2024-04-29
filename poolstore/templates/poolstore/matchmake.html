@@ -1,99 +1,91 @@
-{% load static %}
+{% extends 'poolstore/base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
-
-    <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/ws.js"></script>
-
-    <link rel="stylesheet" href="{% static 'css/matchmake.css' %}">
-</head>
-<body>
-
-    <div class="matchamaking-users-container">
-        <div id="matchamaking-users">
-
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="matchamaking-users-container">
+                <div id="matchamaking-users">
+                    
+                    <div id="matches-container">
+                        {% for match in matches %}
+                        <div id="matches" data-user-username="{{ match.player.user.username }}">
+                            
+                            <div>
+                                {{ match.player.user.username }}
+                            </div>
+        
+                            <div>
+                                <button class="invite-btn" data-invitee-user-username="{{ match.player.user.username }}">
+                                    INVITE
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                    </div>
+        
+                    {% if not request.user.player.inviting_to_play %}
+                        <div>
+                            <button id="control-btn">
+                                ADD MYSELF
+                            </button>
+                        </div>
+                    {% else %}
+                        <div>
+                            <button id="control-btn">
+                                REMOVE MYSELF
+                            </button>
+                        </div>
+                        {% endif %}
+        
+        
+                </div>
+        
+                
+                <div class="invite-notification-container">
+                    {% for invite in invites %}
+                    <div>
+                        <div>
+                            {{ invite.player_inviting.user.username }} invited you.
+                        </div>
+        
+                        <div>
+                            <button class="accept-btn" data-inviter-username="{{ invite.player_inviting.user.username }}">
+                                ACCEPT
+                            </button>
+                        </div>
+        
+        
+                        <div>
+                            <button class="deny-btn"  data-inviter-username="{{ invite.player_inviting.user.username }}">
+                                DENY
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                </div>
         
             
-            <div id="matches-container">
-                {% for match in matches %}
-                <div id="matches" data-user-username="{{ match.player.user.username }}">
-                    
-                    <div>
-                        {{ match.player.user.username }}
-                    </div>
-
-                    <div>
-                        <button class="invite-btn" data-invitee-user-username="{{ match.player.user.username }}">
-                            INVITE
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
+        
                 
             </div>
 
-            {% if not request.user.player.inviting_to_play %}
-                <div>
-                    <button id="control-btn">
-                        ADD MYSELF
-                    </button>
-                </div>
-            {% else %}
-                <div>
-                    <button id="control-btn">
-                        REMOVE MYSELF
-                    </button>
-                </div>
-                {% endif %}
-
-
         </div>
 
-        
-        <div class="invite-notification-container">
-            {% for invite in invites %}
-            <div>
-                <div>
-                    {{ invite.player_inviting.user.username }} invited you.
-                </div>
+        <div class="col-md-6">
+            <div class="matchup-div" style="display: flex;">
 
-                <div>
-                    <button class="accept-btn" data-inviter-username="{{ invite.player_inviting.user.username }}">
-                        ACCEPT
-                    </button>
-                </div>
-
-
-                <div>
-                    <button class="deny-btn"  data-inviter-username="{{ invite.player_inviting.user.username }}">
-                        DENY
-                    </button>
-                </div>
             </div>
-            {% endfor %}
-            
         </div>
-
+    </div>
     
 
-        
-    </div>
-
-    <div class="matchup-div" style="display: flex;">
-
-    </div>
+   
 
     {{ request.user.username|json_script:"username" }}
 
     <script src="../../static/js/matchmake.js"></script>
 
 
-</body>
-
-
-</html>
+{% endblock %}
