@@ -41,9 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
     'channels',
     'core',
     'poolstore'
@@ -154,3 +151,6 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+
+
+LOGIN_URL = 'login'
