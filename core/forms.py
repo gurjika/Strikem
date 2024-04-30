@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from poolstore.models import Player
 from django.conf import settings
 from .models import User
+from django.contrib.auth.forms import AuthenticationForm, UsernameField
+
 
 
 
@@ -53,3 +55,22 @@ class UserUpdateForm(forms.ModelForm):
         model = User
         fields = ['username', 'email']
 
+
+
+class UserLoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super(UserLoginForm, self).__init__(*args, **kwargs)
+
+    username = UsernameField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control',
+            'placeholder': 'Username', 
+            'id': 'username'
+        }))
+    password = forms.CharField(widget=forms.PasswordInput(
+        attrs={
+            'class': 'form-control',
+            'placeholder': 'Password',
+            'id': 'password',
+        }
+))
