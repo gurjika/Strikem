@@ -16,12 +16,14 @@
                         <div class="h4">
                             {{ match.player.user.username }}
                         </div>
-        
+                        
+                        {% if not match.player.user == request.user %}
                         <div>
                             <button class="invite-btn btn btn-primary" data-invitee-user-username="{{ match.player.user.username }}">
                                 INVITE
                             </button>
                         </div>
+                        {% endif %}
                     </div>
 
                     <hr>

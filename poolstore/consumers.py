@@ -103,8 +103,14 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
                 match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=accepter_player)
 
+
+                invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=accepter_player)
+                await database_sync_to_async(invitations.delete)()
+
                 accepter_player.inviting_to_play = False
                 await database_sync_to_async(accepter_player.save)()
+                inviter_player.inviting_to_play = False
+                await database_sync_to_async(inviter_player.save)()
 
                 await database_sync_to_async(match_make_instance.delete)()
 
@@ -273,10 +279,12 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
     async def accepting_player_cleanup(self, event):
 
+
         await self.send(text_data=json.dumps(
             {
                 'protocol': 'accepter_player_cleanup',
-                'username': event['accepter_username']
+                'accepter_username': event['accepter_username'],
+                'inviter_username': event['inviter_username']
             }
         ))
 

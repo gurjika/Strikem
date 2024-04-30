@@ -16,24 +16,13 @@ document.getElementById('control-btn').onclick = function (e) {
     ));
     
     const controlButton = document.getElementById('control-btn');
-    let newControl = '';
 
     if (controlButton.innerText === 'ADD MYSELF') {
-        newControl = 'REMOVE MYSELF';
-        controlButton.classList.remove('btn-outline-success');
-        controlButton.classList.add('btn-outline-danger');
+        changeControlButton('remove');
+
     }
-
     else {
-        const invitationContainer = document.querySelector('.invite-notification-container');
-
-        while (invitationContainer.firstChild) {
-            invitationContainer.removeChild(invitationContainer.firstChild); 
-        }
-
-        newControl = 'ADD MYSELF';
-        controlButton.classList.add('btn-outline-success');
-        controlButton.classList.remove('btn-outline-danger');
+        changeControlButton('add')
     }
 
     controlButton.innerText = newControl;
@@ -77,9 +66,17 @@ matchSocket.onmessage = function (e) {
 
        `
 
+    
+  
+
 
 
         document.getElementById('matches-container').innerHTML += html;
+
+        if (data.username === username) {
+            var element = document.querySelector(`[data-invitee-user-username="${data.username}"]`);
+            element.remove();
+        }
     }
     else if (data.protocol === 'delete') {
         var element = document.querySelector(`[data-user-username="${data.username}"]`);
@@ -167,13 +164,13 @@ matchSocket.onmessage = function (e) {
     }
 
     else if (data.protocol === 'accepter_player_cleanup') {
-        var element = document.querySelector(`[data-user-username="${data.username}"]`);
+        var elementAccepter = document.querySelector(`[data-user-username="${data.accepter_username}"]`);
+        var elementInviter = document.querySelector(`[data-user-username="${data.inviter_username}"]`);
 
-        if (element) {
-            element.remove();
-        }
+        elementAccepter.remove();
+        elementInviter.remove();
 
-        document.getElementById('control-btn').innerText = 'ADD MYSELF';
+        changeControlButton('add');
 
     }
 };
@@ -184,7 +181,7 @@ matchSocket.onmessage = function (e) {
 document.querySelector('.invite-notification-container').addEventListener('click', function(e) {
 
     if (e.target && e.target.classList.contains('accept-btn')) {
-       
+        changeControlButton('add');
         const inviteSender = e.target.dataset.inviterUsername;
         matchSocket.send(JSON.stringify({
             'username': username,
@@ -210,3 +207,27 @@ document.querySelector('.invite-notification-container').addEventListener('click
 
 
 
+
+function changeControlButton(newControl) {
+    const controlButton = document.getElementById('control-btn');
+
+    if (newControl === 'add') {
+        const invitationContainer = document.querySelector('.invite-notification-container');
+
+        while (invitationContainer.firstChild) {
+            invitationContainer.removeChild(invitationContainer.firstChild); 
+        }
+
+        controlButton.classList.add('btn-outline-success');
+        controlButton.classList.remove('btn-outline-danger');
+
+        controlButton.innerText = 'ADD MYSELF';
+    }
+
+    else if (newControl === 'remove') {
+
+        controlButton.classList.remove('btn-outline-success');
+        controlButton.classList.add('btn-outline-danger');
+        controlButton.innerText = 'REMOVE MYSELF';
+    }
+}

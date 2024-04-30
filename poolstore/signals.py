@@ -13,7 +13,8 @@ def remove_player_from_matchmake_list_on_accept(sender, instance, created, **kwa
         group_name = 'matchmake'
         event = {
             'type': 'accepting_player_cleanup',
-            'accepter_username': instance.player_accepting.user.username
+            'accepter_username': instance.player_accepting.user.username,
+            'inviter_username': instance.player_inviting.user.username,
 
         }
 
