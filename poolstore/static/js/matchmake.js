@@ -169,8 +169,10 @@ matchSocket.onmessage = function (e) {
 
         elementAccepter.remove();
         elementInviter.remove();
+        if (username === data.accepter_username || username === data.inviter_username) {
+            changeControlButton('add');
 
-        changeControlButton('add');
+        }
 
     }
 };

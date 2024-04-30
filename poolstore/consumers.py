@@ -101,8 +101,8 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                 accepter_player = await database_sync_to_async(Player.objects.get)(user__username=username)
                 inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
 
-                match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=accepter_player)
-
+                match_make_instance_accepter = await database_sync_to_async(MatchMake.objects.get)(player=accepter_player)
+                match_make_instance_inviter = await database_sync_to_async(MatchMake.objects.get)(player=inviter_player)
 
                 invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=accepter_player)
                 await database_sync_to_async(invitations.delete)()
@@ -112,7 +112,8 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                 inviter_player.inviting_to_play = False
                 await database_sync_to_async(inviter_player.save)()
 
-                await database_sync_to_async(match_make_instance.delete)()
+                await database_sync_to_async(match_make_instance_accepter.delete)()
+                await database_sync_to_async(match_make_instance_inviter.delete)()
 
                 mathup_object = await database_sync_to_async(Matchup.objects.create)(player_accepting=accepter_player, player_inviting=inviter_player)
 
