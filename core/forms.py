@@ -30,6 +30,11 @@ class RegisterForm(UserCreationForm):
             'class': 'form-control',
             'id': 'email',
             'placeholder': 'Email',
+
+            'hx-post': "/users/check_email/",
+            'hx-trigger': "keyup delay:2s",
+            'hx-target': "#email-error",
+            'hx-swap': "outerhtml",
         })        
     )
 
