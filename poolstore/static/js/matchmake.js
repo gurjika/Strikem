@@ -64,11 +64,7 @@ matchSocket.onmessage = function (e) {
             <hr>
         </div>
 
-       `
-
-    
-  
-
+       `;
 
 
         document.getElementById('matches-container').innerHTML += html;

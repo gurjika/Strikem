@@ -52,10 +52,10 @@
                     <a class="nav-link" href="#">About</a>
                   </li>
                 </ul>
-                <form class="d-flex" role="search">
+                <!-- <form class="d-flex" role="search">
                   <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                   <button class="btn btn-outline-light" type="submit">Search</button>
-                </form>
+                </form> -->
               </div>
             </div>
           </nav>
@@ -65,6 +65,22 @@
 
     <main>
         <div class="container">
+            <div class="row justify-content-center mt-5">
+              <div class="col-md-7">
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+    
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    </button>
+                </div>
+                {% endif %}
+
+              </div>
+            </div>
+          
             {% block content %}
 
             {% endblock %}

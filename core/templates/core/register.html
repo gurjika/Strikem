@@ -3,9 +3,9 @@
 {% block content %}
     <div class="row justify-content-center">
         <div class="col-lg-6">
-            <div class=" text-center">
+            <div class="">
 
-                <div class="h1 mt-5">
+                <div class="h1 mt-5 text-center">
                     Register
 
                 </div>
@@ -14,28 +14,37 @@
                     {% csrf_token %}
                     <div class="form-floating my-5">
                         {{ form.username }}
+                        {{ form.username.errors }}
                         <label for="username">Username</label>
                     </div>
+                    
 
                     <div class="form-floating my-5">
                         {{ form.email }}
+                        {{ form.email.errors }}
                         <label for="email">Email</label>
                     </div>
 
                     <div class="form-floating my-5">
                         {{ form.password1 }}
+                        {{ form.password1.errors }}
+
                         <label for="password1">Password</label>
                     </div>
 
                     <div class="form-floating my-5">
                         {{ form.password2 }}
+                        {{ form.password2.errors }}
+
                         <label for="password2">Repeat Password</label>
                     </div>
 
 
+                    <div class="text-center my-5">
+                        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
 
+                    </div>
     
-                    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
                 </form>
 
             </div>
