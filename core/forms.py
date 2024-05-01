@@ -17,6 +17,11 @@ class RegisterForm(UserCreationForm):
             'class': 'form-control',
             'id': 'username',
             'placeholder': 'Username',
+
+            'hx-post': "/users/check_username/",
+            'hx-trigger': "keyup delay:2s",
+            'hx-target': "#username-error",
+            'hx-swap': "outerhtml",
         })
     )
 
@@ -66,6 +71,7 @@ class UserLoginForm(AuthenticationForm):
             'class': 'form-control',
             'placeholder': 'Username', 
             'id': 'username'
+
         }))
     password = forms.CharField(widget=forms.PasswordInput(
         attrs={
