@@ -4,13 +4,15 @@ from .forms import RegisterForm, UserLoginForm
 from django.views.generic import CreateView, View
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
+from django.contrib import messages
+
 
 # Create your views here.
 
 class MyLoginView(LoginView):
     template_name='core/login.html'
     authentication_form = UserLoginForm
-    
+
     def get_success_url(self) -> str:
         return f'/matchmake/'
     
@@ -19,6 +21,11 @@ class SignUpView(CreateView):
     form_class = RegisterForm
     template_name = 'core/register.html'
     model = User
+
+    def form_valid(self, form):
+        username = form.cleaned_data.get('username')
+        messages.success(request=self.request, message=f"User {username} created")
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         return f'/users/login/'
