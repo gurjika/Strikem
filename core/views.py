@@ -37,3 +37,6 @@ class MyLogoutView(View):
         logout(request)
         return render(request, 'core/logout.html')
     
+
+def profile(request):
+    return render(request, 'core/profile.html')
