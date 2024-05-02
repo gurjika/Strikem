@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="row justify-content-center">
-        <div class="col-lg-6">
+        <div class="col-lg-5  shadow my-5 px-5" style="border-radius: 20px;">
             <div class="">
 
                 <div class="h1 mt-5 text-center">
@@ -10,22 +10,41 @@
 
                 </div>
                 
-                <form method="post">
+                <form method="post" class="needs-validations">
                     {% csrf_token %}
                     <div class="form-floating my-5">
                         {{ form.username }}
-                        {{ form.username.errors }}
                         <label for="username">Username</label>
 
-                        <div id="username-error">
-                            
+                        
+                        {% if form.username.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                <div>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
                         </div>
+                        {% endif %}
+
+                        <div id="username-error">
+
+                        </div>
+                        
                     </div>
                     
 
                     <div class="form-floating my-5">
                         {{ form.email }}
-                        {{ form.email.errors }}
+                        {% if form.email.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <div>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                         <label for="email">Email</label>
                         <div id="email-error">
                             
@@ -34,15 +53,32 @@
 
                     <div class="form-floating my-5">
                         {{ form.password1 }}
-                        {{ form.password1.errors }}
+                        {% if form.password1.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.password1.errors %}
+                                <div>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
 
                         <label for="password1">Password</label>
                     </div>
 
                     <div class="form-floating my-5">
                         {{ form.password2 }}
-                        {{ form.password2.errors }}
+                        {% if form.password2.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.password2.errors %}
+                                <div>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
 
+    
                         <label for="password2">Repeat Password</label>
                     </div>
 
@@ -57,5 +93,20 @@
             </div>
          
         </div>
+
+
+        <script>
+     
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('.needs-validations');
+    
+    Array.from(form.elements).forEach(input => {
+      input.addEventListener('input', () => {
+        input.classList.remove('is-invalid');
+      });
+    });
+  });
+        </script>
     </div>
 {% endblock %}

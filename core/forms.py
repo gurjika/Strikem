@@ -54,6 +54,15 @@ class RegisterForm(UserCreationForm):
         })
     )
 
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if self[field_name].errors:
+                field.widget.attrs['class'] = field.widget.attrs.get('class', '') + ' form-control is-invalid'
+            else:
+                field.widget.attrs['class'] = field.widget.attrs.get('class', '') + ' form-control'
+
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2']
