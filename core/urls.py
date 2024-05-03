@@ -14,7 +14,9 @@ urlpatterns = [
 
 htmx_urlpatterns = [
     path('check_username/', htmx_views.check_username, name='check-username' ),
-    path('check_email/', htmx_views.check_email, name='check-email' )
+    path('check_email/', htmx_views.check_email, name='check-email' ),
+    path('edit_profile/', htmx_views.edit_profile, name='edit-profile'),
+    path('save_profile/', htmx_views.save_profile, name='save-profile')
 
 ]
 

@@ -1,0 +1,100 @@
+{% include 'poolstore/partials/messages.html' %}
+
+<div class="row justify-content-center my-5">
+    <div class="col-md-4 col-10 d-flex flex-column align-items-center mt-4">
+        <img src="../../../media/jungle.jpg" alt="Profile Picture" class="img-fluid border" style="aspect-ratio: 1; object-fit: cover; border-radius: 50%;">
+
+            <form method="post" class="needs-validations" hx-post="/users/save_profile/" hx-target="#edit-profile">
+                {% csrf_token %}
+                <div class="form-floating my-2">
+                    {{ form.username }}
+                    <label for="username">Username</label>
+    
+                    
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.username.errors %}
+                            <div>
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+    
+                    <div id="username-error">
+    
+                    </div>
+                    
+                </div>
+
+
+                <div class="form-floating my-2">
+                    {{ form.first_name }}
+                    <label for="first_name">First Name</label>
+    
+                    
+                    {% if form.first_name.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.first_name.errors %}
+                            <div>
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+    
+                 
+                    
+                </div>
+
+
+                <div class="form-floating my-2">
+                    {{ form.last_name }}
+                    <label for="first_name">First Name</label>
+    
+                    
+                    {% if form.last_name.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.last_name.errors %}
+                            <div>
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+    
+                 
+                    
+                </div>
+    
+
+                <div class="mt-4 text-center">
+                    <button class="btn btn-info" type="submit">Save Profile</button>
+                </div>
+                
+    
+            </form>
+
+
+        
+
+       
+
+    </div>
+
+    <div class="col-md-7 d-flex flex-column align-items-center my-4">
+        <div class="h3">
+                About Me:
+        </div>
+
+        <div class="text-muted">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni alias vero, asperiores deserunt quo exercitationem provident officiis unde cumque, architecto doloribus ipsum eius distinctio harum saepe. Deserunt adipisci ducimus dicta?
+            Quis autem ratione, amet voluptatibus, nisi, optio itaque voluptatum deserunt consequatur id alias odit quibusdam consequuntur? Odit in necessitatibus illo vel sed, consectetur voluptatum, quos fuga velit, voluptate nemo officiis.
+        </div>
+
+     
+    </div>
+    
+
+   
+</div>

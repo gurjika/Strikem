@@ -1,5 +1,8 @@
 from django.http import HttpResponse
+from django.shortcuts import render
 from .models import User
+from .forms import UserUpdateForm,UserCreationForm, RegisterForm
+from django.contrib import messages
 
 
 def check_username(request):
@@ -17,3 +20,20 @@ def check_email(request):
         return HttpResponse('<div class="text-danger"> This email already exists </div>')
     else:
         return HttpResponse('<div class="text-success"> This email is available </div>')
+    
+def edit_profile(request):
+    form = UserUpdateForm(instance=request.user)
+    return render(request, 'core/partials/profile-edit.html', {'form': form})
+
+
+def save_profile(request):
+    user_form = UserUpdateForm(request.POST, instance=request.user)
+
+    if user_form.is_valid():
+        user_form.save()
+        messages.success(request, f'Your account has been updated!')
+        return render(request, 'core/partials/profile-saved.html')
+    
+    else:
+        messages.error(request, f'Something Went Wrong!')
+        return render(request, 'core/partials/profile-edit.html', {'form': user_form})

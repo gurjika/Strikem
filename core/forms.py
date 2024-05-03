@@ -69,10 +69,52 @@ class RegisterForm(UserCreationForm):
 
 
 class UserUpdateForm(forms.ModelForm):
-    email = forms.EmailField(required=True)
+    username = forms.CharField(
+    max_length=100,
+    widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'id': 'username',
+        'placeholder': 'Username',
+
+        'hx-post': "/users/check_username/",
+        'hx-trigger': "keyup delay:2s",
+        'hx-target': "#username-error",
+        'hx-swap': "outerhtml",
+    })
+    )
+
+
+    first_name = forms.CharField(
+    max_length=100,
+    widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'id': 'first_name',
+        'placeholder': 'First Name',
+
+    })
+    )
+
+    last_name = forms.CharField(
+    max_length=100,
+    widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'id': 'last_name',
+        'placeholder': 'Last Name',
+
+    })
+    )
+
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if self[field_name].errors:
+                field.widget.attrs['class'] = field.widget.attrs.get('class', '') + ' form-control is-invalid'
+            else:
+                field.widget.attrs['class'] = field.widget.attrs.get('class', '') + ' form-control'
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ['username', 'first_name', 'last_name']
 
 
 
@@ -94,3 +136,4 @@ class UserLoginForm(AuthenticationForm):
             'id': 'password',
         }
 ))
+    
