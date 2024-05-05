@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.template.loader import get_template
-from .models import Invitation, MatchMake, Matchup, Player
+from .models import Invitation, MatchMake, Matchup, Player, Message
 from channels.db import database_sync_to_async
 
 class PoolhouseConsumer(AsyncWebsocketConsumer):
@@ -293,8 +293,8 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         
 class MatchupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        matchup_id = self.scope['url_route']['kwargs']['matchup_id']
-        self.GROUP_NAME = f'matchup_{matchup_id}'
+        self.matchup_id = self.scope['url_route']['kwargs']['matchup_id']
+        self.GROUP_NAME = f'matchup_{self.matchup_id}'
 
         await self.channel_layer.group_add(
             self.GROUP_NAME,
@@ -323,17 +323,41 @@ class MatchupConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
         username = text_data_json['username']
-        user_state = text_data_json['user_state']
+        message = text_data_json.get('message')
+        user_state = text_data_json.get('user_state')
       
-    
-        await self.channel_layer.group_send(
-            self.GROUP_NAME, 
+        if user_state:
+            await self.channel_layer.group_send(
+                self.GROUP_NAME, 
+                {
+                    'type': 'handle_user_state',
+                    'username': username,
+                    'user_state': user_state
+                }
+            )
+
+       
+        elif message:
+            await database_sync_to_async(Message.objects.create)(matchup_id=self.matchup_id, body=message)
+
+            await self.channel_layer.group_send(
+                self.GROUP_NAME,
+                {
+                    'type': 'chat_message',
+                    'message': message,
+                    'username': username
+                }
+            )
+
+    async def chat_message(self, event):
+        message = event['message']
+        username = event['username']
+        
+        await self.send(text_data=json.dumps(
             {
-                'type': 'handle_user_state',
-                'username': username,
-                'user_state': user_state
-            }
-        )
+                'message': message,
+                'username': username
+        }))
 
     async def handle_user_state(self, event):
         username = event['username']
@@ -342,6 +366,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         await self.send(json.dumps(
             {
                 'username': username,
+                'protocol': 'handleUserState',
                 'user_state': user_state,
             }
         ))
@@ -349,3 +374,12 @@ class MatchupConsumer(AsyncWebsocketConsumer):
 
 
 
+   
+
+     
+
+
+
+
+
+      

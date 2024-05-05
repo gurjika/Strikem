@@ -21,21 +21,20 @@
  <hr>
  {% endfor %}
 
+
+
  <script>
 
-
 document.addEventListener('DOMContentLoaded', function() {
-    let scrollHeightBefore = 0;
-    let scrollTopBefore = 0;
-})
+        let scrollHeightBefore = 0;
+        let scrollTopBefore = 0;
+    })
        function hideSpinner() {
-        console.log('whasap');
         document.getElementById('spinner').classList.add('invisible');
 
     }
 
     function revealSpinner() {
-        console.log('whasabefore')
         document.getElementById('spinner').classList.remove('invisible');
     }
 
@@ -49,18 +48,15 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollHeightBefore = container.scrollHeight;
    });
 
-   document.getElementById('sender').addEventListener('htmx:afterRequest', function (e) {
 
-    hideSpinner();
-
-
-   });
 
    document.getElementById('sender').addEventListener('htmx:afterSettle', function(e) {
+    hideSpinner();
     const container = document.getElementById('message-hold');
     const scrollHeightAfter = container.scrollHeight; 
     container.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
    })
 
    
+
  </script>

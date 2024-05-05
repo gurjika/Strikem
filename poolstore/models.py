@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 import uuid 
-
+from django.utils import timezone
 # Create your models here.
 
 class Player(models.Model):
@@ -37,7 +37,7 @@ class GameSession(models.Model):
     result = models.CharField(max_length=50)
 
 class Reservation(models.Model):
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(default=timezone.now)
     start_time = models.TimeField()
     end_time = models.TimeField(null=True)
 
@@ -67,4 +67,7 @@ class Message(models.Model):
     body = models.TextField()
     matchup = models.ForeignKey(Matchup, on_delete=models.CASCADE, related_name='messages')
     time_sent = models.DateTimeField(auto_now_add=True)
+    
 
+    def __str__(self) -> str:
+        return self.body

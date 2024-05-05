@@ -30,7 +30,6 @@ def matchmakings(request):
 def matchup(request, matchup_id):
     matchup = Matchup.objects.get(id=matchup_id)
     messages = Message.objects.filter(matchup=matchup).order_by('-time_sent')
-    
     paginator = Paginator(messages, 10)
    
     page_number = request.GET.get("page")
