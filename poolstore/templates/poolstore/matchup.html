@@ -8,7 +8,29 @@
 
    <div class="username-test-holder">
         
-    </div>   
+   </div>
+
+
+   
+   <div class="row">
+      
+      <div class="col-lg-6 col-12" style="height: 200px; overflow: auto;" id="message-hold">
+         <div class="d-flex justify-content-center">
+            <div class="spinner-border text-primary" role="status" id="spinner">
+               <span class="visually-hidden">Loading...</span>
+            </div>
+         </div>
+         <div class="mt-5">
+            {% include 'poolstore/partials/matchup-elements.html' %} 
+         </div>
+      </div>
+   </div>
+  
+
+
+   
+   
+
 
 
     
@@ -17,4 +39,18 @@
    {{ matchup.id|json_script:"matchup_id" }}
    <script src="{% static 'js/matchup_v2.js' %}"></script>
 
+   <script>
+      
+
+
+
+
+   var objDiv = document.getElementById("message-hold");
+   objDiv.scrollTop = objDiv.scrollHeight;
+
+
+
+
+
+   </script>
 {% endblock %}

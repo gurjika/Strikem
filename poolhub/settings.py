@@ -43,13 +43,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'core',
-    'poolstore'
+    'poolstore',
+    'django_htmx',
 ]
 
 MIDDLEWARE = [
+    
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'allauth.account.middleware.AccountMiddleware',

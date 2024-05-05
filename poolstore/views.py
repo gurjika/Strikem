@@ -1,7 +1,10 @@
 from django.shortcuts import render
-from .models import Invitation, MatchMake, Matchup, PoolHouse
+from .models import Invitation, MatchMake, Matchup, PoolHouse, Message
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+
 # Create your views here.
 
 
@@ -9,7 +12,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 def poolhouse(request, poolhouse):
     return render(request, 'poolstore/poolhouse.html', {'poolhouse': poolhouse})
 
-
+@login_required
 def matchmakings(request):
     matches = MatchMake.objects.all()
 
@@ -26,7 +29,19 @@ def matchmakings(request):
 
 def matchup(request, matchup_id):
     matchup = Matchup.objects.get(id=matchup_id)
-    context = {'matchup': matchup}
+    messages = Message.objects.filter(matchup=matchup).order_by('-time_sent')
+    
+    paginator = Paginator(messages, 10)
+   
+    page_number = request.GET.get("page")
+
+    page_obj = paginator.get_page(page_number)
+
+    messages_to_display = list(page_obj)[::-1]
+
+    context = {'matchup': matchup, 'matchup_messages': messages_to_display, 'page_obj':page_obj, 'matchup_id': matchup_id}
+    if request.htmx:
+        return render(request, 'poolstore/partials/matchup-elements.html', context)
     return render(request, 'poolstore/matchup.html', context)
 
 

@@ -8,6 +8,7 @@ django = "*"
 channels = {extras = ["daphne"], version = "*"}
 django-allauth = "*"
 django-debug-toolbar = "*"
+django-htmx = "*"
 
 [dev-packages]
 

@@ -1,10 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.views import LoginView
 from .forms import RegisterForm, UserLoginForm
 from django.views.generic import CreateView, View
-from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.contrib import messages
+from .models import User
 
 
 # Create your views here.
@@ -12,6 +12,9 @@ from django.contrib import messages
 class MyLoginView(LoginView):
     template_name='core/login.html'
     authentication_form = UserLoginForm
+
+    next_page = 'matchmake'
+
 
     def get_success_url(self) -> str:
         return f'/matchmake/'
@@ -38,5 +41,7 @@ class MyLogoutView(View):
         return render(request, 'core/logout.html')
     
 
-def profile(request):
-    return render(request, 'core/profile.html')
+def profile(request, username):
+    user = get_object_or_404(User, username=username)
+
+    return render(request, 'core/profile.html', {'user': user})

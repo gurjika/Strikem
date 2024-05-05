@@ -66,4 +66,5 @@ class Matchup(models.Model):
 class Message(models.Model):
     body = models.TextField()
     matchup = models.ForeignKey(Matchup, on_delete=models.CASCADE, related_name='messages')
+    time_sent = models.DateTimeField(auto_now_add=True)
 
