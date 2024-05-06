@@ -23,7 +23,6 @@ matchUpSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     var toastLiveExample = document.getElementById('liveToast');
     var toast = new bootstrap.Toast(toastLiveExample);
-    const joinedUsername = data.username;
     var invitationHeader = document.querySelector('#toast-header-text .me-auto').innerText = 'User State';
     if(data.protocol === 'handleUserState' && data.username !== username){ 
         if (data.user_state === 'joined') {
@@ -40,9 +39,46 @@ matchUpSocket.onmessage = function (e) {
 
     }
 
-    else {
+    else if (data.protocol === 'handleMessage'){
 
-        const messageHtml = `${data.message} <hr>`;
+
+
+         
+
+
+        let messageHtml = ``;
+        if(data.username === username) {
+            messageHtml = `
+            <div class="d-flex justify-content-end text-end my-3">
+                <div class="w-75 d-flex justify-content-end">
+            
+    
+                    <div class="bg-primary rounded text-white px-3 py-2">
+                        ${data.message}
+                    </div>
+                </div>
+            </div>
+            `
+             ;
+
+        }
+        else {
+             messageHtml = `
+            <div class="d-flex justify-content-start text-start my-3">
+                <div class="w-75  d-flex justify-content-start">
+            
+    
+                    <div class="bg-light rounded text-secondary px-3 py-2">
+                        ${data.message}
+                    </div>
+                </div>
+            </div>
+          `
+             ;
+
+        }
+
+      
         document.getElementById('new-message').innerHTML += messageHtml;
         scrollBottom();
 
@@ -51,11 +87,6 @@ matchUpSocket.onmessage = function (e) {
 
 
 };
-
-
-
-
-
 
 
 
@@ -76,7 +107,9 @@ function scrollBottom() {
     objDiv.scrollTop = objDiv.scrollHeight;
  }
 
- scrollBottom();
+
+ 
+
 
 
 

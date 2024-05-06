@@ -97,13 +97,19 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         if invite_response:
             invite_sender_username = text_data_json['invite_sender_username']
             if invite_response == 'accept':
+
+
                 # IF PLAYER ACCEPTS CREATE MATCHUP AND REMOVE THE PLAYER FROM THE INVITING PLAYERS' LIST
                 accepter_player = await database_sync_to_async(Player.objects.get)(user__username=username)
                 inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
 
                 match_make_instance_accepter = await database_sync_to_async(MatchMake.objects.get)(player=accepter_player)
-                match_make_instance_inviter = await database_sync_to_async(MatchMake.objects.get)(player=inviter_player)
-
+                try:
+                    match_make_instance_inviter = await database_sync_to_async(MatchMake.objects.get)(player=inviter_player)
+                    await database_sync_to_async(match_make_instance_inviter.delete)()
+                except MatchMake.DoesNotExist:
+                    pass
+                
                 invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=accepter_player)
                 await database_sync_to_async(invitations.delete)()
 
@@ -113,7 +119,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                 await database_sync_to_async(inviter_player.save)()
 
                 await database_sync_to_async(match_make_instance_accepter.delete)()
-                await database_sync_to_async(match_make_instance_inviter.delete)()
+                
 
                 mathup_object = await database_sync_to_async(Matchup.objects.create)(player_accepting=accepter_player, player_inviting=inviter_player)
 
@@ -293,6 +299,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         
 class MatchupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        self.user = self.scope['user']
         self.matchup_id = self.scope['url_route']['kwargs']['matchup_id']
         self.GROUP_NAME = f'matchup_{self.matchup_id}'
 
@@ -306,6 +313,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, code):
         username = self.scope['user'].username
+    
         await self.channel_layer.group_send(
             self.GROUP_NAME, 
             {
@@ -325,6 +333,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         username = text_data_json['username']
         message = text_data_json.get('message')
         user_state = text_data_json.get('user_state')
+        player = await database_sync_to_async(Player.objects.get)(user=self.user)
       
         if user_state:
             await self.channel_layer.group_send(
@@ -338,7 +347,8 @@ class MatchupConsumer(AsyncWebsocketConsumer):
 
        
         elif message:
-            await database_sync_to_async(Message.objects.create)(matchup_id=self.matchup_id, body=message)
+
+            await database_sync_to_async(Message.objects.create)(matchup_id=self.matchup_id, body=message, sender=player)
 
             await self.channel_layer.group_send(
                 self.GROUP_NAME,
@@ -356,7 +366,8 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(
             {
                 'message': message,
-                'username': username
+                'username': username,
+                'protocol': 'handleMessage',
         }))
 
     async def handle_user_state(self, event):

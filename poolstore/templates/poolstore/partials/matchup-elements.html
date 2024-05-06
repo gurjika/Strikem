@@ -1,24 +1,62 @@
 
  {% for matchup_message in matchup_messages %}
  
- {% if forloop.first %}
-    {% if page_obj.has_next %}
-    <div 
-        id="sender"
-        hx-get="{% url 'matchup' matchup_id %}?page={{ page_obj.number|add:1 }}"
-        hx-trigger="intersect once" 
-        hx-swap="beforebegin" 
-        hx-target="this">
+ {% if forloop.first and page_obj.has_next %}
+   
+    {% if matchup_message.sender.user == request.user %}
 
+<div class="d-flex justify-content-end text-end my-3"
+    id="sender"
+    hx-get="{% url 'matchup' matchup_id %}?page={{ page_obj.number|add:1 }}"
+    hx-trigger="intersect once" 
+    hx-swap="beforebegin" 
+    hx-target="this">
+
+    <div class="w-75  d-flex justify-content-end">
+        <div class="bg-primary rounded text-white px-3 py-2">
+            {{ matchup_message.body }}
+        </div>
+    {% else %}
+
+<div class="d-flex justify-content-start text-start my-3"
+    id="sender"
+    hx-get="{% url 'matchup' matchup_id %}?page={{ page_obj.number|add:1 }}"
+    hx-trigger="intersect once" 
+    hx-swap="beforebegin" 
+    hx-target="this">
+
+    <div class="w-75  d-flex justify-content-start">
+        <div class="bg-light rounded text-secondary px-3 py-2">
+            {{ matchup_message.body }}
+        </div>
 
     {% endif %}
+
+
  {% else %}
  
- <div>
+    {% if matchup_message.sender.user == request.user %}
+    <div class="d-flex justify-content-end text-end my-3">
+        <div class="w-75  d-flex justify-content-end">
+
+            <div class="bg-primary rounded text-white px-3 py-2">
+                {{ matchup_message.body }}
+            </div>
+    {% else %}
+    <div class="d-flex justify-content-start text-start my-3">
+        <div class="w-75  d-flex justify-content-start">
+
+            <div class="bg-light rounded text-secondary px-3 py-2">
+                {{ matchup_message.body }}
+            </div>
+    {% endif %}
+
   {% endif %}
-    {{ matchup_message.body }}
+        
+    </div>
+    
  </div>
- <hr>
+
  {% endfor %}
 
 
@@ -38,25 +76,31 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('spinner').classList.remove('invisible');
     }
 
- 
+    const sender = document.getElementById('sender');
+    if (sender !== null) {
+        
+        sender.addEventListener('htmx:beforeRequest', function (e) {
+            revealSpinner();
 
-    document.getElementById('sender').addEventListener('htmx:beforeRequest', function (e) {
-        revealSpinner();
+            const container = document.getElementById('message-hold');
+            scrollTopBefore = container.scrollTop;  
+            scrollHeightBefore = container.scrollHeight;
 
-        const container = document.getElementById('message-hold');
-        scrollTopBefore = container.scrollTop;  
-        scrollHeightBefore = container.scrollHeight;
-   });
+        sender.addEventListener('htmx:afterSettle', function(e) {
+            hideSpinner();
+            const container = document.getElementById('message-hold');
+            const scrollHeightAfter = container.scrollHeight; 
+            container.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
+    })
+    });
 
 
 
-   document.getElementById('sender').addEventListener('htmx:afterSettle', function(e) {
-    hideSpinner();
-    const container = document.getElementById('message-hold');
-    const scrollHeightAfter = container.scrollHeight; 
-    container.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
-   })
 
+
+    
    
+    }
+
 
  </script>
