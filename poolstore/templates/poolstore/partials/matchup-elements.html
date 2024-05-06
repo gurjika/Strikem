@@ -5,7 +5,7 @@
    
     {% if matchup_message.sender.user == request.user %}
 
-<div class="d-flex justify-content-end text-end my-3"
+<div class="d-flex justify-content-end text-start my-3"
     id="sender"
     hx-get="{% url 'matchup' matchup_id %}?page={{ page_obj.number|add:1 }}"
     hx-trigger="intersect once" 
@@ -36,7 +36,7 @@
  {% else %}
  
     {% if matchup_message.sender.user == request.user %}
-    <div class="d-flex justify-content-end text-end my-3">
+    <div class="d-flex justify-content-end text-start my-3">
         <div class="w-75  d-flex justify-content-end">
 
             <div class="bg-primary rounded text-white px-3 py-2">
@@ -66,6 +66,8 @@
 document.addEventListener('DOMContentLoaded', function() {
         let scrollHeightBefore = 0;
         let scrollTopBefore = 0;
+        
+
     })
        function hideSpinner() {
         document.getElementById('spinner').classList.add('invisible');
@@ -76,17 +78,16 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('spinner').classList.remove('invisible');
     }
 
-    const sender = document.getElementById('sender');
-    if (sender !== null) {
+    if (document.getElementById('sender') !== null) {
         
-        sender.addEventListener('htmx:beforeRequest', function (e) {
+        document.getElementById('sender').addEventListener('htmx:beforeRequest', function (e) {
             revealSpinner();
 
             const container = document.getElementById('message-hold');
             scrollTopBefore = container.scrollTop;  
             scrollHeightBefore = container.scrollHeight;
 
-        sender.addEventListener('htmx:afterSettle', function(e) {
+            document.getElementById('sender').addEventListener('htmx:afterSettle', function(e) {
             hideSpinner();
             const container = document.getElementById('message-hold');
             const scrollHeightAfter = container.scrollHeight; 

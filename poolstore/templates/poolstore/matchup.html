@@ -3,34 +3,41 @@
 
 {% block content %}
 
-<div class="">
-   <div class="row justify-content-center">
-      <div class="col-lg-6 " style="height: 400px; overflow-y: scroll;" id="message-hold">
-         <div class="d-flex justify-content-center">
-            <div class="spinner-border text-primary invisible" role="status" id="spinner">
-               <span class="visually-hidden">Loading...</span>
+   
+      <div class="row justify-content-center ">
+         <div class="col-lg-6 col-12">
+            <div style="height: 400px; overflow-y: scroll;" id="message-hold" class="px-2 border rounded">
+               <div class="d-flex justify-content-center">
+                  <div class="spinner-border text-primary invisible" role="status" id="spinner">
+                     <span class="visually-hidden">Loading...</span>
+                  </div>
+               </div>
+         
+               <div class="mt-5" id="saved-message-holder border">
+         
+                  {% include 'poolstore/partials/matchup-elements.html' %}
+      
+               </div>
+      
+               <div id="new-message" class="">
+                  
+               </div>
+   
             </div>
-         </div>
+            
    
-         <div class="mt-5" id="saved-message-holder">
-   
-            {% include 'poolstore/partials/matchup-elements.html' %}
-
-         </div>
-
-         <div id="new-message" class="">
             
          </div>
-
-         
-      </div>
-   </div>
-      <div class="row justify-content-center">
-         <div class="col-lg-6 col-12  d-flex ">
-            <div class=" input-group mb-3  px-0 mx-0 w-100" style="width: 100%;">
-               <textarea class="form-control w-100" id="input" rows="3" style="flex:1; resize: none;" ></textarea>
    
-               <button class="btn btn-outline-secondary bg-primary text-white " type="button" id="submit" >Send</button>
+      
+      </div>
+   
+      <div class="row justify-content-center">
+         <div class="col-lg-6 col-12">
+            <div class="input-group mb-3  px-0 mx-0">
+               <textarea class="form-control bg-white" id="input" rows="2" style="flex:1; resize: none;" ></textarea>
+   
+               <button class="btn btn-primary" type="button" id="submit" >Send</button>
    
                </div>
          </div>
@@ -38,8 +45,11 @@
    
    
    
+   
+   
+   
 
-</div>
+
   
 
 
