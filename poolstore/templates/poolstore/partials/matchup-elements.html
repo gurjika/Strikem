@@ -1,4 +1,5 @@
 
+{% load next_item_filter %}
  {% for matchup_message in matchup_messages %}
  
  {% if forloop.first and page_obj.has_next %}
@@ -12,9 +13,30 @@
     hx-swap="beforebegin" 
     hx-target="this">
 
-    <div class="w-75  d-flex justify-content-end">
-        <div class="bg-primary rounded text-white px-3 py-2">
-            {{ matchup_message.body }}
+    <div class="w-75 d-flex justify-content-end">
+        <div>
+
+            <div class="bg-primary rounded text-white px-3 py-2">
+                {{ matchup_message.body }}
+            </div>
+
+
+            {% with real_index=forloop.counter0|calculate_index:page_obj.number %}
+
+                {% with next_message=messages1|next:real_index %}
+                {% if next_message and next_message.sender != matchup_message.sender %}
+                    <div class="text-secondary text-end">
+                    {{ matchup_message.sender.user.username }}
+                    </div>
+                {% endif %}
+                {% endwith %}
+                    
+            {% endwith %}
+            
+      
+
+            
+        
         </div>
     {% else %}
 
@@ -26,8 +48,26 @@
     hx-target="this">
 
     <div class="w-75  d-flex justify-content-start">
-        <div class="bg-light rounded text-secondary px-3 py-2">
-            {{ matchup_message.body }}
+        <div>
+
+            <div class="bg-light rounded text-secondary px-3 py-2">
+                {{ matchup_message.body }}
+            </div>
+
+            {% with real_index=forloop.counter0|calculate_index:page_obj.number %}
+                    
+                {% endwith %}
+            
+            {% with next_message=matchup_messages|next:forloop.counter0 %}
+            {% if next_message and next_message.sender != matchup_message.sender  %}
+                <div class="text-secondary text-start">
+                {{ matchup_message.sender.user.username }}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+            
+        
         </div>
 
     {% endif %}
@@ -39,23 +79,66 @@
     <div class="d-flex justify-content-end text-start my-3">
         <div class="w-75  d-flex justify-content-end">
 
-            <div class="bg-primary rounded text-white px-3 py-2">
-                {{ matchup_message.body }}
+            <div>
+
+                <div class="bg-primary rounded text-white px-3 py-2">
+                    {{ matchup_message.body }}
+                </div>
+                
+                {% with real_index=forloop.counter0|calculate_index:page_obj.number %}
+                    
+                {% endwith %}
+
+                
+                {% with next_message=matchup_messages|next:forloop.counter0 %}
+                {% if next_message and next_message.sender != matchup_message.sender %}
+                    <div class="text-secondary text-end">
+                    {{ matchup_message.sender.user.username }}
+                    </div>
+                {% endif %}
+                {% endwith %}
+
+                
+            
             </div>
     {% else %}
     <div class="d-flex justify-content-start text-start my-3">
         <div class="w-75  d-flex justify-content-start">
 
-            <div class="bg-light rounded text-secondary px-3 py-2">
-                {{ matchup_message.body }}
+            <div>
+
+                <div class="bg-light rounded text-secondary px-3 py-2">
+                    {{ matchup_message.body }}
+                </div>
+
+
+                {% with real_index=forloop.counter0|calculate_index:page_obj.number %}
+
+                {% endwith %}
+                {% with next_message=matchup_messages|next:forloop.counter0 %}
+                {% if next_message and next_message.sender != matchup_message.sender %}
+                    <div class="text-secondary text-start">
+                    {{ matchup_message.sender.user.username }}
+                    </div>
+                {% endif %}
+                {% endwith %}
+
+                
+            
             </div>
+
+    
     {% endif %}
 
   {% endif %}
         
     </div>
+
     
  </div>
+
+
+ 
 
  {% endfor %}
 

@@ -9,6 +9,7 @@ channels = {extras = ["daphne"], version = "*"}
 django-allauth = "*"
 django-debug-toolbar = "*"
 django-htmx = "*"
+jinja2 = "*"
 
 [dev-packages]
 

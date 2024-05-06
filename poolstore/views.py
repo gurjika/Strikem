@@ -38,7 +38,7 @@ def matchup(request, matchup_id):
 
     messages_to_display = list(page_obj)[::-1]
 
-    context = {'matchup': matchup, 'matchup_messages': messages_to_display, 'page_obj':page_obj, 'matchup_id': matchup_id}
+    context = {'matchup': matchup, 'matchup_messages': messages_to_display, 'page_obj':page_obj, 'matchup_id': matchup_id, 'messages1': messages}
     if request.htmx:
         return render(request, 'poolstore/partials/matchup-elements.html', context)
     return render(request, 'poolstore/matchup.html', context)
