@@ -1,14 +1,14 @@
 {% extends 'poolstore/base.html' %}
 {% load static %}
-
+{% load next_item_filter %}
 {% block content %}
 
    
       <div class="row justify-content-center ">
          <div class="col-lg-6 col-12" style="position: relative;">
-            <div style="height: 400px; overflow-y: scroll;" id="message-hold" class="px-2 border rounded">
+            <div style="height: 400px; overflow-y: scroll;" id="message-hold" class="px-3 border rounded">
                <div class="d-flex justify-content-center mt-2">
-                  <div class="spinner-border text-primary invisible" role="status" id="spinner">
+                  <div class="spinner-border text-secondary invisible" role="status" id="spinner">
                      <span class="visually-hidden">Loading...</span>
                   </div>
                </div>
@@ -24,7 +24,7 @@
                </div>
    
             </div>
-            
+
             <div style="bottom: 0; position: sticky;">
                <div class="input-group mb-3  px-0 mx-0">
                   <textarea class="form-control bg-white" id="input" rows="2" style="flex:1; resize: none;" ></textarea>
@@ -37,12 +37,6 @@
          </div>
       </div>
    
-
-
-  
-
-
-
     
    {{ request.user.username|json_script:"username" }}
 
