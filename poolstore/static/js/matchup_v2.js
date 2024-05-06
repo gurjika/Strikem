@@ -21,15 +21,23 @@ matchUpSocket.onopen = function (e) {
 
 matchUpSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
+    var toastLiveExample = document.getElementById('liveToast');
+    var toast = new bootstrap.Toast(toastLiveExample);
     const joinedUsername = data.username;
-    if(data.protocol === 'handleUserState'){
+    var invitationHeader = document.querySelector('#toast-header-text .me-auto').innerText = 'User State';
+    if(data.protocol === 'handleUserState' && data.username !== username){ 
         if (data.user_state === 'joined') {
-            document.querySelector('.username-test-holder').innerHTML += joinedUsername + ' joined' + '\n';
+            const toastBody = document.querySelector('.toast-body').innerText = `${data.username} joined`;
         }
         else {
-            document.querySelector('.username-test-holder').innerHTML += joinedUsername + ' left' + '\n';
+            const toastBody = document.querySelector('.toast-body').innerText = `${data.username} left`;
+
     
         }
+
+        toast.show();
+
+
     }
 
     else {
