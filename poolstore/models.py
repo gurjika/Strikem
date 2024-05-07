@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 import uuid 
+from PIL import Image
 from django.utils import timezone
 # Create your models here.
 
@@ -10,6 +11,20 @@ class Player(models.Model):
     opponents_met = models.PositiveIntegerField()
     games_won = models.PositiveIntegerField()
     inviting_to_play = models.BooleanField(default=False)
+    profile_image = models.ImageField(default='default.jpg', upload_to='profile-pics')
+
+
+    def save(self, *args, **kwargs):
+        super().save()
+
+        if self.profile_image:
+            profile_image = Image.open(self.profile_image.path)
+
+            if profile_image.height > 600 or profile_image.width > 600:
+                output_isze = (300, 300)
+                profile_image.thumbnail(output_isze)
+                profile_image.save(self.profile_image.path)
+
 
 class PoolHouse(models.Model):
     title = models.CharField(max_length=255, unique=True)

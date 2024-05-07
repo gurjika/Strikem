@@ -1,36 +1,14 @@
 {% include 'poolstore/partials/messages.html' %}
 
-<div class="row justify-content-center">
-    <div class="col-md-4 col-10 d-flex flex-column align-items-center">
-        <img src="../../../media/jungle.jpg" alt="Profile Picture" class="img-fluid border" style="aspect-ratio: 1; object-fit: cover; border-radius: 50%;">
-
-        <div class="h1">
-            {{ user.username }}
-        </div>
-
-        <div class="h5 text-center text-muted">
-            {{ user.first_name }} {{ user.last_name }}
-        </div>
-        {% if user == request.user %}
-        <div class="mt-4" hx-get="/users/edit_profile/" hx-target="#edit-profile">
-            <button class="btn btn-info">Edit Profile</button>
-        </div>
-        {% endif %}
-    </div>
-
-    <div class="col-md-7 d-flex flex-column align-items-center my-4">
-        <div class="h3">
-                About Me:
-        </div>
-
-        <div class="text-muted">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni alias vero, asperiores deserunt quo exercitationem provident officiis unde cumque, architecto doloribus ipsum eius distinctio harum saepe. Deserunt adipisci ducimus dicta?
-            Quis autem ratione, amet voluptatibus, nisi, optio itaque voluptatum deserunt consequatur id alias odit quibusdam consequuntur? Odit in necessitatibus illo vel sed, consectetur voluptatum, quos fuga velit, voluptate nemo officiis.
-        </div>
-
-     
-    </div>
-    
-
-   
+<div class="h1">
+    {{ user.username }}
 </div>
+
+<div class="h5 text-center text-muted">
+    {{ user.first_name }} {{ user.last_name }}
+</div>
+{% if user == request.user %}
+<div class="mt-4 text-center" hx-get="/users/edit_profile/" hx-target="#edit-profile">
+    <button class="btn btn-info">Edit Profile</button>
+</div>
+{% endif %}

@@ -65,7 +65,10 @@
 
     <main>
         <div class="container" data-mdb-perfect-scrollbar-init>
-          {% include 'poolstore/partials/messages.html' %}
+          <div id="message-div">
+            {% include 'poolstore/partials/messages.html' %}
+
+          </div>
             <div class="row justify-content-center mt-5">
               <div class="col-md-8">
                 {% if form.non_field_errors %}
@@ -103,14 +106,14 @@
 
 
         document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('.needs-validations');
-    
-    Array.from(form.elements).forEach(input => {
-      input.addEventListener('input', () => {
-        input.classList.remove('is-invalid');
+        const form = document.querySelector('.needs-validations');
+        
+        Array.from(form.elements).forEach(input => {
+          input.addEventListener('input', () => {
+            input.classList.remove('is-invalid');
+          });
+        });
       });
-    });
-  });
 
 
     </script>

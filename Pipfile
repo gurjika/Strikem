@@ -10,6 +10,7 @@ django-allauth = "*"
 django-debug-toolbar = "*"
 django-htmx = "*"
 jinja2 = "*"
+pillow = "*"
 
 [dev-packages]
 
