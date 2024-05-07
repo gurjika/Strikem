@@ -41,21 +41,40 @@ matchUpSocket.onmessage = function (e) {
 
     else if (data.protocol === 'handleMessage'){
 
+        
+         var sentByElements = document.querySelectorAll('.sent-by');
+            if (sentByElements.length > 0) {
+                var lastSentBy = sentByElements[sentByElements.length - 1]; 
 
+                if (lastSentBy.innerText === data.username) {
+                    lastSentBy.parentNode.removeChild(lastSentBy); 
+                }
+            }
+      
+     
 
          
-
-
         let messageHtml = ``;
         if(data.username === username) {
+
+           
+
             messageHtml = `
             <div class="d-flex justify-content-end text-end my-3">
                 <div class="w-75 d-flex justify-content-end">
-            
-    
-                    <div class="bg-primary rounded text-white px-3 py-2">
-                        ${data.message}
+                    <div>
+                        <div class="bg-primary rounded text-white px-3 py-2">
+                            ${data.message}
+                        </div>
+
+                        <div class="text-secondary text-end sent-by">
+                            ${data.username}
+
+                        <div>
+                    
                     </div>
+    
+                   
                 </div>
             </div>
             `
@@ -68,8 +87,16 @@ matchUpSocket.onmessage = function (e) {
                 <div class="w-75  d-flex justify-content-start">
             
     
-                    <div class="bg-light rounded text-secondary px-3 py-2">
-                        ${data.message}
+                    <div>
+                        <div class="bg-light rounded text-secondary px-3 py-2">
+                            ${data.message}
+                        </div>
+
+                        <div class="text-secondary text-start sent-by">
+                            ${data.username}
+
+                        <div>
+                
                     </div>
                 </div>
             </div>
@@ -106,6 +133,8 @@ function scrollBottom() {
     var objDiv = document.getElementById("message-hold");
     objDiv.scrollTop = objDiv.scrollHeight;
  }
+
+
 
 
  

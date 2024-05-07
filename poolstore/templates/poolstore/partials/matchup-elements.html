@@ -1,6 +1,6 @@
 {% load static %}
 {% load next_item_filter %}
- {% for matchup_message in matchup_messages %}
+{% for matchup_message in matchup_messages %}
  
  {% if forloop.first and page_obj.has_next %}
    
@@ -20,7 +20,7 @@
                 {{ matchup_message.body }}
             </div>
 
-            <div class="text-secondary text-end sent-by">
+            <div class="text-secondary text-end sent-by" data-username-sender="{{ matchup_message.sender.user.username }}">
 
             
         
@@ -41,7 +41,7 @@
                 {{ matchup_message.body }}
             </div>
 
-            <div class="text-secondary text-start sent-by">
+            <div class="text-secondary text-start sent-by" data-username-sender="{{ matchup_message.sender.user.username }}">
 
             
         
@@ -62,7 +62,7 @@
                     {{ matchup_message.body }}
                 </div>
                 
-                <div class="text-secondary text-end sent-by">
+                <div class="text-secondary text-end sent-by" data-username-sender="{{ matchup_message.sender.user.username }}">
               
 
                 
@@ -78,7 +78,7 @@
                     {{ matchup_message.body }}
                 </div>
  
-                <div class="text-secondary text-start sent-by">
+                <div class="text-secondary text-start sent-by" data-username-sender="{{ matchup_message.sender.user.username }}">
 
     
     {% endif %}
@@ -89,9 +89,7 @@
                 {% with show_username=paginator|show_username:page_obj %}
 
                     {% if show_username %}
-                        <div>
                             {{ matchup_message.sender.user.username }}
-                        </div>
                     {% endif %}
                 {% endwith %}
             
@@ -100,11 +98,11 @@
 
             
                 {% with next_message=matchup_messages|next:forloop.counter0 %}
-                {% if next_message and next_message.sender != matchup_message.sender %}
-                    <div>
-                    {{ matchup_message.sender.user.username }}
-                    </div>
-                {% endif %}
+                    {% if next_message and next_message.sender != matchup_message.sender %}
+                       
+                        {{ matchup_message.sender.user.username }}
+                        
+                    {% endif %}
                 {% endwith %}
             {% endif %}
 
@@ -122,6 +120,6 @@
 
  {% endfor %}
 
-
-
  <script src="{% static 'js/matchup-utils.js' %}"></script>
+
+

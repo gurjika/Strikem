@@ -13,7 +13,7 @@
                   </div>
                </div>
          
-               <div class="mt-4" id="saved-message-holder border">
+               <div class="mt-4" id="saved-message-holder">
          
                   {% include 'poolstore/partials/matchup-elements.html' %}
       
@@ -50,7 +50,10 @@
         scrollBottom();
     })
 
+    console.log(document.getElementById('saved-message-holder').lastElementChild);
+
     
 
    </script>
+
 {% endblock %}
