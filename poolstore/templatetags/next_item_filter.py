@@ -12,9 +12,6 @@ def next(loop_list, index):
 
 @register.filter(name='show_username')
 def show_username(paginator, page_obj):
-
-    
-
     if page_obj.has_previous():
         previous_page_obj = paginator.get_page(page_obj.number - 1)
         messages_to_display = list(page_obj)[::-1]

@@ -69,6 +69,25 @@
     <div class="mt-4 text-center">
         <button class="btn btn-info" type="submit">Save Profile</button>
     </div>
+
+
     
 
 </form>
+
+
+
+<script>
+document.addEventListener('htmx:afterSwap', (event) => {
+        
+        const form = document.querySelector('.needs-validations');
+        console.log('hey');
+        Array.from(form.elements).forEach(input => {
+            input.addEventListener('input', () => {
+            input.classList.remove('is-invalid');
+            });
+        });
+    
+    });
+
+</script>
