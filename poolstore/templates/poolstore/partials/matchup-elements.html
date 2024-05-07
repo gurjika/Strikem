@@ -1,4 +1,4 @@
-
+{% load static %}
 {% load next_item_filter %}
  {% for matchup_message in matchup_messages %}
  
@@ -20,24 +20,11 @@
                 {{ matchup_message.body }}
             </div>
 
-
-            {% with real_index=forloop.counter0|calculate_index:page_obj.number %}
-
-                {% with next_message=messages1|next:real_index %}
-                {% if next_message and next_message.sender != matchup_message.sender %}
-                    <div class="text-secondary text-end">
-                    {{ matchup_message.sender.user.username }}
-                    </div>
-                {% endif %}
-                {% endwith %}
-                    
-            {% endwith %}
-            
-      
+            <div class="text-secondary text-end sent-by">
 
             
         
-        </div>
+        
     {% else %}
 
 <div class="d-flex justify-content-start text-start my-3"
@@ -54,21 +41,11 @@
                 {{ matchup_message.body }}
             </div>
 
-            {% with real_index=forloop.counter0|calculate_index:page_obj.number %}
-                    
-                {% endwith %}
-            
-            {% with next_message=matchup_messages|next:forloop.counter0 %}
-            {% if next_message and next_message.sender != matchup_message.sender  %}
-                <div class="text-secondary text-start">
-                {{ matchup_message.sender.user.username }}
-                </div>
-            {% endif %}
-            {% endwith %}
+            <div class="text-secondary text-start sent-by">
 
             
         
-        </div>
+        
 
     {% endif %}
 
@@ -85,22 +62,12 @@
                     {{ matchup_message.body }}
                 </div>
                 
-                {% with real_index=forloop.counter0|calculate_index:page_obj.number %}
-                    
-                {% endwith %}
-
-                
-                {% with next_message=matchup_messages|next:forloop.counter0 %}
-                {% if next_message and next_message.sender != matchup_message.sender %}
-                    <div class="text-secondary text-end">
-                    {{ matchup_message.sender.user.username }}
-                    </div>
-                {% endif %}
-                {% endwith %}
+                <div class="text-secondary text-end sent-by">
+              
 
                 
             
-            </div>
+            
     {% else %}
     <div class="d-flex justify-content-start text-start my-3">
         <div class="w-75  d-flex justify-content-start">
@@ -110,27 +77,40 @@
                 <div class="bg-light rounded text-secondary px-3 py-2">
                     {{ matchup_message.body }}
                 </div>
-
-
-                {% with real_index=forloop.counter0|calculate_index:page_obj.number %}
-
-                {% endwith %}
-                {% with next_message=matchup_messages|next:forloop.counter0 %}
-                {% if next_message and next_message.sender != matchup_message.sender %}
-                    <div class="text-secondary text-start">
-                    {{ matchup_message.sender.user.username }}
-                    </div>
-                {% endif %}
-                {% endwith %}
-
-                
-            
-            </div>
+ 
+                <div class="text-secondary text-start sent-by">
 
     
     {% endif %}
 
   {% endif %}
+
+            {% if forloop.last %}
+                {% with show_username=paginator|show_username:page_obj %}
+
+                    {% if show_username %}
+                        <div>
+                            {{ matchup_message.sender.user.username }}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            
+
+            {% else %}
+
+            
+                {% with next_message=matchup_messages|next:forloop.counter0 %}
+                {% if next_message and next_message.sender != matchup_message.sender %}
+                    <div>
+                    {{ matchup_message.sender.user.username }}
+                    </div>
+                {% endif %}
+                {% endwith %}
+            {% endif %}
+
+            
+                </div>
+            </div>
         
     </div>
 
@@ -144,47 +124,4 @@
 
 
 
- <script>
-
-document.addEventListener('DOMContentLoaded', function() {
-        let scrollHeightBefore = 0;
-        let scrollTopBefore = 0;
-        
-
-    })
-       function hideSpinner() {
-        document.getElementById('spinner').classList.add('invisible');
-
-    }
-
-    function revealSpinner() {
-        document.getElementById('spinner').classList.remove('invisible');
-    }
-
-    if (document.getElementById('sender') !== null) {
-        
-        document.getElementById('sender').addEventListener('htmx:beforeRequest', function (e) {
-            revealSpinner();
-
-            const container = document.getElementById('message-hold');
-            scrollTopBefore = container.scrollTop;  
-            scrollHeightBefore = container.scrollHeight;
-
-            document.getElementById('sender').addEventListener('htmx:afterSettle', function(e) {
-            hideSpinner();
-            const container = document.getElementById('message-hold');
-            const scrollHeightAfter = container.scrollHeight; 
-            container.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
-    })
-    });
-
-
-
-
-
-    
-   
-    }
-
-
- </script>
+ <script src="{% static 'js/matchup-utils.js' %}"></script>

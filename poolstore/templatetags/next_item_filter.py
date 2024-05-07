@@ -10,7 +10,19 @@ def next(loop_list, index):
         return None
     
 
-@register.filter(name='calculate_index')
-def calculate_index(page_num, loop_index):
-    index = (page_num) * 10 + loop_index
-    return index
+@register.filter(name='show_username')
+def show_username(paginator, page_obj):
+
+    
+
+    if page_obj.has_previous():
+        previous_page_obj = paginator.get_page(page_obj.number - 1)
+        messages_to_display = list(page_obj)[::-1]
+        messages_displayed = list(previous_page_obj)[::-1]
+        if messages_displayed[0].sender != messages_to_display[-1].sender:
+            return True
+        return False
+    
+    return True
+    
+
