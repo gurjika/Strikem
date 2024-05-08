@@ -23,11 +23,14 @@
     <div class="w-75 d-flex justify-content-end">
         <div class="d-flex flex-column">
 
-            <div class="bg-primary rounded text-white px-3 py-2 border">
-                {{ matchup_message.body }}
+            <div class="d-flex justify-content-end">
+                <div class="bg-primary rounded text-white px-3 py-2 text-start">
+                    {{ matchup_message.body }}
+                </div>
             </div>
 
-            <div class="text-secondary text-end sent-by">
+            <div class="d-flex justify-content-end">
+                <div class="text-secondary text-end sent-by">
 
             
         
@@ -44,10 +47,13 @@
     <div class="w-75  d-flex justify-content-start">
         <div class="d-flex flex-column border">
 
-            <div class="bg-light rounded text-secondary px-3 py-2">
-                {{ matchup_message.body }}
+            <div class="d-flex justify-content-start">
+                <div class="bg-light rounded text-secondary px-3 py-2 text-start">
+                    {{ matchup_message.body }}
+                </div>
             </div>
 
+        <div class="d-flex justify-content-start">
             <div class="text-secondary text-start sent-by">
 
             
@@ -65,10 +71,13 @@
 
             <div class="d-flex flex-column">
 
-                <div class="bg-primary rounded text-white px-3 py-2">
-                    {{ matchup_message.body }}
+                <div class="d-flex justify-content-end">
+                    <div class="bg-primary rounded text-white px-3 py-2 text-start">
+                        {{ matchup_message.body }}
+                    </div>
                 </div>
-                
+
+            <div class="d-flex justify-content-end">
                 <div class="text-secondary text-end sent-by">
               
 
@@ -81,12 +90,14 @@
 
             <div class="d-flex flex-column">
 
-                <div class="bg-light rounded text-secondary px-3 py-2">
-                    {{ matchup_message.body }}
+                <div class="d-flex justify-content-start">
+                    <div class="bg-light rounded text-secondary px-3 py-2 text-start">
+                        {{ matchup_message.body }}
+                    </div>
                 </div>
  
-                <div class="text-secondary text-start sent-by">
-
+                <div class="d-flex justify-content-start">
+                    <div class="text-secondary text-start sent-by">
     
     {% endif %}
 
@@ -113,7 +124,7 @@
                 {% endwith %}
             {% endif %}
 
-            
+                    </div>
                 </div>
             </div>
         

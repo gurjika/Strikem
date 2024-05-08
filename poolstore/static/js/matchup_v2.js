@@ -76,17 +76,20 @@ matchUpSocket.onmessage = function (e) {
             messageHtml += `
             <div class="d-flex justify-content-end text-center my-3">
                 <div class="w-75 d-flex justify-content-end">
-                    <div>
-                        <div class="bg-primary rounded text-white px-3 py-2">
-                            ${data.message}
-                        </div>
+                    <div class="d-flex flex-column">
 
-                        <div class="text-secondary text-end sent-by">
-                            ${data.username}
-                        <div>
-                    
+                        <div class="d-flex justify-content-end">
+                            <div class="bg-primary rounded text-white px-3 py-2 text-start">
+                                ${data.message}
+                            </div>
+                        </div>
+            
+                        <div class="d-flex justify-content-end">
+                            <div class="text-secondary text-end sent-by">
+                                ${data.username}
+                            </div>
+                        </div>
                     </div>
-                   
                 </div>
             </div>
             `
@@ -97,19 +100,22 @@ matchUpSocket.onmessage = function (e) {
              messageHtml += `
             <div class="d-flex justify-content-start text-center my-3">
                 <div class="w-75  d-flex justify-content-start">
-            
-    
-                    <div>
-                        <div class="bg-light rounded text-secondary px-3 py-2">
-                            ${data.message}
-                        </div>
-
-                        <div class="text-secondary text-start sent-by">
-                            ${data.username}
-
-                        <div>
                 
-                    </div>
+                    <div class="d-flex flex-column">
+
+                       <div class="d-flex justify-content-start">
+                           <div class="bg-light rounded text-secondary px-3 py-2 text-start">
+                               ${data.message}
+                           </div>
+                       </div>
+           
+                       <div class="d-flex justify-content-start">
+                           <div class="text-secondary text-start sent-by">
+                               ${data.username}
+                           </div>
+                       </div>
+                   </div>
+    
                 </div>
             </div>
           `
