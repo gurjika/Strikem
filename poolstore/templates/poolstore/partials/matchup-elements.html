@@ -1,12 +1,19 @@
 {% load static %}
 {% load next_item_filter %}
 {% for matchup_message in matchup_messages %}
- 
+ {% if matchup_message.after_outdated %}
+    <div class="d-flex justify-content-center text-center my-3">
+        <div>   
+            {{ matchup_message.time_sent|time_format }}
+        </div>
+    </div>
+
+ {% endif %}
  {% if forloop.first and page_obj.has_next %}
    
     {% if matchup_message.sender.user == request.user %}
 
-<div class="d-flex justify-content-end text-start my-3"
+<div class="d-flex justify-content-end text-center my-3"
     id="sender"
     hx-get="{% url 'matchup' matchup_id %}?page={{ page_obj.number|add:1 }}"
     hx-trigger="intersect once" 
@@ -14,20 +21,20 @@
     hx-target="this">
 
     <div class="w-75 d-flex justify-content-end">
-        <div>
+        <div class="d-flex flex-column">
 
-            <div class="bg-primary rounded text-white px-3 py-2">
+            <div class="bg-primary rounded text-white px-3 py-2 border">
                 {{ matchup_message.body }}
             </div>
 
-            <div class="text-secondary text-end sent-by" data-username-sender="{{ matchup_message.sender.user.username }}">
+            <div class="text-secondary text-end sent-by">
 
             
         
         
     {% else %}
 
-<div class="d-flex justify-content-start text-start my-3"
+<div class="d-flex justify-content-start text-center my-3"
     id="sender"
     hx-get="{% url 'matchup' matchup_id %}?page={{ page_obj.number|add:1 }}"
     hx-trigger="intersect once" 
@@ -35,13 +42,13 @@
     hx-target="this">
 
     <div class="w-75  d-flex justify-content-start">
-        <div>
+        <div class="d-flex flex-column border">
 
             <div class="bg-light rounded text-secondary px-3 py-2">
                 {{ matchup_message.body }}
             </div>
 
-            <div class="text-secondary text-start sent-by" data-username-sender="{{ matchup_message.sender.user.username }}">
+            <div class="text-secondary text-start sent-by">
 
             
         
@@ -53,16 +60,16 @@
  {% else %}
  
     {% if matchup_message.sender.user == request.user %}
-    <div class="d-flex justify-content-end text-start my-3">
-        <div class="w-75  d-flex justify-content-end">
+    <div class="d-flex justify-content-end text-center my-3">
+        <div class="w-75  d-flex justify-content-end " >
 
-            <div>
+            <div class="d-flex flex-column">
 
                 <div class="bg-primary rounded text-white px-3 py-2">
                     {{ matchup_message.body }}
                 </div>
                 
-                <div class="text-secondary text-end sent-by" data-username-sender="{{ matchup_message.sender.user.username }}">
+                <div class="text-secondary text-end sent-by">
               
 
                 
@@ -72,13 +79,13 @@
     <div class="d-flex justify-content-start text-start my-3">
         <div class="w-75  d-flex justify-content-start">
 
-            <div>
+            <div class="d-flex flex-column">
 
                 <div class="bg-light rounded text-secondary px-3 py-2">
                     {{ matchup_message.body }}
                 </div>
  
-                <div class="text-secondary text-start sent-by" data-username-sender="{{ matchup_message.sender.user.username }}">
+                <div class="text-secondary text-start sent-by">
 
     
     {% endif %}

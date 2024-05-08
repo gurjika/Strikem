@@ -83,6 +83,7 @@ class Message(models.Model):
     matchup = models.ForeignKey(Matchup, on_delete=models.CASCADE, related_name='messages')
     time_sent = models.DateTimeField(auto_now_add=True)
     sender = models.ForeignKey(Player, on_delete=models.SET_NULL, related_name='messages', null=True)
+    after_outdated = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.body

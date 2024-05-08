@@ -23,3 +23,8 @@ def show_username(paginator, page_obj):
     return True
     
 
+@register.filter(name='time_format')
+def format_time(time):
+    formatted_datetime = time.strftime('%b %#d, %I:%M %p')
+
+    return formatted_datetime

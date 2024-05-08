@@ -52,15 +52,29 @@ matchUpSocket.onmessage = function (e) {
             }
       
      
-
+            
+        
          
         let messageHtml = ``;
+
+        if(data.sub_protocol === 'last_message_outdated') {
+            console.log('herr');
+            console.log(data.time_sent);
+            messageHtml += `
+            <div class="d-flex justify-content-center text-center my-3">
+                <div>   
+                    ${data.time_sent}
+                </div>
+            </div>
+            `;
+        }
+
         if(data.username === username) {
 
            
 
-            messageHtml = `
-            <div class="d-flex justify-content-end text-end my-3">
+            messageHtml += `
+            <div class="d-flex justify-content-end text-center my-3">
                 <div class="w-75 d-flex justify-content-end">
                     <div>
                         <div class="bg-primary rounded text-white px-3 py-2">
@@ -69,11 +83,9 @@ matchUpSocket.onmessage = function (e) {
 
                         <div class="text-secondary text-end sent-by">
                             ${data.username}
-
                         <div>
                     
                     </div>
-    
                    
                 </div>
             </div>
@@ -82,8 +94,8 @@ matchUpSocket.onmessage = function (e) {
 
         }
         else {
-             messageHtml = `
-            <div class="d-flex justify-content-start text-start my-3">
+             messageHtml += `
+            <div class="d-flex justify-content-start text-center my-3">
                 <div class="w-75  d-flex justify-content-start">
             
     

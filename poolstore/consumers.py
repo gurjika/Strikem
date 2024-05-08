@@ -4,6 +4,8 @@ from asgiref.sync import async_to_sync
 from django.template.loader import get_template
 from .models import Invitation, MatchMake, Matchup, Player, Message
 from channels.db import database_sync_to_async
+from datetime import timedelta
+
 
 class PoolhouseConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -69,7 +71,6 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         
-        print('*' * 5)
         await self.accept()
 
     async def disconnect(self, code):
@@ -347,28 +348,59 @@ class MatchupConsumer(AsyncWebsocketConsumer):
 
        
         elif message:
+            last_message = await database_sync_to_async(Message.objects.filter(matchup_id=self.matchup_id).last)()
+            new_message = await database_sync_to_async(Message.objects.create)(matchup_id=self.matchup_id, body=message, sender=player)
 
-            await database_sync_to_async(Message.objects.create)(matchup_id=self.matchup_id, body=message, sender=player)
+            is_outdated = False
 
-            await self.channel_layer.group_send(
-                self.GROUP_NAME,
-                {
-                    'type': 'chat_message',
-                    'message': message,
-                    'username': username
-                }
-            )
+            try:
+                time_difference = new_message.time_sent - last_message.time_sent
+                if time_difference > timedelta(minutes=20):
+                    is_outdated = True
+                
+            except AttributeError:
+                pass
+
+            if is_outdated or last_message is None:
+
+                new_message.after_outdated = True
+                await database_sync_to_async(new_message.save)()
+                formatted_datetime = new_message.time_sent.strftime('%b %#d, %I:%M %p')
+                await self.channel_layer.group_send(
+                    self.GROUP_NAME,
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'username': username,
+                        'time_sent': formatted_datetime,
+                        'sub_protocol': 'last_message_outdated',
+                    }
+                )
+            else:
+                   await self.channel_layer.group_send(
+                    self.GROUP_NAME,
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'username': username,
+                    }
+                )
 
     async def chat_message(self, event):
         message = event['message']
         username = event['username']
+        sub_protocol = event.get('sub_protocol')
+        time_sent = event.get('time_sent')
+
         
         await self.send(text_data=json.dumps(
             {
                 'message': message,
                 'username': username,
                 'protocol': 'handleMessage',
-        }))
+                'sub_protocol': sub_protocol,
+                'time_sent': time_sent
+        }, default=str))
 
     async def handle_user_state(self, event):
         username = event['username']

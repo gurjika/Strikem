@@ -14,6 +14,7 @@ def check_username(request):
         return HttpResponse('<div class="text-info"> The username field can not be empty </div>')
     else:
         return HttpResponse('<div class="text-success"> This username is available </div>')
+    
 def check_email(request):
     email = request.POST.get('email')
 
