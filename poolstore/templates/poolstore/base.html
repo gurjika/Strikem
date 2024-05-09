@@ -64,14 +64,15 @@
 
 
     <main>
-        <div class="container-fluid" data-mdb-perfect-scrollbar-init>
+        <div class="container" data-mdb-perfect-scrollbar-init>
           <div id="message-div">
             {% include 'poolstore/partials/messages.html' %}
 
           </div>
+          {% if form.non_field_errors %}
             <div class="row justify-content-center mt-5">
               <div class="col-md-8">
-                {% if form.non_field_errors %}
+                
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {% for error in form.non_field_errors %}
                         {{ error }}
@@ -80,11 +81,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                     </button>
                 </div>
-                {% endif %}
+                
 
               </div>
             </div>
-          
+            {% endif %}
             {% block content %}
 
             {% endblock %}
