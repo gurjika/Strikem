@@ -1,8 +1,11 @@
+const sectionNumHorizontal = 3;
+const sectionNumVertical = 2;
 
+let positionVertical = 1;
+let positionHorizontal = 1;
 
 const img = document.getElementById('largeImage');
-const containerDiv = document.querySelector('.div-container');
-
+const overlayDiv = document.querySelector('.div-container');
 
 document.addEventListener("DOMContentLoaded", () => {
     
@@ -17,8 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const imgContainer = document.getElementById('imageContainer');
 
 
-        containerDiv.style.height = `${imgContainer.offsetHeight * 2}px`;
-        containerDiv.style.width = `${imgContainer.offsetWidth * 3}px`;
+        overlayDiv.style.height = `${imgContainer.offsetHeight * sectionNumVertical}px`;
+        overlayDiv.style.width = `${imgContainer.offsetWidth * sectionNumHorizontal}px`;
 
 
     }
@@ -35,13 +38,13 @@ function navigate(direction, resizing) {
     const imgContainer = document.getElementById('imageContainer');
 
 
-    const stepVertical = img.offsetHeight / 2;
+    const stepVertical = img.offsetHeight / sectionNumVertical;
     const stepHorizontal = imgContainer.offsetWidth;
 
     
 
-    img.style.width = `${imgContainer.offsetWidth * 3}px`;
-    imgContainer.style.height = `${img.offsetHeight / 2}px`;
+    img.style.width = `${imgContainer.offsetWidth * sectionNumHorizontal}px`;
+    imgContainer.style.height = `${img.offsetHeight / sectionNumVertical}px`;
 
 
 
@@ -49,8 +52,8 @@ function navigate(direction, resizing) {
     let imageLeft = parseInt(img.style.left, 10);
 
 
-    let containerTop = parseInt(containerDiv.style.top, 10);
-    let containerLeft = parseInt(containerDiv.style.left, 10);
+    let overlayTop = parseInt(overlayDiv.style.top, 10);
+    let overlayLeft = parseInt(overlayDiv.style.left, 10);
 
 
 
@@ -59,8 +62,10 @@ function navigate(direction, resizing) {
     if (resizing) {
         img.style.top = `0px`;
         img.style.left = `0px`;
-        containerDiv.style.top = `0px`;
-        containerDiv.style.left = `0px`;
+        overlayDiv.style.top = `0px`;
+        overlayDiv.style.left = `0px`;
+        positionHorizontal = 1;
+        positionVertical = 1;
     }
 
 
@@ -69,25 +74,63 @@ function navigate(direction, resizing) {
         switch(direction) {
         case 'north':
         img.style.top = `${imageTop + stepVertical}px`;
-        containerDiv.style.top = `${containerTop + stepVertical}px`;
+        overlayDiv.style.top = `${overlayTop + stepVertical}px`;
+        positionVertical -= 1;
         break;
 
         case 'south':
         img.style.top = `${imageTop - stepVertical}px`;
-        containerDiv.style.top = `${containerTop - stepVertical}px`;
+        overlayDiv.style.top = `${overlayTop - stepVertical}px`;
+        positionVertical += 1;
+
         break;
 
         case 'west':
         img.style.left = `${imageLeft + stepHorizontal}px`;
-        containerDiv.style.left = `${containerLeft + stepHorizontal}px`;
+        overlayDiv.style.left = `${overlayLeft + stepHorizontal}px`;
+        positionHorizontal -= 1;
         break;
 
         case 'east':
         img.style.left = `${imageLeft - stepHorizontal}px`;
-        containerDiv.style.left = `${containerLeft - stepHorizontal}px`;
+        overlayDiv.style.left = `${overlayLeft - stepHorizontal}px`;
+        positionHorizontal += 1;
+
         break;
     }
+
+    checkNextDirection();
+
 
     }
     
 }
+
+function checkDirection(buttonId, position, maxSections) {
+    if (position === 0 || position === maxSections + 1) {
+        disableButton(buttonId);
+    } else {
+        enableButton(buttonId);
+    }
+}
+
+function checkNextDirection() {
+    checkDirection('east', positionHorizontal + 1, sectionNumHorizontal);
+    checkDirection('west', positionHorizontal - 1, sectionNumHorizontal);
+
+    checkDirection('south', positionVertical + 1, sectionNumVertical);
+    checkDirection('north', positionVertical - 1, sectionNumVertical);
+}
+
+
+function disableButton(direction) {
+    var button = document.getElementById(direction);
+    button.disabled = true; 
+}
+
+function enableButton(direction) {
+    var button = document.getElementById(direction);
+    button.disabled = false;
+}
+
+checkNextDirection();
