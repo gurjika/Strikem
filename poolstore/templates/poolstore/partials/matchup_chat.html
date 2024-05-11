@@ -1,3 +1,4 @@
+{% load static %} 
     <div class="border rounded">
        <div class="border-bottom">
 
@@ -37,17 +38,32 @@
           <div class="input-group  px-0 mx-0">
              <textarea class="form-control bg-white" id="input" rows="2" style="flex:1; resize: none;" ></textarea>
  
-             <button class="btn btn-primary" type="button" id="submit" >Send</button>
+             <button class="btn btn-primary" type="button" id="submit">Send</button>
  
              </div>
        </div>
     
 
     </div>
+
+    {{ request.user.username|json_script:"username" }}
+
+    {{ matchup.id|json_script:"matchup_id" }}
  
 
 <script>
     document.getElementById('matchup-chat').addEventListener('htmx:afterSwap', (e) => {
       scrollBottom();
    });
+
+   document.querySelector('#submit').onclick = function (e) {
+    const messageInputDom = document.querySelector('#input');
+    const message = messageInputDom.value;
+    matchUpSocket.send(JSON.stringify({
+        'message': message,
+        'username': username
+    }));
+    messageInputDom.value = '';
+}
 </script>
+

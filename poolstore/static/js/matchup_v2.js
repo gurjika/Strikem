@@ -136,17 +136,6 @@ matchUpSocket.onmessage = function (e) {
 
 
 
-document.querySelector('#submit').onclick = function (e) {
-    const messageInputDom = document.querySelector('#input');
-    const message = messageInputDom.value;
-    matchUpSocket.send(JSON.stringify({
-        'message': message,
-        'username': username
-    }));
-    messageInputDom.value = '';
-}
-
-
 function scrollBottom() {
     var objDiv = document.getElementById("message-hold");
     objDiv.scrollTop = objDiv.scrollHeight;

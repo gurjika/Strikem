@@ -13,6 +13,7 @@ from django.db.models import Q
 def poolhouse(request, poolhouse):
     return render(request, 'poolstore/poolhouse.html', {'poolhouse': poolhouse})
 
+
 @login_required
 def matchmakings(request):
     matches = MatchMake.objects.all()
@@ -32,6 +33,7 @@ def matchmakings(request):
 
 @login_required
 def matchup(request, matchup_id):
+
     matchup = get_object_or_404(Matchup, id=matchup_id)
 
     if matchup.player_accepting.user == request.user:
@@ -43,7 +45,6 @@ def matchup(request, matchup_id):
     else:
         raise PermissionDenied()
     
-
     
     matchup = Matchup.objects.get(id=matchup_id)
     messages = Message.objects.filter(matchup=matchup).select_related('sender').select_related('sender__user').select_related('matchup').order_by('-time_sent')
@@ -53,6 +54,7 @@ def matchup(request, matchup_id):
 
 
     page_obj = paginator.get_page(page_number)
+    
     messages_to_display = list(page_obj)[::-1]
 
     context = {'matchup': matchup, 
@@ -62,8 +64,6 @@ def matchup(request, matchup_id):
                'paginator': paginator,
                'opponent': opponent}
     
-
-
     if request.htmx:
 
         load_type = request.GET.get('load_type')
@@ -92,5 +92,4 @@ class PoolHouseListView(ListView):
 
 
 def home(request):
-    
     return render(request, 'poolstore/home.html')

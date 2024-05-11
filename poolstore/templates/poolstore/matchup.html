@@ -11,7 +11,7 @@
             <div id="matchup-hold">
                
                {% for matchup in matchups %}
-               <div class="border d-flex align-items-center my-3" 
+               <div class="border d-flex align-items-center my-3 message-header" 
                hx-trigger='click' 
                hx-get="{% url 'matchup' matchup.id %}" 
                hx-push-url="/matchup/{{ matchup.id }}/" 
@@ -37,9 +37,9 @@
             </div>
          </div>
 
-         <div class="col-lg-7 col-12 " style="position: relative; padding: 0;" id="matchup-chat">
+         <div class="col-lg-7 col-12 " style="position: relative; padding: 0;" id="matchup-chat" >
 
-         {% include 'poolstore/partials/matchup_chat.html' %}
+            {% include 'poolstore/partials/matchup_chat.html' %}
 
          </div>
       </div>
