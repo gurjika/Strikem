@@ -4,63 +4,43 @@
 {% block content %}
 
 
+   
+   
       <div class="row">
-         <div class="col-lg-6">
-            <div>
+         <div class="col-lg-4">
+            <div id="matchup-hold">
+               
+               {% for matchup in matchups %}
+               <div class="border d-flex align-items-center my-3" 
+               hx-trigger='click' 
+               hx-get="{% url 'matchup' matchup.id %}" 
+               hx-push-url="/matchup/{{ matchup.id }}/" 
+               hx-vals='{"load_type": "load-matchup"}' 
+               hx-swap="innerHTML" 
+               hx-target="#matchup-chat">
+                  <div class="w-25 me-2">
+                     <img src="{{ matchup.messages.last.sender.profile_image.url}}" class="img-fluid">
+                  </div>
+
+                  <div class="w-75" >
+                     <div class="h6">
+                        {{ matchup.messages.last.sender.user.first_name}} {{ matchup.messages.last.sender.user.last_name}}
+                     </div>
+
+                     <div class="mt-4">
+                        {{ matchup.messages.last.body }}
+                     </div>
+                  </div>
+               </div>
+               {% endfor %}
                
             </div>
          </div>
-      </div>
-   
-      <div class="row justify-content-center">
-         <div class="col-lg-7 col-12 " style="position: relative; padding: 0;">
-            <div class="border rounded">
-               <div class="border-bottom">
 
-                  <div class="w-50 px-3 d-flex align-items-center my-1 ">
-                     <div class="w-25 me-2 ">
-                        <img src="{{ matchup.player_accepting.profile_image.url }}" class="img-fluid" style="border-radius: 50%;">
-                     </div>
-      
-                     <div class="w-75  h6">
-                        {{ opponent.user.first_name }}  {{ opponent.user.last_name }}
-   
-                     </div>
-                  </div>
-   
-               </div>
-          
-               <div style="height: 400px; overflow-y: scroll;" id="message-hold" class="px-3 rounded">
-                  <div class="d-flex justify-content-center mt-2">
-                     <div class="spinner-border text-secondary invisible" role="status" id="spinner">
-                        <span class="visually-hidden">Loading...</span>
-                     </div>
-                  </div>
-            
-                  <div class="mt-4" id="saved-message-holder">
-            
-                     {% include 'poolstore/partials/matchup-elements.html' %}
-         
-                  </div>
-         
-                  <div id="new-message" class="">
-                     
-                  </div>
-      
-               </div>
-   
-               <div style="bottom: 0; position: sticky;">
-                  <div class="input-group  px-0 mx-0">
-                     <textarea class="form-control bg-white" id="input" rows="2" style="flex:1; resize: none;" ></textarea>
-         
-                     <button class="btn btn-primary" type="button" id="submit" >Send</button>
-         
-                     </div>
-               </div>
-            
+         <div class="col-lg-7 col-12 " style="position: relative; padding: 0;" id="matchup-chat">
 
-            </div>
-         
+         {% include 'poolstore/partials/matchup_chat.html' %}
+
          </div>
       </div>
    
@@ -79,7 +59,9 @@
 
     console.log(document.getElementById('saved-message-holder').lastElementChild);
 
-    
+   document.getElementById('matchup-chat').addEventListener('htmx:afterSwap', (e) => {
+      scrollBottom();
+   });
 
    </script>
 
