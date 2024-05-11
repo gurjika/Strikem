@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
-
+from django.db.models import Q
 # Create your views here.
 
 
@@ -54,13 +54,14 @@ def matchup(request, matchup_id):
 
     elif matchup.player_inviting.user == request.user:
         opponent = matchup.player_accepting
-        
+
     else:
         raise PermissionDenied()
 
     context['opponent'] = opponent
 
-   
+    all_matchups = Matchup.objects.filter(Q(player_inviting__user=request.user) | Q(player_accepting__user=request.user))
+    context['all_matchups'] = all_matchups
 
     return render(request, 'poolstore/matchup.html', context)
 
@@ -71,3 +72,6 @@ class PoolHouseListView(ListView):
     context_object_name = 'poolhouses'
 
 
+def home(request):
+    
+    return render(request, 'poolstore/home.html')
