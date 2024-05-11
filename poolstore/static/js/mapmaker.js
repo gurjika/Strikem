@@ -25,10 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     }
+    const img = document.getElementById('largeImage');
+    if (img.complete) {
+        handleResize();
+    } else {
+        img.onload = handleResize;
+    }
 
     window.addEventListener('resize', handleResize);
-    handleResize();
 });
+
+
 
 
 

@@ -4,6 +4,7 @@ from django.views.generic import ListView, TemplateView, DetailView, CreateView,
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
 
@@ -32,6 +33,8 @@ def matchup(request, matchup_id):
     messages = Message.objects.filter(matchup=matchup).select_related('sender').select_related('sender__user').select_related('matchup').order_by('-time_sent')
     paginator = Paginator(messages, 10)
     page_number = request.GET.get("page")
+    
+
 
     page_obj = paginator.get_page(page_number)
 
@@ -45,6 +48,20 @@ def matchup(request, matchup_id):
     
     if request.htmx:
         return render(request, 'poolstore/partials/matchup-elements.html', context)
+    
+    if matchup.player_accepting.user == request.user:
+        opponent = matchup.player_inviting
+
+    elif matchup.player_inviting.user == request.user:
+        opponent = matchup.player_accepting
+        
+    else:
+        raise PermissionDenied()
+
+    context['opponent'] = opponent
+
+   
+
     return render(request, 'poolstore/matchup.html', context)
 
 

@@ -1,5 +1,6 @@
 
 .direction-div-vertical {
+    min-width: 30px;
     max-width: 70px;
     width: 7%; 
     transform: translate(0, -50%);
@@ -7,6 +8,8 @@
 
 .direction-div-horizontal {
     max-width: 70px;
+    min-width: 30px;
+
     width: 7%; 
     transform: translate(-50%, 0);
 }
