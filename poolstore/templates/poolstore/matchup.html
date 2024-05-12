@@ -5,34 +5,11 @@
 
 
    
-   
       <div class="row">
          <div class="col-lg-4">
-            <div id="matchup-hold">
+            <div id="matchup-hold" hx-get="{% url 'all-matchups' %}" hx-trigger="messageReceived" hx-swap="innerHTML">
                
-               {% for matchup in matchups %}
-               <div class="border d-flex align-items-center my-3 message-header" 
-               hx-trigger='click' 
-               hx-get="{% url 'matchup' matchup.id %}" 
-               hx-push-url="/matchup/{{ matchup.id }}/" 
-               hx-vals='{"load_type": "load-matchup"}' 
-               hx-swap="innerHTML" 
-               hx-target="#matchup-chat">
-                  <div class="w-25 me-2">
-                     <img src="{{ matchup.messages.last.sender.profile_image.url}}" class="img-fluid">
-                  </div>
-
-                  <div class="w-75" >
-                     <div class="h6">
-                        {{ matchup.messages.last.sender.user.first_name}} {{ matchup.messages.last.sender.user.last_name}}
-                     </div>
-
-                     <div class="mt-4">
-                        {{ matchup.messages.last.body }}
-                     </div>
-                  </div>
-               </div>
-               {% endfor %}
+              {% include 'poolstore/partials/all-matchups.html' %}
                
             </div>
          </div>
@@ -40,29 +17,42 @@
          <div class="col-lg-7 col-12 " style="position: relative; padding: 0;" id="matchup-chat" >
 
             {% include 'poolstore/partials/matchup_chat.html' %}
-
+            
          </div>
       </div>
    
-    
-   {{ request.user.username|json_script:"username" }}
+      {{ request.user.username|json_script:"username" }}
 
-   {{ matchup.id|json_script:"matchup_id" }}
-   <script src="{% static 'js/matchup_v2.js' %}"></script>
+      {{ matchup.id|json_script:"matchup_id" }}
+  
+      {{ opponent.user.username|json_script:"opponent_username" }}
+
+      <script src="{% static 'js/matchup_v2.js' %}"></script>
 
    <script>
    
+   readySendMessage();
 
    document.addEventListener('DOMContentLoaded', function() {
         scrollBottom();
     })
 
-    console.log(document.getElementById('saved-message-holder').lastElementChild);
+   console.log(document.getElementById('saved-message-holder').lastElementChild);
+
+
 
    document.getElementById('matchup-chat').addEventListener('htmx:afterSwap', (e) => {
       scrollBottom();
+      readySendMessage();
+
+  
    });
 
+
+ 
+
+   
    </script>
+   
 
 {% endblock %}

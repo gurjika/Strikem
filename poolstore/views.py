@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.db.models import Max
+
 # Create your views here.
 
 
@@ -54,7 +56,7 @@ def matchup(request, matchup_id):
 
 
     page_obj = paginator.get_page(page_number)
-    
+
     messages_to_display = list(page_obj)[::-1]
 
     context = {'matchup': matchup, 
@@ -74,14 +76,16 @@ def matchup(request, matchup_id):
         return render(request, 'poolstore/partials/matchup-elements.html', context)
     
 
-    all_matchups = Matchup.objects.filter(messages__receiver__user=request.user).distinct()
+    all_matchups = Matchup.objects.filter(
+    Q(player_inviting=request.user.player) | Q(player_accepting=request.user.player)
+    ).annotate(latest_message_time=Max('messages__time_sent')).order_by('-latest_message_time')
+
+
     context['matchups'] = all_matchups
     return render(request, 'poolstore/matchup.html', context)
 
     
     
-
-
 
 
 

@@ -1,12 +1,15 @@
-const matchupId = JSON.parse(document.getElementById('matchup_id').textContent);
-const username = JSON.parse(document.getElementById('username').textContent);
+var matchupId = JSON.parse(document.getElementById('matchup_id').textContent);
+var username = JSON.parse(document.getElementById('username').textContent);
+var opponentUsername = JSON.parse(document.getElementById('opponent_username').textContent);
 
 
-const matchUpSocket = new WebSocket(
+
+
+var matchUpSocket = new WebSocket(
     'ws://' + 
     window.location.host + 
     '/ws/matchup/'
-    + matchupId 
+    + username 
     + '/'
 );
 
@@ -20,6 +23,7 @@ matchUpSocket.onopen = function (e) {
 
 
 matchUpSocket.onmessage = function (e) {
+
     const data = JSON.parse(e.data);
     var toastLiveExample = document.getElementById('liveToast');
     var toast = new bootstrap.Toast(toastLiveExample);
@@ -36,11 +40,19 @@ matchUpSocket.onmessage = function (e) {
 
         toast.show();
 
-
     }
 
     else if (data.protocol === 'handleMessage'){
+        const messageReceivedEvent = new CustomEvent('messageReceived', {
+        });
+        
+        const matchupHold = document.getElementById('matchup-hold');
 
+        matchupHold.dispatchEvent(messageReceivedEvent);
+
+
+        document.addEventListener('messageReceived', (e) => {
+        });
         
          var sentByElements = document.querySelectorAll('.sent-by');
             if (sentByElements.length > 0) {
@@ -58,7 +70,6 @@ matchUpSocket.onmessage = function (e) {
         let messageHtml = ``;
 
         if(data.sub_protocol === 'last_message_outdated') {
-            console.log('herr');
             console.log(data.time_sent);
             messageHtml += `
             <div class="d-flex justify-content-center text-center my-3">
@@ -97,7 +108,7 @@ matchUpSocket.onmessage = function (e) {
 
         }
         else {
-             messageHtml += `
+            messageHtml += `
             <div class="d-flex justify-content-start text-center my-3">
                 <div class="w-75  d-flex justify-content-start">
                 
@@ -124,15 +135,16 @@ matchUpSocket.onmessage = function (e) {
         }
 
       
-        document.getElementById('new-message').innerHTML += messageHtml;
+        const newMessageHold = document.querySelector('.new-message');
+        console.log(data.matchup_id);
+        if( newMessageHold.id === data.matchup_id ) {
+            newMessageHold.innerHTML += messageHtml;
+        }
+
         scrollBottom();
-
     }
- 
-
 
 };
-
 
 
 
@@ -144,6 +156,20 @@ function scrollBottom() {
 
 
 
- 
 
+function readySendMessage() {
+    document.querySelector('#submit').onclick = function (e) {
 
+        const messageInputDom = document.querySelector('#input');
+        const message = messageInputDom.value;
+        console.log(username);
+        console.log(opponentUsername)
+        matchUpSocket.send(JSON.stringify({
+           'message': message,
+           'username': username,
+           'opponent_username': opponentUsername,
+           'matchup_id': matchupId,
+        }));
+        messageInputDom.value = '';
+     }
+}

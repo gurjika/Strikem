@@ -301,8 +301,9 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 class MatchupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope['user']
-        self.matchup_id = self.scope['url_route']['kwargs']['matchup_id']
-        self.GROUP_NAME = f'matchup_{self.matchup_id}'
+        
+        self.GROUP_NAME = f'matchup_{self.user.username}'
+
 
         await self.channel_layer.group_add(
             self.GROUP_NAME,
@@ -323,6 +324,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                 'user_state': 'left'
             }
         )
+
         await self.channel_layer.group_discard(
             self.GROUP_NAME,
             self.channel_name
@@ -334,6 +336,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         username = text_data_json['username']
         message = text_data_json.get('message')
         user_state = text_data_json.get('user_state')
+
         player = await database_sync_to_async(Player.objects.get)(user=self.user)
       
         if user_state:
@@ -348,8 +351,12 @@ class MatchupConsumer(AsyncWebsocketConsumer):
 
        
         elif message:
-            last_message = await database_sync_to_async(Message.objects.filter(matchup_id=self.matchup_id).last)()
-            new_message = await database_sync_to_async(Message.objects.create)(matchup_id=self.matchup_id, body=message, sender=player)
+            opponent_username = text_data_json['opponent_username'] 
+            matchup_id = text_data_json['matchup_id']
+
+            last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
+
+            new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
 
             is_outdated = False
 
@@ -366,22 +373,48 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                 new_message.after_outdated = True
                 await database_sync_to_async(new_message.save)()
                 formatted_datetime = new_message.time_sent.strftime('%b %#d, %I:%M %p')
+
                 await self.channel_layer.group_send(
-                    self.GROUP_NAME,
+                    f'matchup_{opponent_username}',
                     {
                         'type': 'chat_message',
                         'message': message,
                         'username': username,
                         'time_sent': formatted_datetime,
+                        'matchup_id': matchup_id,
+                        'sub_protocol': 'last_message_outdated',
+                    }
+                )
+
+
+                await self.channel_layer.group_send(
+                    f'matchup_{username}',
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'username': username,
+                        'time_sent': formatted_datetime,
+                        'matchup_id': matchup_id,
                         'sub_protocol': 'last_message_outdated',
                     }
                 )
             else:
-                   await self.channel_layer.group_send(
-                    self.GROUP_NAME,
+                await self.channel_layer.group_send(
+                    f'matchup_{opponent_username}',
                     {
                         'type': 'chat_message',
                         'message': message,
+                        'matchup_id': matchup_id,
+                        'username': username,
+                    }
+                )
+                   
+                await self.channel_layer.group_send(
+                    f'matchup_{username}',
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'matchup_id': matchup_id,
                         'username': username,
                     }
                 )
@@ -391,10 +424,11 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         username = event['username']
         sub_protocol = event.get('sub_protocol')
         time_sent = event.get('time_sent')
-
+        matchup_id = event['matchup_id']
         
         await self.send(text_data=json.dumps(
             {
+                'matchup_id': matchup_id,
                 'message': message,
                 'username': username,
                 'protocol': 'handleMessage',
@@ -408,6 +442,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
 
         await self.send(json.dumps(
             {
+
                 'username': username,
                 'protocol': 'handleUserState',
                 'user_state': user_state,

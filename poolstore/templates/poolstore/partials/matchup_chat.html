@@ -28,7 +28,7 @@
  
           </div>
  
-          <div id="new-message" class="">
+          <div class="new-message" id="{{ matchup_id }}">
              
           </div>
 
@@ -45,25 +45,23 @@
     
 
     </div>
-
     {{ request.user.username|json_script:"username" }}
 
     {{ matchup.id|json_script:"matchup_id" }}
+
+    {{ opponent.user.username|json_script:"opponent_username" }}
+
  
 
 <script>
-    document.getElementById('matchup-chat').addEventListener('htmx:afterSwap', (e) => {
-      scrollBottom();
-   });
 
-   document.querySelector('#submit').onclick = function (e) {
-    const messageInputDom = document.querySelector('#input');
-    const message = messageInputDom.value;
-    matchUpSocket.send(JSON.stringify({
-        'message': message,
-        'username': username
-    }));
-    messageInputDom.value = '';
-}
+    matchupId = JSON.parse(document.getElementById('matchup_id').textContent);
+    username = JSON.parse(document.getElementById('username').textContent);
+    opponentUsername = JSON.parse(document.getElementById('opponent_username').textContent);
+
+
+
 </script>
+
+    
 

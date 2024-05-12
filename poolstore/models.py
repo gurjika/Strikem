@@ -84,7 +84,6 @@ class Message(models.Model):
     time_sent = models.DateTimeField(auto_now_add=True)
     sender = models.ForeignKey(Player, on_delete=models.SET_NULL, related_name='sent_messages', null=True)
     after_outdated = models.BooleanField(default=False)
-    receiver = models.ForeignKey(Player, on_delete=models.SET_NULL, related_name='received_messages', null=True)
 
     def __str__(self) -> str:
         return self.body
