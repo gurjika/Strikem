@@ -173,3 +173,4 @@ function readySendMessage() {
         messageInputDom.value = '';
      }
 }
+

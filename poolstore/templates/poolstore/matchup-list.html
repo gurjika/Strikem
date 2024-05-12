@@ -1,0 +1,15 @@
+{% extends 'poolstore/base.html' %}
+
+{% block content %}
+    <div class="row justify-content-center">    
+        <div class="col-lg-6">
+            <div>
+                {% for matchup in matchups %}
+                    <a href="{% url 'matchup' matchup.id %}">
+                        {{ matchup.id }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

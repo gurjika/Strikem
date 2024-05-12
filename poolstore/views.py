@@ -97,3 +97,11 @@ class PoolHouseListView(ListView):
 
 def home(request):
     return render(request, 'poolstore/home.html')
+
+
+def matchup_list(request):
+    matchups = Matchup.objects.filter(
+    Q(player_inviting=request.user.player) | Q(player_accepting=request.user.player)
+    ).annotate(latest_message_time=Max('messages__time_sent')).order_by('-latest_message_time')
+
+    return render(request, 'poolstore/matchup-list.html', {'matchups': matchups})

@@ -9,6 +9,8 @@ urlpatterns = [
     path('matchup/<uuid:matchup_id>/',  views.matchup, name='matchup'),
     path('poolhouses/', views.PoolHouseListView.as_view(), name='poolhouse-list'),
     path('', views.home, name='home'),
+    path('matchup/', views.matchup_list, name='matchup-list'),
+
 
     
 ]
