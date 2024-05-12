@@ -7,6 +7,10 @@
    
       <div class="row">
          <div class="col-lg-4">
+
+            <div class="h4 text-center">
+               Matchups
+            </div>
             <div id="matchup-hold" hx-get="{% url 'all-matchups' %}" hx-trigger="messageReceived" hx-swap="innerHTML" class="list-group">
                
               {% include 'poolstore/partials/all-matchups.html' %}
@@ -32,6 +36,8 @@
    <script>
    
    readySendMessage();
+   showActiveMessageHeader('start');
+
 
    document.addEventListener('DOMContentLoaded', function() {
         scrollBottom();
@@ -41,8 +47,12 @@
    document.getElementById('matchup-chat').addEventListener('htmx:afterSwap', (e) => {
       scrollBottom();
       readySendMessage();
-  
    });
+
+   document.getElementById('matchup-hold').addEventListener('htmx:afterSettle', (e) => {
+
+      showActiveMessageHeader('reload');
+   })
 
    </script>
    
