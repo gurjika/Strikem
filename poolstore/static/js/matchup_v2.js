@@ -175,31 +175,24 @@ function readySendMessage() {
 }
 
 
-function showActiveMessageHeader(protocol) {
-
+function showActiveMessageHeader() {
     
     var messageHeaders = document.querySelectorAll('.message-header');
-    
-
-    if (protocol === 'reload') {
-        console.log('bro');
-        messageHeaders[0].classList.add('active');
-    }
-
-  
 
     messageHeaders.forEach(function(messageHeader) {
-        if(protocol=== 'start') {
-            if(messageHeader.id === matchupId) {
-                messageHeader.classList.add('active');
-            }
+        
+        messageHeader.classList.remove('active')
+
+        if(messageHeader.id === matchupId) {
+            messageHeader.classList.add('active');
         }
+
 
     messageHeader.addEventListener('click', function() {
 
         messageHeaders.forEach(function(messageHeader) {
 
-        messageHeader.classList.remove('active');
+            messageHeader.classList.remove('active');
         });
         this.classList.add('active');
     });
