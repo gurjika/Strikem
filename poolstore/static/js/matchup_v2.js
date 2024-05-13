@@ -23,24 +23,43 @@ matchUpSocket.onopen = function (e) {
 
 
 
+
+
 matchUpSocket.onmessage = function (e) {
 
     const data = JSON.parse(e.data);
-    var toastLiveExample = document.getElementById('liveToast');
-    var toast = new bootstrap.Toast(toastLiveExample);
-    var invitationHeader = document.querySelector('#toast-header-text .me-auto').innerText = 'User State';
+
     if(data.protocol === 'handleUserState' && data.username !== username){ 
+        var toastLiveExample = document.getElementById('liveToast');
+        var toast = new bootstrap.Toast(toastLiveExample);
+        var invitationHeader = document.querySelector('#toast-header-text .me-auto').innerText = 'User State';
         if (data.user_state === 'joined') {
             const toastBody = document.querySelector('.toast-body').innerText = `${data.username} joined`;
-            
+            console.log(data.username);
+            changeStatusOn(data);
+
+
+            matchUpSocket.send(JSON.stringify(
+                {
+                    'protocol': 'acknowledge',
+                    'active_user': data.username,
+                }
+            ))
+
         }
         else {
             const toastBody = document.querySelector('.toast-body').innerText = `${data.username} left`;
-
+            changeStatusOff(data);
     
         }
 
         toast.show();
+
+    }
+
+    else if(data.protocol === 'handleAcknowledge'){
+        console.log('ger')
+        changeStatusOn(data);
 
     }
 
@@ -202,3 +221,29 @@ function showActiveMessageHeader() {
 }
 
 
+
+
+
+function changeStatusOn(data) {
+    var statuses = document.querySelectorAll(`.show-status`);
+
+    statuses.forEach(function(status) {
+   
+        if(status.id === data.username) {
+            status.classList.remove('bg-danger');
+            status.classList.add('bg-success');
+        }
+    });
+}
+
+
+function changeStatusOff(data) {
+    var statuses = document.querySelectorAll(`.show-status`);
+    statuses.forEach(function(status) {
+   
+        if(status.id === data.username) {
+            status.classList.add('bg-danger');
+            status.classList.remove('bg-success');
+        }
+    });
+}

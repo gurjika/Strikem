@@ -12,7 +12,7 @@ class Player(models.Model):
     games_won = models.PositiveIntegerField()
     inviting_to_play = models.BooleanField(default=False)
     profile_image = models.ImageField(default='default.jpg', upload_to='profile-pics')
-
+     
 
     def save(self, *args, **kwargs):
         super().save()
@@ -88,3 +88,6 @@ class Message(models.Model):
     def __str__(self) -> str:
         return self.body
     
+class Opponent(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    opponent = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='opponents')

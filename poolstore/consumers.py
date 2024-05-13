@@ -2,7 +2,10 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.template.loader import get_template
-from .models import Invitation, MatchMake, Matchup, Player, Message
+from django.db.models import Q
+
+from core.models import User
+from .models import Invitation, MatchMake, Matchup, Opponent, Player, Message
 from channels.db import database_sync_to_async
 from datetime import timedelta
 
@@ -300,6 +303,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         
 class MatchupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        self.opponent_username = ''
         self.user = self.scope['user']
         
         self.GROUP_NAME = f'matchup_{self.user.username}'
@@ -314,16 +318,20 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, code):
-        username = self.scope['user'].username
+
     
-        await self.channel_layer.group_send(
-            self.GROUP_NAME, 
-            {
-                'type': 'handle_user_state',
-                'username': username,
-                'user_state': 'left'
-            }
-        )
+        opponents = await database_sync_to_async(list)(Opponent.objects.select_related('player__user').select_related('opponent__user').filter(player__user=self.user))
+                    
+        for opponent in opponents:
+            print(opponent.opponent.user.username)
+            await self.channel_layer.group_send(
+                f'matchup_{opponent.opponent.user.username}', 
+                {
+                    'type': 'handle_user_state',
+                    'username': self.user.username,
+                    'user_state': 'left'
+                }
+            )
 
         await self.channel_layer.group_discard(
             self.GROUP_NAME,
@@ -333,21 +341,39 @@ class MatchupConsumer(AsyncWebsocketConsumer):
     
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
-        opponent_username = text_data_json['opponent_username'] 
-        username = text_data_json['username']
+        self.opponent_username = text_data_json.get('opponent_username')
+        username = text_data_json.get('username')
         message = text_data_json.get('message')
         user_state = text_data_json.get('user_state')
+        protocol = text_data_json.get('protocol')
+
         player = await database_sync_to_async(Player.objects.get)(user=self.user)
-        
-        if user_state:
+
+        if protocol == 'acknowledge':
+            active_user_username = text_data_json['active_user']
             await self.channel_layer.group_send(
-                f'matchup_{opponent_username}', 
+                f'matchup_{active_user_username}',
                 {
-                    'type': 'handle_user_state',
-                    'username': username,
-                    'user_state': user_state
-                }
+                    
+                    'type': 'handle_acknowledge',
+                    'active_user': self.user.username
+                },
             )
+
+        if user_state:
+            opponents = await database_sync_to_async(list)(Opponent.objects.select_related('player__user').select_related('opponent__user').filter(player__user=self.user))
+                
+            for opponent in opponents:
+                print(opponent.opponent.user.username)
+                await self.channel_layer.group_send(
+                    f'matchup_{opponent.opponent.user.username}', 
+                    {
+                        'type': 'handle_user_state',
+                        'username': self.user.username,
+                        'user_state': 'joined'
+                    }
+                )
+
 
        
         elif message:
@@ -375,7 +401,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                 formatted_datetime = new_message.time_sent.strftime('%b %#d, %I:%M %p')
 
                 await self.channel_layer.group_send(
-                    f'matchup_{opponent_username}',
+                    f'matchup_{self.opponent_username}',
                     {
                         'type': 'chat_message',
                         'message': message,
@@ -400,7 +426,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                 )
             else:
                 await self.channel_layer.group_send(
-                    f'matchup_{opponent_username}',
+                    f'matchup_{self.opponent_username}',
                     {
                         'type': 'chat_message',
                         'message': message,
@@ -439,13 +465,23 @@ class MatchupConsumer(AsyncWebsocketConsumer):
     async def handle_user_state(self, event):
         username = event['username']
         user_state = event['user_state']
-
         await self.send(json.dumps(
             {
-
                 'username': username,
                 'protocol': 'handleUserState',
                 'user_state': user_state,
-            }
+            }, default=str
         ))
  
+    async def handle_acknowledge(self, event):
+        print('br')
+        await self.send(json.dumps(
+            {   
+                'username': event['active_user'],
+                'protocol': 'handleAcknowledge',
+            }, default=str
+        ))
+
+
+
+    
