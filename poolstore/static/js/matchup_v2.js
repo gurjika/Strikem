@@ -16,7 +16,8 @@ var matchUpSocket = new WebSocket(
 matchUpSocket.onopen = function (e) {
     matchUpSocket.send(JSON.stringify({
         'username': username,
-        'user_state': 'joined'
+        'user_state': 'joined',
+        'opponent_username': opponentUsername,
     }));
 }
 
@@ -31,6 +32,7 @@ matchUpSocket.onmessage = function (e) {
     if(data.protocol === 'handleUserState' && data.username !== username){ 
         if (data.user_state === 'joined') {
             const toastBody = document.querySelector('.toast-body').innerText = `${data.username} joined`;
+            
         }
         else {
             const toastBody = document.querySelector('.toast-body').innerText = `${data.username} left`;

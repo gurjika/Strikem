@@ -333,15 +333,15 @@ class MatchupConsumer(AsyncWebsocketConsumer):
     
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
+        opponent_username = text_data_json['opponent_username'] 
         username = text_data_json['username']
         message = text_data_json.get('message')
         user_state = text_data_json.get('user_state')
-
         player = await database_sync_to_async(Player.objects.get)(user=self.user)
-      
+        
         if user_state:
             await self.channel_layer.group_send(
-                self.GROUP_NAME, 
+                f'matchup_{opponent_username}', 
                 {
                     'type': 'handle_user_state',
                     'username': username,
@@ -351,7 +351,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
 
        
         elif message:
-            opponent_username = text_data_json['opponent_username'] 
+            
             matchup_id = text_data_json['matchup_id']
 
             last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
@@ -448,16 +448,4 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                 'user_state': user_state,
             }
         ))
-
-
-
-
-   
-
-     
-
-
-
-
-
-      
+ 

@@ -10,8 +10,6 @@ def check_username(request):
 
     if User.objects.filter(username=username).exists():
         return HttpResponse('<div class="text-danger "> This username already exists </div>')
-    elif len(username) < 1:
-        return HttpResponse('<div class="text-info"> The username field can not be empty </div>')
     else:
         return HttpResponse('<div class="text-success"> This username is available </div>')
     

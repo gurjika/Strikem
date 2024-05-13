@@ -98,7 +98,7 @@ class PoolHouseListView(ListView):
 def home(request):
     return render(request, 'poolstore/home.html')
 
-
+@login_required
 def matchup_list(request):
     matchups = Matchup.objects.filter(
     Q(player_inviting=request.user.player) | Q(player_accepting=request.user.player)
