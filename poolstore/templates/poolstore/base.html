@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="{% static 'css/poolhouse.css' %}">
     <link rel="stylesheet" href="{% static 'css/matchup.css' %}">
 
+    <script src="{% static 'js/shared-utils.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
@@ -42,32 +44,34 @@
               <div class="collapse navbar-collapse" id="navbarColor01">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                   <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
+                    <a class="nav-link" aria-current="page" href="{% url 'home' %}" id="home">Home</a>
                   </li>
                 
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'matchup-list' %}">Matchups</a>
+                    <a class="nav-link" href="{% url 'matchup-list' %}" id="matchup">Matchups</a>
                   </li>
 
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'matchmake' %}">Matchmaking</a>
+                    <a class="nav-link" href="{% url 'matchmake' %}" id="matchmake">Matchmaking</a>
                   </li>
 
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'poolhouse-list' %}">Poolhouses</a>
+                    <a class="nav-link link-opacity-10-hover" href="{% url 'poolhouse-list' %}" id="poolhouses">Poolhouses</a>
                   </li> 
                 
                 
                 </ul>
 
+              
+
                 <ul class="navbar-nav">
                   {% if not request.user.is_authenticated %}
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    <a class="nav-link" href="{% url 'login' %}" id="login">Login</a>
                   </li>
 
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    <a class="nav-link" href="{% url 'register' %}" id="register">Register</a>
                   </li> 
                   {% else %}
                   <li class="nav-item">
@@ -111,7 +115,11 @@
             </div>
             {% endif %}
             {% block content %}
+            
 
+
+
+     
             {% endblock %}
         </div>
     </main>
@@ -122,7 +130,6 @@
     </footer>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <script>
       document.body.addEventListener('htmx:configRequest', (event) => {
@@ -132,5 +139,6 @@
 
 
     </script>
+   
 </body>
 </html>

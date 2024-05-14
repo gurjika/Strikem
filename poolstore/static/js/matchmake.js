@@ -5,6 +5,7 @@ const matchSocket = new WebSocket(
     '/ws/matchmake/'
 );
 
+makeMeActive('matchmake');
 
         
 document.getElementById('control-btn').onclick = function (e) {
