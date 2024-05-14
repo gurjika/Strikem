@@ -3,9 +3,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.template.loader import get_template
 from django.db.models import Q
-
 from core.models import User
-from .models import Invitation, MatchMake, Matchup, Opponent, Player, Message
+from .models import Invitation, MatchMake, Matchup, Player, Message
 from channels.db import database_sync_to_async
 from datetime import timedelta
 
@@ -318,14 +317,13 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, code):
-
-    
-        opponents = await database_sync_to_async(list)(Opponent.objects.select_related('player__user').select_related('opponent__user').filter(player__user=self.user))
+        player = await database_sync_to_async(Player.objects.get)(user=self.user)
+        opponents = await database_sync_to_async(list)(player.get_opponents())
                     
+            
         for opponent in opponents:
-            print(opponent.opponent.user.username)
             await self.channel_layer.group_send(
-                f'matchup_{opponent.opponent.user.username}', 
+                f'matchup_{opponent.user.username}', 
                 {
                     'type': 'handle_user_state',
                     'username': self.user.username,
@@ -361,12 +359,12 @@ class MatchupConsumer(AsyncWebsocketConsumer):
             )
 
         if user_state:
-            opponents = await database_sync_to_async(list)(Opponent.objects.select_related('player__user').select_related('opponent__user').filter(player__user=self.user))
+            opponents = await database_sync_to_async(list)(player.get_opponents())
                 
             for opponent in opponents:
-                print(opponent.opponent.user.username)
+                print(opponent.user.username)
                 await self.channel_layer.group_send(
-                    f'matchup_{opponent.opponent.user.username}', 
+                    f'matchup_{opponent.user.username}', 
                     {
                         'type': 'handle_user_state',
                         'username': self.user.username,
@@ -474,7 +472,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         ))
  
     async def handle_acknowledge(self, event):
-        print('br')
+        
         await self.send(json.dumps(
             {   
                 'username': event['active_user'],

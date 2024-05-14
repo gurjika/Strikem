@@ -52,7 +52,35 @@
 
    document.getElementById('matchup-hold').addEventListener('htmx:afterSettle', (e) => {
       showActiveMessageHeader();
+      
+      var statuses = document.querySelectorAll(`.show-status`);
+
+      statuses.forEach(status => {
+         const state = localStorage.getItem(status.id) || 'offline';
+
+         if(state === 'online') {
+            status.classList.remove('bg-danger');
+            status.classList.add('bg-success')
+         }
+      });
+
+      localStorage.clear();
+     
    })
+
+
+   document.getElementById('matchup-hold').addEventListener('htmx:beforeRequest', (e) => {
+      var statuses = document.querySelectorAll(`.show-status`);
+
+      statuses.forEach(function(status) {
+         if(status.classList.contains('bg-success')){
+            localStorage.setItem(status.id, 'online')
+         }
+     
+});
+     
+   })
+
 
    </script>
    

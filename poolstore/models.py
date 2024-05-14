@@ -13,6 +13,10 @@ class Player(models.Model):
     inviting_to_play = models.BooleanField(default=False)
     profile_image = models.ImageField(default='default.jpg', upload_to='profile-pics')
      
+    def get_opponents(self):
+        invited = Player.objects.select_related('user').filter(sent_matchup_invitings__player_accepting=self)
+        accepted = Player.objects.select_related('user').filter(accepted_matchups__player_inviting=self)
+        return (invited | accepted).distinct()
 
     def save(self, *args, **kwargs):
         super().save()
@@ -88,6 +92,3 @@ class Message(models.Model):
     def __str__(self) -> str:
         return self.body
     
-class Opponent(models.Model):
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
-    opponent = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='opponents')
