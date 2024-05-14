@@ -84,7 +84,14 @@ def matchup(request, matchup_id):
     ).filter(Q(player_inviting=request.user.player) | Q(player_accepting=request.user.player)
     ).annotate(latest_message_time=Max('messages__time_sent')).order_by('-latest_message_time')
 
-    context['matchups'] = all_matchups
+    last_messages = []
+
+    for matchup in all_matchups:
+        last_messages.append(list(matchup.messages.all())[-1])
+    
+    matchups_with_last_message = zip(last_messages, list(all_matchups))
+
+    context['matchups'] = matchups_with_last_message
     return render(request, 'poolstore/matchup.html', context)
 
     

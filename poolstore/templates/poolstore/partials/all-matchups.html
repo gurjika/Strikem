@@ -1,5 +1,5 @@
 
-{% for matchup in matchups %}
+{% for last_message, matchup in matchups %}
 <div class="border d-flex align-items-center my-3 message-header list-group-item list-group-item-action list-group-item-primary position-relative" 
 hx-trigger='click' 
 hx-get="{% url 'matchup' matchup.id %}" 
@@ -43,19 +43,19 @@ hx-target="#matchup-chat" id="{{ matchup.id }}">
 
     {% endif %}
 
-        {% if matchup.messages.last.sender.user == request.user %}
+        {% if last_message.sender.user == request.user %}
 
         <div class="d-flex">
 
             <div class="mt-4">
-                You: {{ matchup.messages.last.body }}
+                You: {{ last_message.body }}
             </div>
         </div>
         {% else %}
         <div class="d-flex">
 
             <div class="mt-4">
-                {{ matchup.messages.last.sender.user.username }}: {{ matchup.messages.last.body }}
+                {{ last_message.sender.user.username }}: {{ matchup.messages.last.body }}
             </div>
         </div>
         {% endif %}

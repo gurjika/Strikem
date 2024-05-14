@@ -6,7 +6,7 @@ from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 from django.urls import path
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "htmx_websockets.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "poolhub.settings")
 
 
 import poolstore.routing

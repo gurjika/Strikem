@@ -80,7 +80,7 @@ class Matchup(models.Model):
     )
     player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_matchup_invitings')
     player_accepting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='accepted_matchups')
-
+    
 
 class Message(models.Model):
     body = models.TextField()

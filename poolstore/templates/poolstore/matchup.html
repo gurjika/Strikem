@@ -11,7 +11,7 @@
             <div class="h4 text-center">
                Matchups
             </div>
-            <div id="matchup-hold" hx-get="{% url 'all-matchups' %}" hx-trigger="messageReceived" hx-swap="innerHTML" class="list-group">
+            <div id="matchup-hold" hx-get="{% url 'all-matchups' %}" hx-trigger="messageReceived" hx-swap="innerHTML" class="list-group border-bottom" style="max-height: 300px; overflow-y: auto;">
                
               {% include 'poolstore/partials/all-matchups.html' %}
                
@@ -77,7 +77,7 @@
             localStorage.setItem(status.id, 'online')
          }
      
-});
+      });
      
    })
 
