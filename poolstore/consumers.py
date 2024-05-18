@@ -99,33 +99,35 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
         if invite_response:
             invite_sender_username = text_data_json['invite_sender_username']
+
+            response_player = await database_sync_to_async(Player.objects.get)(user__username=username)
+            inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
             if invite_response == 'accept':
 
 
-                # IF PLAYER ACCEPTS CREATE MATCHUP AND REMOVE THE PLAYER FROM THE INVITING PLAYERS' LIST
-                accepter_player = await database_sync_to_async(Player.objects.get)(user__username=username)
-                inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
+                # IF PLAYER ACCEPTS CREATE M`ATCHUP AND REMOVE THE PLAYER FROM THE INVITING PLAYERS' LIST
+         
 
-                match_make_instance_accepter = await database_sync_to_async(MatchMake.objects.get)(player=accepter_player)
+                match_make_instance_accepter = await database_sync_to_async(MatchMake.objects.get)(player=response_player)
+                
                 try:
                     match_make_instance_inviter = await database_sync_to_async(MatchMake.objects.get)(player=inviter_player)
                     await database_sync_to_async(match_make_instance_inviter.delete)()
                 except MatchMake.DoesNotExist:
                     pass
                 
-                invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=accepter_player)
+                invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=response_player)
                 await database_sync_to_async(invitations.delete)()
 
-                accepter_player.inviting_to_play = False
-                await database_sync_to_async(accepter_player.save)()
+                response_player.inviting_to_play = False
+                await database_sync_to_async(response_player.save)()
                 inviter_player.inviting_to_play = False
                 await database_sync_to_async(inviter_player.save)()
 
                 await database_sync_to_async(match_make_instance_accepter.delete)()
                 
 
-                mathup_object = await database_sync_to_async(Matchup.objects.create)(player_accepting=accepter_player, player_inviting=inviter_player)
-
+                mathup_object = await database_sync_to_async(Matchup.objects.create)(player_accepting=response_player, player_inviting=inviter_player)
                 
                 # SENDING ACCEPTING NOTIFICATION TO THE SENDER
 
@@ -156,6 +158,11 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                 )
             # SENDING NOTIFICATION ONLY TO THE DENIED PLAYER
             elif invite_response == 'deny':
+
+                invitation = await database_sync_to_async(Invitation.objects.get)(player_inviting=inviter_player, player_invited=response_player)
+                await database_sync_to_async(invitation.delete)()
+
+
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
                     {

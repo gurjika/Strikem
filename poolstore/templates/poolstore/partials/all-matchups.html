@@ -9,7 +9,7 @@ hx-swap="innerHTML"
 hx-target="#matchup-chat" id="{{ matchup.id }}">
 {% if matchup.player_accepting.user == request.user %}
 
-    <span class="position-absolute top-0 start-0 translate-middle p-2 bg-danger border border-light rounded-circle show-status" id="{{ matchup.player_inviting.user.username }}">
+    <span class="position-absolute p-2 bg-danger border border-light rounded-circle show-status" id="{{ matchup.player_inviting.user.username }}" style="top: 10%; right: 5%;">
         <span class="visually-hidden">New alerts</span>
     </span>
     <div class="w-25 me-2">
@@ -19,8 +19,6 @@ hx-target="#matchup-chat" id="{{ matchup.id }}">
     <div class="w-75" >
         <div class="h6">
             {{ matchup.player_inviting.user.first_name}} {{ matchup.player_inviting.user.last_name}}
-            
-    
             
         </div>
     {% else %}
@@ -44,9 +42,7 @@ hx-target="#matchup-chat" id="{{ matchup.id }}">
     {% endif %}
 
         {% if last_message.sender.user == request.user %}
-
         <div class="d-flex">
-
             <div class="mt-4">
                 You: {{ last_message.body }}
             </div>

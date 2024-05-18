@@ -1,3 +1,5 @@
+from typing import Any
+from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, render
 from .models import Invitation, MatchMake, Matchup, Player, PoolHouse, Message
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
@@ -7,6 +9,8 @@ from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db.models import Max
+from django.http import Http404
+
 from django.db.models import Prefetch
 
 # Create your views here.
@@ -39,7 +43,10 @@ def matchmakings(request):
 @login_required
 def matchup(request, matchup_id):
     
-    matchup = Matchup.objects.select_related('player_inviting__user').select_related('player_accepting__user').filter(id=matchup_id).first()
+    matchup = get_object_or_404(
+        Matchup.objects.select_related('player_inviting__user').select_related('player_accepting__user'),
+        id=matchup_id
+    )
     if matchup.player_accepting.user == request.user:
         opponent = matchup.player_inviting
 
@@ -79,16 +86,17 @@ def matchup(request, matchup_id):
 
     all_matchups = Matchup.objects.prefetch_related(
     Prefetch('messages', queryset=Message.objects.all().select_related('sender__user')),
-        'player_inviting__user',
-        'player_accepting__user'
-    ).filter(Q(player_inviting=request.user.player) | Q(player_accepting=request.user.player)
+    ).select_related('player_inviting__user', 'player_accepting__user').filter(Q(player_inviting=request.user.player) | Q(player_accepting=request.user.player)
     ).annotate(latest_message_time=Max('messages__time_sent')).order_by('-latest_message_time')
 
     last_messages = []
 
     for matchup in all_matchups:
-        last_messages.append(list(matchup.messages.all())[-1])
-    
+        try:
+            last_messages.append(list(matchup.messages.all())[-1])
+        except IndexError:
+            last_messages.append(None)
+
     matchups_with_last_message = zip(last_messages, list(all_matchups))
 
     context['matchups'] = matchups_with_last_message
@@ -96,12 +104,12 @@ def matchup(request, matchup_id):
 
     
 
-
-
 class PoolHouseListView(ListView):
-    queryset = PoolHouse.objects.all()
     template_name = 'poolstore/poolhouses.html'
     context_object_name = 'poolhouses'
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return PoolHouse.objects.all()
 
 
 def home(request):
@@ -110,8 +118,20 @@ def home(request):
 
 @login_required
 def matchup_list(request):
-    matchups = Matchup.objects.prefetch_related('messages').select_related('player_accepting').select_related('player_inviting').filter(
-    Q(player_inviting=request.user.player) | Q(player_accepting=request.user.player)
+    all_matchups = Matchup.objects.prefetch_related(
+    Prefetch('messages', queryset=Message.objects.all().select_related('sender__user')),
+    ).select_related('player_inviting__user', 'player_accepting__user').filter(Q(player_inviting=request.user.player) | Q(player_accepting=request.user.player)
     ).annotate(latest_message_time=Max('messages__time_sent')).order_by('-latest_message_time')
 
-    return render(request, 'poolstore/matchup-list.html', {'matchups': matchups})
+    last_messages = []
+    context = {}
+    for matchup in all_matchups:
+        try:
+            last_messages.append(list(matchup.messages.all())[-1])
+        except IndexError:
+            last_messages.append(None)
+
+    matchups_with_last_message = zip(last_messages, list(all_matchups))
+
+    context['matchups'] = matchups_with_last_message
+    return render(request, 'poolstore/matchup-list.html', context)

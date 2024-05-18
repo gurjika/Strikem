@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404, render
 from .models import Invitation, MatchMake, Matchup, PoolHouse, Message
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models import Prefetch
