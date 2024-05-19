@@ -85,7 +85,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
             self.room_name_for_specific_user,
             self.channel_name
         )
-
+        
 
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
@@ -417,7 +417,6 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
-                print('hey')
 
 
                 await self.channel_layer.group_send(
