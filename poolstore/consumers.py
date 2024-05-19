@@ -320,7 +320,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-    
+        
         await self.accept()
 
     async def disconnect(self, code):
@@ -416,6 +416,8 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                         'sub_protocol': 'last_message_outdated',
                     }
                 )
+
+                print('hey')
 
 
                 await self.channel_layer.group_send(
