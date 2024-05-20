@@ -56,7 +56,7 @@ class GameSession(models.Model):
     result = models.CharField(max_length=50)
 
 class Reservation(models.Model):
-    date = models.DateTimeField(default=timezone.now)
+    date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField(null=True)
 

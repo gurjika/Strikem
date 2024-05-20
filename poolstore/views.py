@@ -1,16 +1,20 @@
 from typing import Any
 from django.db.models.query import QuerySet
+from django.forms import BaseModelForm
 from django.shortcuts import get_object_or_404, render
-from .models import Invitation, MatchMake, Matchup, Player, PoolHouse, Message
+from .models import Invitation, MatchMake, Matchup, Player, PoolHouse, Message, Reservation
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
+from datetime import datetime, timedelta
+import pytz
 from django.db.models import Q
 from django.db.models import Max
-from django.http import Http404
-
+from django.http import Http404, HttpResponse
+from .forms import ReservationForm
+from .tasks import notify
 from django.db.models import Prefetch
 
 # Create your views here.
@@ -113,7 +117,6 @@ class PoolHouseListView(ListView):
 
 
 def home(request):
-
     return render(request, 'poolstore/home.html')
 
 @login_required
@@ -135,3 +138,26 @@ def matchup_list(request):
 
     context['matchups'] = matchups_with_last_message
     return render(request, 'poolstore/matchup-list.html', context)
+
+
+class ReservationView(CreateView):
+    template_name = 'poolstore/reservations.html'
+    form_class = ReservationForm
+    model = Reservation
+    success_url = '/'
+
+    def form_valid(self, form):
+        start_time = form.instance.start_time
+        reservation_date = form.instance.date
+        
+        start_datetime = datetime.combine(reservation_date, start_time)
+        tbilisi_tz = pytz.timezone('Asia/Tbilisi')
+        start_time_tbilisi = tbilisi_tz.localize(start_datetime)
+
+        start_time_tbilisi_utc = start_time_tbilisi.astimezone(pytz.UTC)
+
+        reminder_time = start_time_tbilisi_utc - timedelta(minutes=5)
+
+        notify.apply_async((form.instance.id,), eta=reminder_time)
+
+        return super().form_valid(form)

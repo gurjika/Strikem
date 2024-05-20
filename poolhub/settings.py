@@ -171,3 +171,4 @@ MESSAGE_TAGS = {
 
 TIME_ZONE = 'Asia/Tbilisi'
 
+CELERY_BROKER_URL = 'redis://localhost:6379/1'

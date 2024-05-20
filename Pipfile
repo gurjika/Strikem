@@ -11,6 +11,9 @@ django-debug-toolbar = "*"
 django-htmx = "*"
 jinja2 = "*"
 pillow = "*"
+redis = "*"
+celery = "*"
+pytz = "*"
 
 [dev-packages]
 
