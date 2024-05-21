@@ -1,5 +1,7 @@
+from datetime import timedelta
 from django.db import models
 from django.conf import settings
+from django.db.models import F
 import uuid 
 from PIL import Image
 from django.utils import timezone
@@ -58,7 +60,16 @@ class GameSession(models.Model):
 class Reservation(models.Model):
     date = models.DateField()
     start_time = models.TimeField()
+    
+    duration = models.PositiveSmallIntegerField(default=30)
     end_time = models.TimeField(null=True)
+    table = models.ForeignKey(PoolTable, on_delete=models.CASCADE, related_name='reservations')
+
+    real_end_time = models.GeneratedField(
+        expression=F('end_time') + timedelta(minutes=5),
+        output_field=models.TimeField(),
+        db_persist=True)
+
 
 class Rating(models.Model):
     pass

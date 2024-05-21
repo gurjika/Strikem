@@ -327,7 +327,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         player = await database_sync_to_async(Player.objects.get)(user=self.user)
         opponents = await database_sync_to_async(list)(player.get_opponents())
                     
-            
+        # TODO PUT THIS IN CELERY TASK
         for opponent in opponents:
             await self.channel_layer.group_send(
                 f'matchup_{opponent.user.username}', 

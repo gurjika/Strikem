@@ -16,9 +16,11 @@ from django.http import Http404, HttpResponse
 from .forms import ReservationForm
 from .tasks import notify
 from django.db.models import Prefetch
+from datetime import time
 
 # Create your views here.
 
+CLOSING_TIME_TZ_TBILISI = time(2, 0)
 
 
 def poolhouse(request, poolhouse):
@@ -161,3 +163,23 @@ class ReservationView(CreateView):
         notify.apply_async((form.instance.id,), eta=reminder_time)
 
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        reservations = Reservation.objects.all()
+        next_reservations = []
+        current_reservations = []
+        for index in range(0, len(reservations)):
+            current_reservation = reservations[index]
+            current_reservations.append(current_reservation)
+            try:
+                next_reservation = reservations[index + 1]
+                next_reservations.append(next_reservation)
+            except IndexError:
+                next_reservations.append(CLOSING_TIME_TZ_TBILISI)
+        
+        reservations_with_next = zip(current_reservations, next_reservations)
+        context['reservations_with_next'] = reservations_with_next
+
+        return context

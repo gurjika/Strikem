@@ -7,11 +7,13 @@ from django.contrib import messages
 
 def check_username(request):
     username = request.POST.get('username')
-
+    
     if User.objects.filter(username=username).exists():
-        return HttpResponse('<div class="text-danger "> This username already exists </div>')
-    else:
+        return HttpResponse('<div class="text-danger"> This username already exists </div>')
+    elif len(username) != 0:
         return HttpResponse('<div class="text-success"> This username is available </div>')
+    else:
+        return HttpResponse('')
     
 def check_email(request):
     email = request.POST.get('email')
