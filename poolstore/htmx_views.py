@@ -5,7 +5,6 @@ from .models import Invitation, MatchMake, Matchup, PoolHouse, Message, Reservat
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models import Prefetch
-
 from django.db.models import Max
 
 #NEEEDS FIX. WHOLE PARTIAL RELOAD NOT EFFICIENT

@@ -1,5 +1,11 @@
-{% for reservation, next_reservation in reservations_with_next %}
-<div>
-    {{ reservation.real_end_time }} - {{ next_reservation.start_time|default:"2:00 AM" }}
+<div class="d-flex flex-column align-items-center" style="height: 250px; overflow: auto;">
+    
+    {% for reservation, next_reservation in reservations_with_next %}
+    <div class="my-3 px-3 py-4 border border-3 border-success w-75 text-center" style='background-color: rgb(159, 205, 159); border-radius: 50px;'>
+        <div class="h3 text-white">
+    
+            {{ reservation.real_end_time }} - {{ next_reservation.start_time|default:"2:00 AM" }}
+        </div>
+    </div>
+    {% endfor %}
 </div>
-{% endfor %}
