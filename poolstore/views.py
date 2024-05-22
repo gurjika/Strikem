@@ -165,13 +165,13 @@ class ReservationView(CreateView):
         end_time = (start_datetime + timedelta(minutes=int(form.instance.duration))).time()
         form.instance.end_time = end_time
         form.instance.table_id = 1
-
+        form.instance.player = self.request.user.player
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        reservations = Reservation.objects.filter(date=datetime.today()).all()
+        reservations = Reservation.objects.filter(date=datetime.today()).order_by('start_time').all()
         next_reservations = []
         current_reservations = []
         for index in range(0, len(reservations)):
@@ -180,9 +180,26 @@ class ReservationView(CreateView):
             try:
                 next_reservation = reservations[index + 1]
                 next_reservations.append(next_reservation)
+
+
+                next_reservation_datetime = datetime.combine(next_reservation.date, next_reservation.start_time)
+                current_reservation_datetime = datetime.combine(current_reservation.date, current_reservation.real_end_time)
+
+                if next_reservation.start_time == current_reservation.real_end_time:
+                    next_reservations.remove(next_reservation)
+                    current_reservations.remove(current_reservation)
+
+
+                elif next_reservation_datetime - current_reservation_datetime < timedelta(minutes=30):
+                    next_reservations.remove(next_reservation)
+                    current_reservations.remove(current_reservation)
+
             except IndexError:
                 next_reservations.append(CLOSING_TIME_TZ_TBILISI)
         
+                
+
+            
         reservations_with_next = zip(current_reservations, next_reservations)
         context['reservations_with_next'] = reservations_with_next
 

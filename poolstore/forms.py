@@ -93,8 +93,7 @@ class ReservationForm(forms.ModelForm):
             existing_end = datetime.combine(reservation.date, reservation.real_end_time)
             overlap_check = False
             
-            print(existing_end)
-            print(existing_start)
+    
             if not (start_datetime >= existing_end or real_end_datetime <= existing_start):
                 raise forms.ValidationError('Error1')
 
