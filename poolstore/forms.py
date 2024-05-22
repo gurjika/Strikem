@@ -1,3 +1,4 @@
+from typing import Any
 from django import forms
 from poolstore.models import Player
 from django.conf import settings
@@ -43,6 +44,7 @@ class ReservationForm(forms.ModelForm):
     label='Select Duration',
     widget=forms.RadioSelect(attrs={
         'class': 'form-check-input',
+        
     })
     )
 
@@ -55,11 +57,50 @@ class ReservationForm(forms.ModelForm):
             'date': DateInput(
                 attrs={
                     'class': 'form-control datepicker', 
+                    'hx-trigger': 'input',
+                    'hx-get': '/reservations/',
+                    'hx-target': '#reservations',
                     'min': min_value_date_format,
                     'max': max_value_date_format,
-                    'id': 'date'},),
-        }
+                    'id': 'date'
+                    })}
         
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        now = datetime.now()
+        self.fields['date'].initial = now.date()
    
 
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+        date = cleaned_data.get('date')
+        start_time = cleaned_data.get('start_time')
+        duration = cleaned_data.get('duration')
+
+        start_datetime = datetime.combine(date, start_time)
+        end_datetime = start_datetime + timedelta(minutes=int(duration))
+        real_end_datetime = end_datetime + timedelta(minutes=5)
+
+        # Check for overlapping reservations
+        existing_reservations = Reservation.objects.filter(
+            date=date,
+        ).exclude(id=self.instance.id)
+
+
+        
+        for reservation in existing_reservations:
+            existing_start = datetime.combine(reservation.date, reservation.start_time)
+            existing_end = datetime.combine(reservation.date, reservation.real_end_time)
+            overlap_check = False
+            
+            print(existing_end)
+            print(existing_start)
+            if not (start_datetime >= existing_end or real_end_datetime <= existing_start):
+                raise forms.ValidationError('Error1')
+
+   
+
+         
+                
+        return cleaned_data
         

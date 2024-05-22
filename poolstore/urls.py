@@ -17,7 +17,9 @@ urlpatterns = [
 ]
 
 htmx_urlpatterns = [
-    path('all_matchups/', htmx_views.all_matchups, name='all-matchups')
+    path('all_matchups/', htmx_views.all_matchups, name='all-matchups'),
+    path('reservations/', htmx_views.reservations, name='reservations')
+
 ]
 
 

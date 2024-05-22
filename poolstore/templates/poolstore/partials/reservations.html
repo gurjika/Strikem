@@ -1,0 +1,5 @@
+{% for reservation, next_reservation in reservations_with_next %}
+<div>
+    {{ reservation.real_end_time }} - {{ next_reservation.start_time|default:"2:00 AM" }}
+</div>
+{% endfor %}

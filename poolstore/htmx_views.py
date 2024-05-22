@@ -1,5 +1,8 @@
+from datetime import datetime
 from django.shortcuts import get_object_or_404, render
-from .models import Invitation, MatchMake, Matchup, PoolHouse, Message
+
+from poolstore.views import CLOSING_TIME_TZ_TBILISI
+from .models import Invitation, MatchMake, Matchup, PoolHouse, Message, Reservation
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models import Prefetch
@@ -26,3 +29,24 @@ def all_matchups(request):
 
     context['matchups'] = matchups_with_last_message
     return render(request, 'poolstore/partials/all-matchups.html', context)
+
+@login_required
+def reservations(request):
+    
+    date = request.GET.get('date')
+    reservations = Reservation.objects.filter(date=date).all()
+    context = {}
+    next_reservations = []
+    current_reservations = []
+    for index in range(0, len(reservations)):
+        current_reservation = reservations[index]
+        current_reservations.append(current_reservation)
+        try:
+            next_reservation = reservations[index + 1]
+            next_reservations.append(next_reservation)
+        except IndexError:
+            next_reservations.append(CLOSING_TIME_TZ_TBILISI)
+    
+    reservations_with_next = zip(current_reservations, next_reservations)
+    context['reservations_with_next'] = reservations_with_next
+    return render(request, 'poolstore/partials/reservations.html', context)

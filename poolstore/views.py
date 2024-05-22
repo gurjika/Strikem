@@ -143,7 +143,7 @@ def matchup_list(request):
 
 
 class ReservationView(CreateView):
-    template_name = 'poolstore/reservations.html'
+    template_name = 'poolstore/booking.html'
     form_class = ReservationForm
     model = Reservation
     success_url = '/'
@@ -162,12 +162,16 @@ class ReservationView(CreateView):
 
         notify.apply_async((form.instance.id,), eta=reminder_time)
 
+        end_time = (start_datetime + timedelta(minutes=int(form.instance.duration))).time()
+        form.instance.end_time = end_time
+        form.instance.table_id = 1
+
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        reservations = Reservation.objects.all()
+        reservations = Reservation.objects.filter(date=datetime.today()).all()
         next_reservations = []
         current_reservations = []
         for index in range(0, len(reservations)):

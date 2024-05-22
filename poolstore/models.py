@@ -1,9 +1,10 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from django.db import models
 from django.conf import settings
 from django.db.models import F
 import uuid 
 from PIL import Image
+from django.forms import ValidationError
 from django.utils import timezone
 # Create your models here.
 
@@ -69,6 +70,9 @@ class Reservation(models.Model):
         expression=F('end_time') + timedelta(minutes=5),
         output_field=models.TimeField(),
         db_persist=True)
+    
+
+
 
 
 class Rating(models.Model):
