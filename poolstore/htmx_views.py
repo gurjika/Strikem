@@ -35,6 +35,8 @@ def reservations(request):
     context = {}
     next_reservations = []
     current_reservations = []
+    current_reservations.append(CLOSING_TIME_TZ_TBILISI, current_reservation)
+
     for index in range(0, len(reservations)):
         current_reservation = reservations[index]
         current_reservations.append(current_reservation)
@@ -45,12 +47,8 @@ def reservations(request):
             next_reservation_datetime = datetime.combine(next_reservation.date, next_reservation.start_time)
             current_reservation_datetime = datetime.combine(current_reservation.date, current_reservation.real_end_time)
 
-            if next_reservation.start_time == current_reservation.real_end_time:
-                next_reservations.remove(next_reservation)
-                current_reservations.remove(current_reservation)
 
-
-            elif next_reservation_datetime - current_reservation_datetime < timedelta(minutes=30):
+            if next_reservation_datetime - current_reservation_datetime < timedelta(minutes=30):
                 next_reservations.remove(next_reservation)
                 current_reservations.remove(current_reservation)
         except IndexError:

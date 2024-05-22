@@ -174,10 +174,19 @@ class ReservationView(CreateView):
         reservations = Reservation.objects.filter(date=datetime.today()).order_by('start_time').all()
         next_reservations = []
         current_reservations = []
+
+        
+
+        # Combine today's date with 10 AM
+        dt = datetime.combine(datetime.today().date(), time(10, 0, 0))
+        current_reservations.append(dt)
+        next_reservations.append(reservations[0])
+
         for index in range(0, len(reservations)):
             current_reservation = reservations[index]
             current_reservations.append(current_reservation)
             try:
+
                 next_reservation = reservations[index + 1]
                 next_reservations.append(next_reservation)
 
@@ -185,21 +194,18 @@ class ReservationView(CreateView):
                 next_reservation_datetime = datetime.combine(next_reservation.date, next_reservation.start_time)
                 current_reservation_datetime = datetime.combine(current_reservation.date, current_reservation.real_end_time)
 
-                if next_reservation.start_time == current_reservation.real_end_time:
-                    next_reservations.remove(next_reservation)
-                    current_reservations.remove(current_reservation)
-
-
-                elif next_reservation_datetime - current_reservation_datetime < timedelta(minutes=30):
+                if next_reservation_datetime - current_reservation_datetime < timedelta(minutes=30):
                     next_reservations.remove(next_reservation)
                     current_reservations.remove(current_reservation)
 
             except IndexError:
-                next_reservations.append(CLOSING_TIME_TZ_TBILISI)
-        
-                
+                print('hjsssss')
+                dt = datetime.combine(datetime.today().date(), time(2, 0, 0))
+                next_reservations.append(dt)
 
             
+        print(next_reservations)
+        
         reservations_with_next = zip(current_reservations, next_reservations)
         context['reservations_with_next'] = reservations_with_next
 

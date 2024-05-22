@@ -72,6 +72,11 @@ class Reservation(models.Model):
     
 
 
+    def __str__(self) -> str:
+        return f'{self.start_time} - {self.real_end_time}'
+    
+
+
 
 
 class Rating(models.Model):
