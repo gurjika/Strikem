@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db.models import F
 import uuid 
 from PIL import Image
-from django.forms import ValidationError
 from django.utils import timezone
 # Create your models here.
 
