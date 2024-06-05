@@ -12,17 +12,18 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6&gcb!#8#_oe5k)%tfqls@dd($3k=%3gp6a!7#v*d@f=a@y!43'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -81,6 +82,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'poolhub.wsgi.application'
 
+DB_NAME = os.environ.get('DB_NAME')
+DB_USER = os.environ.get('DB_USER')
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -91,7 +96,7 @@ DATABASES = {
         'NAME': 'poolhub',
         'USER': 'root',
         'PASSWORD': 'Lukikosi7680BGH',
-        'HOST': 'localhost',
+        'HOST': 'mysql',   
     }
 }
 
@@ -171,4 +176,4 @@ MESSAGE_TAGS = {
 
 TIME_ZONE = 'Asia/Tbilisi'
 
-CELERY_BROKER_URL = 'redis://localhost:6379/1'
+CELERY_BROKER_URL = 'redis://redis:6379/1'

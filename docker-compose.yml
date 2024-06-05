@@ -1,0 +1,63 @@
+
+
+services:
+  mysql:
+    image: mysql
+    
+    environment:
+      - MYSQL_DATABASE=poolhub
+      - MYSQL_PASSWORD=
+      - MYSQL_ROOT_PASSWORD=Lukikosi7680BGH
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis
+    ports:
+      - "6739:6739"
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 1s
+      retries: 5
+
+  django:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - .:/app
+
+
+    depends_on:
+      - mysql
+      - redis
+      - celery
+
+  celery:
+    build: .
+    command: celery -A poolhub worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+      
+      
+
+  celery-beat:
+    build: .
+    command: celery -A poolhub beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      
+      redis:
+        condition: service_healthy
+
+
+

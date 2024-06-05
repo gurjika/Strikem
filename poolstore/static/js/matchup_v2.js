@@ -13,6 +13,7 @@ var matchUpSocket = new WebSocket(
     + '/'
 );
 
+
 matchUpSocket.onopen = function (e) {
     matchUpSocket.send(JSON.stringify({
         'username': username,
@@ -58,7 +59,6 @@ matchUpSocket.onmessage = function (e) {
     }
 
     else if(data.protocol === 'handleAcknowledge'){
-        console.log('ger')
         changeStatusOn(data);
 
     }

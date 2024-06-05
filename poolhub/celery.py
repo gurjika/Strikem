@@ -7,3 +7,5 @@ celery = Celery('poolhub')
 
 celery.config_from_object('django.conf:settings', namespace='CELERY')
 celery.autodiscover_tasks()
+
+celery.conf.broker_connection_retry_on_startup = True
