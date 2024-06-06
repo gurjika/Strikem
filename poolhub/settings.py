@@ -85,6 +85,7 @@ WSGI_APPLICATION = 'poolhub.wsgi.application'
 DB_NAME = os.environ.get('DB_NAME')
 DB_USER = os.environ.get('DB_USER')
 DB_PASSWORD = os.environ.get('DB_PASSWORD')
+DB_HOST = os.environ.get('DB_HOST', 'localhost')
 
 
 # Database
@@ -93,10 +94,10 @@ DB_PASSWORD = os.environ.get('DB_PASSWORD')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'poolhub',
-        'USER': 'root',
-        'PASSWORD': 'Lukikosi7680BGH',
-        'HOST': 'mysql',   
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,   
     }
 }
 
