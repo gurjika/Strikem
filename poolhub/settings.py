@@ -82,18 +82,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'poolhub.wsgi.application'
 
-DB_NAME = os.environ.get('DB_NAME')
-DB_USER = os.environ.get('DB_USER')
-DB_PASSWORD = os.environ.get('DB_PASSWORD')
+DB_NAME = os.environ.get('P_DB_NAME')
+DB_USER = os.environ.get('P_DB_USER')
+DB_PASSWORD = os.environ.get('P_DB_PASSWORD')
 DB_HOST = os.environ.get('DB_HOST', 'localhost')
 
+print(DB_PASSWORD)
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,

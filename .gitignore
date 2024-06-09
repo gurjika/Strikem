@@ -5,4 +5,4 @@ __pycache__
 db.sqlite3
 /media
 .env
-/mysql_data
+/data

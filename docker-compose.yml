@@ -1,18 +1,21 @@
 
 
 services:
-  mysql:
-    image: mysql
+  postgres:
+    image: postgres:16.3
     
     environment:
-      - MYSQL_DATABASE=poolhub
-      - MYSQL_PASSWORD=
-      - MYSQL_ROOT_PASSWORD=Lukikosi7680BGH
+      - POSTGRES_DB=${P_DB_NAME}
+      - POSTGRES_USER=${P_DB_USER}
+      - POSTGRES_PASSWORD=${P_DB_PASSWORD}
+
+
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - ./data:/var/lib/postgresql/data
 
     ports:
-      - "4000:3306"
+      - "5432:5432"
+
 
   redis:
     image: redis
@@ -36,10 +39,10 @@ services:
       - .:/app
 
     environment:
-      - DB_HOST=mysql
+      - DB_HOST=postgres
 
     depends_on:
-      - mysql
+      - postgres
       - redis
       - celery
 
