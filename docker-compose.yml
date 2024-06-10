@@ -1,20 +1,16 @@
 
 
 services:
-  postgres:
-    image: postgres:16.3
-    
-    environment:
-      - POSTGRES_DB=${P_DB_NAME}
-      - POSTGRES_USER=${P_DB_USER}
-      - POSTGRES_PASSWORD=${P_DB_PASSWORD}
-
-
-    volumes:
-      - ./data:/var/lib/postgresql/data
-
+  mysql:
+    image: mysql:8.0
     ports:
-      - "5432:5432"
+      - 3306:3306
+
+    environment:
+      - MYSQL_DATABASE=poolhub
+      - MYSQL_ROOT_PASSWORD=Mypassword
+    volumes:
+      - ../mysqldata:/var/lib/mysql 
 
 
   redis:
@@ -29,8 +25,9 @@ services:
       retries: 5
 
   django:
+
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: ["./wait-for-it.sh", "db:3306", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"]
 
     ports:
       - "8000:8000"
@@ -42,9 +39,11 @@ services:
       - DB_HOST=postgres
 
     depends_on:
-      - postgres
+      - mysql
       - redis
       - celery
+
+    restart: on-failure
 
   celery:
     build: .

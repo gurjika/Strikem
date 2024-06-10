@@ -138,7 +138,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                         'invite_response': invite_response,
                         'invite_sender_username': invite_sender_username,
                         'username': username,
-                        'matchup_id': mathup_object.id
+                        'matchup_id': str(mathup_object.id)
                     }
                 )
 
@@ -152,7 +152,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
                         'invite_response': invite_response,
                         'invite_sender_username': invite_sender_username,
                         'username': username,
-                        'matchup_id': mathup_object.id,
+                        'matchup_id': str(mathup_object.id),
                         'sub_protocol': 'accepter'
                     }
                 )

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from django.shortcuts import get_object_or_404, render
 from poolstore.views import CLOSING_TIME_TZ_TBILISI
 from .models import Invitation, MatchMake, Matchup, PoolHouse, Message, Reservation
@@ -32,28 +32,50 @@ def all_matchups(request):
 def reservations(request):
     date = request.GET.get('date')
     reservations = Reservation.objects.filter(date=date).order_by('start_time').all()
+    print(reservations)
     context = {}
     next_reservations = []
     current_reservations = []
-    current_reservations.append(CLOSING_TIME_TZ_TBILISI, current_reservation)
+    start_time = datetime.combine(datetime.today().date(), time(10, 0, 0))
+
+
+
+    if reservations:
+            current_reservation_datetime = datetime.combine(reservations[0].date, reservations[0].start_time)
+            if current_reservation_datetime - start_time > timedelta(minutes=30):
+                current_reservations.append(start_time)
+                next_reservations.append(reservations[0])
+
+        # Combine today's date with 10 AM
+      
 
     for index in range(0, len(reservations)):
         current_reservation = reservations[index]
+        
         current_reservations.append(current_reservation)
+        current_reservation_datetime = datetime.combine(current_reservation.date, current_reservation.real_end_time)
+
         try:
             next_reservation = reservations[index + 1]
             next_reservations.append(next_reservation)
 
-            next_reservation_datetime = datetime.combine(next_reservation.date, next_reservation.start_time)
-            current_reservation_datetime = datetime.combine(current_reservation.date, current_reservation.real_end_time)
 
+            next_reservation_datetime = datetime.combine(next_reservation.date, next_reservation.start_time)
 
             if next_reservation_datetime - current_reservation_datetime < timedelta(minutes=30):
                 next_reservations.remove(next_reservation)
                 current_reservations.remove(current_reservation)
+
         except IndexError:
-            next_reservations.append(CLOSING_TIME_TZ_TBILISI)
+            dt = datetime.combine(current_reservation.date + timedelta(days=1), time(0, 0, 0))
+    
+            if dt - current_reservation_datetime > timedelta(minutes=30):
+                next_reservations.append(dt)
+            else:
+                current_reservations.remove(current_reservation)
+
     
     reservations_with_next = zip(current_reservations, next_reservations)
     context['reservations_with_next'] = reservations_with_next
+
     return render(request, 'poolstore/partials/reservations.html', context)

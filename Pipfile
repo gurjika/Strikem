@@ -16,6 +16,7 @@ celery = "*"
 pytz = "*"
 python-dotenv = "*"
 psycopg2 = "*"
+channels-redis = "*"
 
 [dev-packages]
 

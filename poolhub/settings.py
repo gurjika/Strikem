@@ -94,11 +94,11 @@ print(DB_PASSWORD)
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASSWORD,
-        'HOST': DB_HOST,   
+        'USER': 'root',
+        'PASSWORD': 'Mypassword',
+        'HOST': 'mysql',   
     }
 }
 
@@ -155,9 +155,12 @@ ASGI_APPLICATION = 'poolhub.asgi.application'
 
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer'
-    }
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
 }
 
 INTERNAL_IPS = [

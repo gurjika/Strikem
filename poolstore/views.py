@@ -1,4 +1,5 @@
 from typing import Any
+import uuid
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
 from django.shortcuts import get_object_or_404, render
@@ -48,11 +49,13 @@ def matchmakings(request):
 
 @login_required
 def matchup(request, matchup_id):
-    
+
     matchup = get_object_or_404(
         Matchup.objects.select_related('player_inviting__user').select_related('player_accepting__user'),
         id=matchup_id
     )
+
+
     if matchup.player_accepting.user == request.user:
         opponent = matchup.player_inviting
 
@@ -175,36 +178,43 @@ class ReservationView(CreateView):
         next_reservations = []
         current_reservations = []
 
+
         
+        start_time = datetime.combine(datetime.today().date(), time(10, 0, 0))
+        if reservations:
+            current_reservation_datetime = datetime.combine(reservations[0].date, reservations[0].start_time)
+            if current_reservation_datetime - start_time > timedelta(minutes=30):
+                current_reservations.append(start_time)
+                next_reservations.append(reservations[0])
 
         # Combine today's date with 10 AM
-        dt = datetime.combine(datetime.today().date(), time(10, 0, 0))
-        current_reservations.append(dt)
-        next_reservations.append(reservations[0])
+      
 
         for index in range(0, len(reservations)):
             current_reservation = reservations[index]
+            
             current_reservations.append(current_reservation)
-            try:
+            current_reservation_datetime = datetime.combine(current_reservation.date, current_reservation.real_end_time)
 
+            try:
                 next_reservation = reservations[index + 1]
                 next_reservations.append(next_reservation)
 
 
                 next_reservation_datetime = datetime.combine(next_reservation.date, next_reservation.start_time)
-                current_reservation_datetime = datetime.combine(current_reservation.date, current_reservation.real_end_time)
 
                 if next_reservation_datetime - current_reservation_datetime < timedelta(minutes=30):
                     next_reservations.remove(next_reservation)
                     current_reservations.remove(current_reservation)
 
             except IndexError:
-                print('hjsssss')
-                dt = datetime.combine(datetime.today().date(), time(2, 0, 0))
-                next_reservations.append(dt)
+                dt = datetime.combine(current_reservation.date + timedelta(days=1), time(0, 0, 0))
+      
+                if dt - current_reservation_datetime > timedelta(minutes=30):
+                    next_reservations.append(dt)
+                else:
+                    current_reservations.remove(current_reservation)
 
-            
-        print(next_reservations)
         
         reservations_with_next = zip(current_reservations, next_reservations)
         context['reservations_with_next'] = reservations_with_next
