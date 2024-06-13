@@ -6,7 +6,7 @@
     <div class="my-3 px-3 py-4 border border-3 border-success w-75 text-center" style='background-color: rgb(159, 205, 159); border-radius: 20px;'>
         <div class="h3 text-white">
     
-            {{ reservation.real_end_time|default:reservation }} - {{ next_reservation.start_time|default:next_reservation }}
+            {{ reservation|date:"h:i A" }} - {{ next_reservation|date:"h:i A" }}
         </div>
     </div>
     {% endfor %}
