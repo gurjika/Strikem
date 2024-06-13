@@ -151,6 +151,9 @@ class ReservationView(CreateView):
     model = Reservation
     success_url = '/'
 
+
+
+
     def form_valid(self, form):
         start_time = form.instance.start_time
         reservation_date = form.instance.date
@@ -178,42 +181,60 @@ class ReservationView(CreateView):
         next_reservations = []
         current_reservations = []
 
-
         
         start_time = datetime.combine(datetime.today().date(), time(10, 0, 0))
-        if reservations:
-            current_reservation_datetime = datetime.combine(reservations[0].date, reservations[0].start_time)
-            if current_reservation_datetime - start_time > timedelta(minutes=30):
-                current_reservations.append(start_time)
-                next_reservations.append(reservations[0])
+        close_time = datetime.combine(datetime.today().date(), time(3, 0, 0))
 
-        # Combine today's date with 10 AM
-      
+        start_stamped = False
+
 
         for index in range(0, len(reservations)):
             current_reservation = reservations[index]
             
+            current_reservation_start_datetime = datetime.combine(datetime.today().date(), current_reservation.start_time)
+            if current_reservation_start_datetime > start_time and not start_stamped:
+                start_stamped = True
+
+                if current_reservation_start_datetime - start_time > timedelta(minutes=30):
+                    current_reservations.append(start_time)
+                    next_reservations.append(current_reservation_start_datetime)
+
+                    continue
+
+
+                    
+
+
             current_reservations.append(current_reservation)
             current_reservation_datetime = datetime.combine(current_reservation.date, current_reservation.real_end_time)
+            
+                
 
             try:
                 next_reservation = reservations[index + 1]
                 next_reservations.append(next_reservation)
-
-
                 next_reservation_datetime = datetime.combine(next_reservation.date, next_reservation.start_time)
 
                 if next_reservation_datetime - current_reservation_datetime < timedelta(minutes=30):
                     next_reservations.remove(next_reservation)
                     current_reservations.remove(current_reservation)
 
+                if current_reservation_datetime < close_time and next_reservation_datetime > close_time \
+                    and close_time - current_reservation_datetime > timedelta(minutes=30):
+                    next_reservations.remove(next_reservation)
+                    next_reservations.append(close_time)
+
+
+                    
             except IndexError:
                 dt = datetime.combine(current_reservation.date + timedelta(days=1), time(0, 0, 0))
-      
                 if dt - current_reservation_datetime > timedelta(minutes=30):
                     next_reservations.append(dt)
                 else:
                     current_reservations.remove(current_reservation)
+
+
+                
 
         
         reservations_with_next = zip(current_reservations, next_reservations)

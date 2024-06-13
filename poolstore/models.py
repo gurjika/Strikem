@@ -44,7 +44,7 @@ class MatchMake(models.Model):
     
 class PoolTable(models.Model):
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='tables')
-
+    
 
 class GameSession(models.Model):
     id = models.UUIDField(
@@ -92,6 +92,7 @@ class Invitation(models.Model):
     player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_invitations')
 
 class Matchup(models.Model):
+
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,

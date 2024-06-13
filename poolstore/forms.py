@@ -53,7 +53,7 @@ class ReservationForm(forms.ModelForm):
         fields = ['start_time', 'duration', 'date']
 
         widgets = {
-            'start_time': TimeInput(attrs={'class': 'form-control', 'id': 'start_time', 'min': '10:00', 'max': '02:00'}),
+            'start_time': TimeInput(attrs={'class': 'form-control', 'id': 'start_time', 'min': '10:00', 'max': '04:00'}),
             'date': DateInput(
                 attrs={
                     'class': 'form-control datepicker', 

@@ -170,6 +170,10 @@ INTERNAL_IPS = [
 ]
 
 
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request:True,
+}
+
 LOGIN_URL = 'login'
 
 

@@ -1,11 +1,20 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poolhub</title>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include jQuery Timepicker CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
+    <!-- Include jQuery Timepicker JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+
     <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
 
     <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/ws.js"></script>
@@ -45,7 +54,8 @@
               </button>
               <div class="collapse navbar-collapse" id="navbarColor01">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
-                
+                  
+                  {% if request.user.is_authenticated %}
                 
                   <li class="nav-item">
                     <a class="nav-link" href="{% url 'matchup-list' %}" id="matchup" >Matchups</a>
@@ -54,6 +64,15 @@
                   <li class="nav-item">
                     <a class="nav-link" href="{% url 'matchmake' %}" id="matchmake">Matchmaking</a>
                   </li>
+
+
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'reservation' %}" id="reservation">Reservations</a>
+                  </li>
+
+
+
+                  {% endif %}
 
                   <li class="nav-item">
                     <a class="nav-link active-nav-link" href="{% url 'poolhouse-list' %}" id="poolhouses">Poolhouses</a>
@@ -104,6 +123,7 @@
     <main>
         <div class="{% block container_class %}container{% endblock %}" data-mdb-perfect-scrollbar-init>
           <div id="message-div">
+            
             {% include 'poolstore/partials/messages.html' %}
 
           </div>
@@ -149,6 +169,8 @@
 
 
     </script>
+
+    
    
 </body>
 </html>
