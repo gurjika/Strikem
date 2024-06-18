@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'core',
     'poolstore',
     'django_htmx',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -127,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tbilisi'
 
 USE_I18N = True
 

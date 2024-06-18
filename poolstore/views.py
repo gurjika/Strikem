@@ -1,5 +1,3 @@
-from typing import Any
-import uuid
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
 from django.shortcuts import get_object_or_404, render
@@ -10,7 +8,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
 from datetime import datetime, timedelta
+from django.utils import timezone
 import pytz
+from collections import OrderedDict
 from django.db.models import Q
 from django.db.models import Max
 from django.http import Http404, HttpResponse
@@ -18,15 +18,11 @@ from .forms import ReservationForm
 from .tasks import notify
 from django.db.models import Prefetch
 from datetime import time
-
+from django.utils.timezone import make_aware, get_default_timezone
 # Create your views here.
-
-CLOSING_TIME_TZ_TBILISI = time(2, 0)
 
 
 def poolhouse(request, poolhouse):
-
-
     return render(request, 'poolstore/poolhouse.html', {'poolhouse': poolhouse})
 
 
@@ -81,7 +77,8 @@ def matchup(request, matchup_id):
                'page_obj':page_obj, 
                'matchup_id': matchup_id, 
                'paginator': paginator,
-               'opponent': opponent}
+               'opponent': opponent
+            }
     
     if request.htmx:
 
@@ -117,7 +114,7 @@ class PoolHouseListView(ListView):
     template_name = 'poolstore/poolhouses.html'
     context_object_name = 'poolhouses'
 
-    def get_queryset(self) -> QuerySet[Any]:
+    def get_queryset(self):
         return PoolHouse.objects.all()
 
 
@@ -168,20 +165,41 @@ class ReservationView(CreateView):
 
         notify.apply_async((form.instance.id,), eta=reminder_time)
 
-        end_time = (start_datetime + timedelta(minutes=int(form.instance.duration))).time()
-        form.instance.end_time = end_time
+     
+        day_end_time = datetime.combine(form.instance.date, time(0, 0, 0))
+
+        day_end_time = (datetime.combine(form.instance.date + timedelta(days=1), time(0, 0, 0)))
+
+
+        end_datetime = (start_datetime + timedelta(minutes=int(form.instance.duration)))
+        real_end_datetime = end_datetime + timedelta(minutes=5)
+
+        
+
+
+        end_datetime_utc = end_datetime.astimezone(pytz.UTC)
+        real_end_datetime_utc = real_end_datetime.astimezone(pytz.UTC)
+
+
+
+        form.instance.end_time = end_datetime_utc
+        form.instance.real_end_time = real_end_datetime_utc
         form.instance.table_id = 1
         form.instance.player = self.request.user.player
+
+
         return super().form_valid(form)
     
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+
+    # TODO FIX RESERVATION ENDING NEXT DAY
+
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         reservations = Reservation.objects.filter(date=datetime.today()).order_by('start_time').all()
         next_reservations = []
         current_reservations = []
 
-        
         start_time = datetime.combine(datetime.today().date(), time(10, 0, 0))
         close_time = datetime.combine(datetime.today().date(), time(3, 0, 0))
         day_end_time = datetime.combine(datetime.today().date(), time(0, 0, 0))
@@ -194,6 +212,8 @@ class ReservationView(CreateView):
             current_reservation = reservations[index]
             
             current_reservation_start_datetime = datetime.combine(datetime.today().date(), current_reservation.start_time)
+            current_reservation_datetime = current_reservation.real_end_time.astimezone(timezone.get_current_timezone()).replace(tzinfo=None)
+
             if current_reservation_start_datetime > start_time and not start_stamped:
                 start_stamped = True
 
@@ -201,8 +221,17 @@ class ReservationView(CreateView):
                     current_reservations.append(start_time)
                     next_reservations.append(current_reservation_start_datetime)
 
-                    continue
+                    try:
+                        next_res = reservations[index + 1]
+                     
 
+                    except IndexError:
+                        dt = datetime.combine(current_reservation.date + timedelta(days=1), time(0, 0, 0))
+                        current_reservations.append(current_reservation_datetime)
+                        next_reservations.append(dt)
+                        
+
+                
 
             if current_reservation_start_datetime < close_time and not end_stamped:
                 end_stamped = True
@@ -211,10 +240,20 @@ class ReservationView(CreateView):
                     current_reservations.append(day_end_time)
                     next_reservations.append(current_reservation_start_datetime)
 
-                    continue
+                    try:
+                        next_res = reservations[index + 1]
+                        next_res_datetime =datetime.combine(next_res.date, next_res.start_time)
+                        if next_res_datetime > close_time:
+                            current_reservations.append(current_reservation_datetime)
+                            next_reservations.append(close_time)
 
+                    except IndexError:
+                        current_reservations.append(current_reservation_datetime)
+                        next_reservations.append(close_time)
 
-            current_reservation_datetime = datetime.combine(current_reservation.date, current_reservation.real_end_time)
+                
+                
+
             current_reservations.append(current_reservation_datetime)
             
                 
@@ -238,11 +277,14 @@ class ReservationView(CreateView):
 
                     
             except IndexError:
+                dt = datetime.combine(current_reservation.date + timedelta(days=1), time(0, 0, 0))
+
                 if current_reservation_datetime > start_time:
-                    dt = datetime.combine(current_reservation.date + timedelta(days=1), time(0, 0, 0))
                     if dt - current_reservation_datetime >= timedelta(minutes=30):
                         next_reservations.append(dt)
                         break
+
+
                     current_reservations.remove(current_reservation_datetime)
 
                 else:
@@ -250,12 +292,9 @@ class ReservationView(CreateView):
                         current_reservations.remove(current_reservation_datetime)
                         break
                     next_reservations.append(close_time)
-                    
-
-
-                
-
         
+        current_reservations = list(OrderedDict.fromkeys(current_reservations))
+        next_reservations = list(OrderedDict.fromkeys(next_reservations))
         reservations_with_next = zip(current_reservations, next_reservations)
         context['reservations_with_next'] = reservations_with_next
 

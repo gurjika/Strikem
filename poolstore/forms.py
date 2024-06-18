@@ -3,11 +3,11 @@ from django import forms
 from poolstore.models import Player
 from django.conf import settings
 from .models import Reservation
-from datetime import date, timedelta
+from datetime import date, time, timedelta
 from django.utils import timezone
 from datetime import datetime
 
-
+from django.utils.timezone import make_aware, get_default_timezone
 
 current_time = timezone.now().time()
 min_time = current_time.strftime('%H:%M') 
@@ -63,7 +63,7 @@ class ReservationForm(forms.ModelForm):
                     'min': min_value_date_format,
                     'max': max_value_date_format,
                     'id': 'date'
-                    })}
+                })}
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,29 +77,35 @@ class ReservationForm(forms.ModelForm):
         start_time = cleaned_data.get('start_time')
         duration = cleaned_data.get('duration')
 
+
         start_datetime = datetime.combine(date, start_time)
         end_datetime = start_datetime + timedelta(minutes=int(duration))
         real_end_datetime = end_datetime + timedelta(minutes=5)
 
-        # Check for overlapping reservations
+
+
+
+
+        # TODO CHECK IF RESERVATION END TIME IS THE NEXT DAY
         existing_reservations = Reservation.objects.filter(
             date=date,
         ).exclude(id=self.instance.id)
 
 
         
+
+
+        
         for reservation in existing_reservations:
             existing_start = datetime.combine(reservation.date, reservation.start_time)
-            existing_end = datetime.combine(reservation.date, reservation.real_end_time)
-            overlap_check = False
+            existing_end = reservation.real_end_time.astimezone(timezone.get_current_timezone()).replace(tzinfo=None)
+
             
     
             if not (start_datetime >= existing_end or real_end_datetime <= existing_start):
-                raise forms.ValidationError('Error1')
+                raise forms.ValidationError('nu kvetav dzma')
 
    
 
-         
-                
         return cleaned_data
         

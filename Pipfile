@@ -17,6 +17,7 @@ pytz = "*"
 python-dotenv = "*"
 psycopg2 = "*"
 channels-redis = "*"
+django-extensions = "*"
 
 [dev-packages]
 
