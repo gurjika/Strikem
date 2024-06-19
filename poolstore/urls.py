@@ -10,10 +10,8 @@ urlpatterns = [
     path('poolhouses/', views.PoolHouseListView.as_view(), name='poolhouse-list'),
     path('', views.home, name='home'),
     path('matchup/', views.matchup_list, name='matchup-list'),
-    path('reservation/', views.ReservationView.as_view(), name='reservation')
-
-
-    
+    path('reservations/', views.MyReservationView.as_view(), name='my-reservations'),
+    path('poolhouses/<str:poolhouse>/<int:table_pk>/reservation', views.ReservationView.as_view(), name='reservation')
 ]
 
 htmx_urlpatterns = [

@@ -1,3 +1,4 @@
+from typing import Any
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
 from django.shortcuts import get_object_or_404, render
@@ -142,10 +143,9 @@ def matchup_list(request):
     return render(request, 'poolstore/matchup-list.html', context)
 
 
-class ReservationView(CreateView):
+class ReservationView(LoginRequiredMixin, CreateView):
     template_name = 'poolstore/booking.html'
     form_class = ReservationForm
-    model = Reservation
     success_url = '/'
 
 
@@ -165,26 +165,19 @@ class ReservationView(CreateView):
 
         notify.apply_async((form.instance.id,), eta=reminder_time)
 
-     
-        day_end_time = datetime.combine(form.instance.date, time(0, 0, 0))
-
-        day_end_time = (datetime.combine(form.instance.date + timedelta(days=1), time(0, 0, 0)))
 
 
         end_datetime = (start_datetime + timedelta(minutes=int(form.instance.duration)))
         real_end_datetime = end_datetime + timedelta(minutes=5)
-
-        
 
 
         end_datetime_utc = end_datetime.astimezone(pytz.UTC)
         real_end_datetime_utc = real_end_datetime.astimezone(pytz.UTC)
 
 
-
         form.instance.end_time = end_datetime_utc
         form.instance.real_end_time = real_end_datetime_utc
-        form.instance.table_id = 1
+        form.instance.table_id = self.kwargs['table_pk']
         form.instance.player = self.request.user.player
 
 
@@ -299,3 +292,11 @@ class ReservationView(CreateView):
         context['reservations_with_next'] = reservations_with_next
 
         return context
+    
+class MyReservationView(LoginRequiredMixin, ListView):
+    template_name = 'poolstore/my-reservations.html'
+    context_object_name = 'reservations'
+
+    def get_queryset(self) -> QuerySet[Any]:
+        queryset = Reservation.objects.filter(player=self.request.user.player)
+        return queryset

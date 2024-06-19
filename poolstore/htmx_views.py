@@ -93,7 +93,6 @@ def reservations(request):
 
             print(day_end_time)
             if current_reservation_start_datetime - day_end_time >= timedelta(minutes=30):
-                print('gg')
                 current_reservations.append(day_end_time)
                 next_reservations.append(current_reservation_start_datetime)
 
@@ -150,7 +149,6 @@ def reservations(request):
 
     current_reservations = list(OrderedDict.fromkeys(current_reservations))
     next_reservations = list(OrderedDict.fromkeys(next_reservations))
-    
     reservations_with_next = zip(current_reservations, next_reservations)
     context['reservations_with_next'] = reservations_with_next
 

@@ -88,11 +88,13 @@ class ReservationForm(forms.ModelForm):
 
         # TODO CHECK IF RESERVATION END TIME IS THE NEXT DAY
         existing_reservations = Reservation.objects.filter(
-            date=date,
+            real_end_time__date=date,
         ).exclude(id=self.instance.id)
 
 
-        
+
+
+        print(existing_reservations)
 
 
         
