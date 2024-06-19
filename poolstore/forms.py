@@ -58,7 +58,7 @@ class ReservationForm(forms.ModelForm):
                 attrs={
                     'class': 'form-control datepicker', 
                     'hx-trigger': 'input',
-                    'hx-get': '/reservations/',
+                    'hx-get': '/all_reservations/',
                     'hx-target': '#reservations',
                     'min': min_value_date_format,
                     'max': max_value_date_format,
