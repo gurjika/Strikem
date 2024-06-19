@@ -3,14 +3,11 @@ from django.utils import timezone
 from datetime import datetime, time, timedelta
 
 import pytz
-from poolstore.models import Reservation
+from poolstore.models import PoolHouse, Reservation
 
 
 def run():
-    reservations = Reservation.objects.all()
-    for reservation in reservations:
-        print(reservation.real_end_time)
-        print(reservation.real_end_time.astimezone(timezone.get_current_timezone()))
+    PoolHouse.objects.create(title='MetroPool', address='Vera Park')
 
 
     # date = '2024-6-19'
@@ -22,6 +19,3 @@ def run():
 
     # Reservation.objects.create(date=date_v, start_time=start_time, duration=30, end_time=end_time, real_end_time=real_end_time, table_id=1, player_id=1)
 
-
-    end_time = datetime(2024, 6, 19, 1, 0, 0)
-    print(end_time.astimezone(pytz.UTC))

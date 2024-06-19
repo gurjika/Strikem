@@ -25,7 +25,9 @@ from django.utils.timezone import make_aware, get_default_timezone
 
 
 def poolhouse(request, poolhouse):
-    return render(request, 'poolstore/poolhouse.html', {'poolhouse': poolhouse})
+    ph = PoolHouse.objects.get(slug=poolhouse)
+
+    return render(request, 'poolstore/poolhouse.html', {'poolhouse': poolhouse, 'ph': ph})
 
 
 @login_required

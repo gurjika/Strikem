@@ -3,6 +3,8 @@ from django.db import models
 from django.conf import settings
 from django.db.models import F
 import uuid 
+from django.utils.text import slugify
+
 from PIL import Image
 from django.utils import timezone
 # Create your models here.
@@ -35,7 +37,12 @@ class Player(models.Model):
 class PoolHouse(models.Model):
     title = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
-    
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
 class MatchMake(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matchmakings')
