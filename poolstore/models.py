@@ -38,6 +38,8 @@ class PoolHouse(models.Model):
     title = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
+    open_hour = models.TimeField()
+    close_hour = models.TimeField()
 
     def save(self, *args, **kwargs):
         if not self.slug:

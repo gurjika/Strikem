@@ -7,8 +7,7 @@ from django.db.models import Q
 from django.db.models import Prefetch
 from django.db.models import Max
 from collections import OrderedDict
-from .utils import display_available_reservations 
-
+from .utils import display_available_reservations
 #NEEEDS FIX. WHOLE PARTIAL RELOAD NOT EFFICIENT
 @login_required
 def all_matchups(request):
@@ -35,8 +34,13 @@ def reservations(request):
     date = request.GET.get('date')
     reservations = Reservation.objects.filter(date=date).order_by('start_time').all()
     context = {}
-   
-    date = datetime.strptime(date, '%Y-%m-%d').date()
-    context = display_available_reservations(reservations, date)
     
+    
+    date = datetime.strptime(date, '%Y-%m-%d').date()
+    previous_day = date - timedelta(days=1)
+    last_reservation_previous = Reservation.objects.filter(date=previous_day).order_by('start_time').last()
+
+    context = display_available_reservations(reservations, date, last_reservation_previous)
+
+
     return render(request, 'poolstore/partials/reservations.html', context)

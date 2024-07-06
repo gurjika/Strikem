@@ -2,15 +2,22 @@ from collections import OrderedDict
 from datetime import datetime, time, timedelta
 from django.utils import timezone
 
-def display_available_reservations(reservations, date=datetime.today().date()):
+def display_available_reservations(reservations, date=datetime.today().date(), last_reservation_previous=None):
 
     next_reservations = []
     current_reservations = []
     context = {}
 
-    start_time = datetime.combine(datetime.today().date(), time(10, 0, 0))
-    close_time = datetime.combine(datetime.today().date(), time(3, 0, 0))
-    day_end_time = datetime.combine(datetime.today().date(), time(0, 0, 0))
+    start_time = datetime.combine(date, time(10, 0, 0))
+    close_time = datetime.combine(date, time(3, 0, 0))
+    day_end_time = datetime.combine(date, time(0, 0, 0))
+
+    
+    if last_reservation_previous:
+        last_reservation_previous_dt = last_reservation_previous.real_end_time.astimezone(timezone.get_current_timezone()).replace(tzinfo=None)
+
+        if last_reservation_previous_dt > day_end_time:
+            day_end_time = last_reservation_previous_dt
 
     start_stamped = False
     end_stamped = False
@@ -19,7 +26,7 @@ def display_available_reservations(reservations, date=datetime.today().date()):
     for index in range(0, len(reservations)):
         current_reservation = reservations[index]
         
-        current_reservation_start_datetime = datetime.combine(datetime.today().date(), current_reservation.start_time)
+        current_reservation_start_datetime = datetime.combine(date, current_reservation.start_time)
         current_reservation_datetime = current_reservation.real_end_time.astimezone(timezone.get_current_timezone()).replace(tzinfo=None)
 
         if current_reservation_start_datetime > start_time and not start_stamped:
