@@ -18,24 +18,50 @@ This project is an ongoing development effort aimed at [briefly describe your pr
 - **Matchmaking System**: Implements a matchmaking feature where users can send and accept invitations to play.
 - **Reservation System**: Allows users to book reservations with notifications using Celery and Redis.
 - **User Interfaces**: Designed with Bootstrap for responsive and user-friendly interfaces.
-- **Database Integration**: Uses PostgreSQL/MySQL with Docker for database management.
+- **Database Integration**: Uses MySQL with Docker for database management.
 
 ## Work in Progress
 
 This project is currently under development. Here are some features still in progress or planned:
 
-- **Enhanced Messaging Features**: Implementing message threading and multimedia support.
-- **Advanced Matchmaking Algorithms**: Improving the matchmaking algorithm based on player skill levels.
 - **Refined UI/UX**: Further refining user interfaces for better usability and responsiveness.
 - **Performance Optimization**: Optimizing database queries and WebSocket handling for better performance.
+- **Admin Panel**: Creating a tool that admins can use to manage poolhouses.
 
 ## Setup Instructions
 
 To run this project locally:
 
-1. Clone the repository.
-2. Install dependencies using `pipenv install` (or `pip install -r requirements.txt`).
-3. Set up Docker containers for PostgreSQL/MySQL, Redis, and Celery.
-4. Configure environment variables.
-5. Run migrations and start the Django development server.
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/yourusername/culinaryapp.git
+    ```
+
+2. Change into the project directory:
+    ```sh
+    cd poolhub
+    ```
+
+3. Create a `.env` file and specify the required environment variables:
+    ```env
+    PASSWORD=your_db_password
+    HOST=mysql
+    ```
+
+4. Run the application using Docker Compose:
+    ```sh
+    docker-compose up -d
+    ```
+
+5. Run the database migrations:
+    ```sh
+    docker-compose run django python manage.py migrate
+    ```
+
+6. Create a superuser:
+    ```sh
+    docker-compose run django python manage.py createsuperuser
+    ```
+
+7. Access the development server at [http://localhost:8000](http://localhost:8000).development server.
 

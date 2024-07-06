@@ -23,7 +23,7 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = 'django-insecure-6&gcb!#8#_oe5k)%tfqls@dd($3k=%3gp6a!7#v*d@f=a@y!43'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -83,12 +83,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'poolhub.wsgi.application'
 
-DB_NAME = os.environ.get('P_DB_NAME')
-DB_USER = os.environ.get('P_DB_USER')
-DB_PASSWORD = os.environ.get('P_DB_PASSWORD')
-DB_HOST = os.environ.get('DB_HOST', 'localhost')
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
+DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 
-print(DB_PASSWORD)
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -96,10 +93,10 @@ print(DB_PASSWORD)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': DB_NAME,
+        'NAME': 'poolhub',
         'USER': 'root',
-        'PASSWORD': 'Mypassword',
-        'HOST': 'mysql',   
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,   
     }
 }
 

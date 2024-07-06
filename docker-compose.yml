@@ -7,7 +7,7 @@ services:
     environment:
     
       - MYSQL_DATABASE=poolhub
-      - MYSQL_ROOT_PASSWORD=Mypassword
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
 
 
     volumes:
