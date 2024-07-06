@@ -27,6 +27,7 @@ This project is currently under development. Here are some features still in pro
 - **Refined UI/UX**: Further refining user interfaces for better usability and responsiveness.
 - **Performance Optimization**: Optimizing database queries and WebSocket handling for better performance.
 - **Admin Panel**: Creating a tool that admins can use to manage poolhouses.
+- **Game Session**: Allowing users to receive information about their game sessions.
 
 ## Setup Instructions
 
