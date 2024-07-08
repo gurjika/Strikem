@@ -1,5 +1,6 @@
 # Poolhub
-A Poolhouse management system. 
+
+A Pool Hall management system. 
 
 
 ## Technologies Used
