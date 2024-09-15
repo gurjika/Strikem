@@ -1,6 +1,7 @@
-# Project Name
+# Poolhub
 
-This project is an ongoing development effort aimed at [briefly describe your project's goal or purpose].
+A Pool Hall management system. 
+
 
 ## Technologies Used
 
