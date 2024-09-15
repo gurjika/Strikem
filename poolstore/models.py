@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db.models import F
 import uuid 
 from django.utils.text import slugify
-
 from PIL import Image
 from django.utils import timezone
 # Create your models here.
@@ -38,7 +37,7 @@ class PoolHouse(models.Model):
     title = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
-
+    
 
     def save(self, *args, **kwargs):
         if not self.slug:

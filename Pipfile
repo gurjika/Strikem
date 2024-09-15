@@ -18,6 +18,9 @@ python-dotenv = "*"
 psycopg2 = "*"
 channels-redis = "*"
 django-extensions = "*"
+djoser = "*"
+djangorestframework-simplejwt = "*"
+djangorestframework = "*"
 
 [dev-packages]
 
