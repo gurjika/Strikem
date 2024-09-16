@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import PoolHouse, PoolTable
-from poolstore_api.serializers import PoolHouseSerializer, PoolTableSerializer
+from poolstore.models import PoolHouse, PoolTable, Reservation
+from poolstore_api.serializers import PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 # Create your views here.
 
 
@@ -16,5 +19,19 @@ class TableViewSet(ModelViewSet):
     serializer_class = PoolTableSerializer
     def get_queryset(self):
         return PoolTable.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
-    
+
+
+    @action(detail=True, methods=['POST', 'GET'])
+    def reserve(self, request, pk, poolhouse_pk):
+        if request.method == 'GET':
+            reservations = Reservation.objects.filter(table_id=pk)
+            serializer = ReservationSerializer(reservations, many=True)
+            return Response(serializer.data)
+
+        if request.method == 'POST':
+            serializer = ReservationSerializer(data=request.data, context={'table_id': pk, 'player': self.request.user.player})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
 
