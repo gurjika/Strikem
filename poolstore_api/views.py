@@ -33,5 +33,12 @@ class TableViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-
-
+        
+class ReservationViewSet(ModelViewSet):
+    http_method_names = ['get', 'head', 'options', 'delete']
+    serializer_class = ReservationSerializer
+    
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Reservation.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
+        return Reservation.objects.filter(player=self.request.user.player)

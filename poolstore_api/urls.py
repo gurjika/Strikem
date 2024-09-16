@@ -9,4 +9,7 @@ router.register(prefix='poolhouses', viewset=views.PoolHouseViewSet, basename='p
 tables_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
 tables_router.register(prefix='tables', viewset=views.TableViewSet, basename='table')
 
-urlpatterns = router.urls + tables_router.urls
+reservations_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
+reservations_router.register(prefix='reservations', viewset=views.ReservationViewSet, basename='reservation')
+
+urlpatterns = router.urls + tables_router.urls + reservations_router.urls
