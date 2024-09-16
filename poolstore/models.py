@@ -79,6 +79,7 @@ class Reservation(models.Model):
     table = models.ForeignKey(PoolTable, on_delete=models.CASCADE, related_name='reservations')
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='reservations')
     end_time = models.DateTimeField()
+    real_end_datetime = models.DateTimeField()
 
 
     def __str__(self) -> str:
