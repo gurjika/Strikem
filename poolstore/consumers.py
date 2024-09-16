@@ -498,3 +498,36 @@ class MatchupConsumer(AsyncWebsocketConsumer):
 
 
     
+class GameSessionConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+  
+        self.user = self.scope['user']
+        self.GROUP_NAME = f'session_{self.scope['url_route']['kwargs']['session_id']}'
+
+
+        await self.channel_layer.group_add(
+            self.GROUP_NAME,
+            self.channel_name
+        )
+
+        
+        await self.accept()
+
+    async def disconnect(self, code):
+
+        await self.channel_layer.group_discard(
+            self.GROUP_NAME,
+            self.channel_name
+        )
+        
+    
+    async def receive(self, text_data=None, bytes_data=None):
+        pass
+
+    async def finish_game_session(self, event):
+
+        await self.send(json.dumps(
+            {
+                'protocol': 'finish session'
+            }
+        ))

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from poolstore.models import PoolHouse, PoolTable, Reservation
 from django.utils import timezone
+
 now = timezone.now()
 
 
@@ -17,7 +18,7 @@ class PoolTableSerializer(serializers.ModelSerializer):
 
     def get_current_reservation(self, obj):
         if obj.game_sessions.first():
-            return ReservationSerializer(obj.reservations.filter(start_time__gte=now).first()).data
+            return ReservationSerializer(obj.reservations.filter(end_time__gte=now).first()).data
         return None
 
 class PoolHouseSerializer(serializers.ModelSerializer):
