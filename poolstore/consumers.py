@@ -376,7 +376,6 @@ class MatchupConsumer(AsyncWebsocketConsumer):
             opponents = await database_sync_to_async(list)(player.get_opponents())
                 
             for opponent in opponents:
-                print(opponent.user.username)
                 await self.channel_layer.group_send(
                     f'matchup_{opponent.user.username}', 
                     {
@@ -423,7 +422,6 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                         'sub_protocol': 'last_message_outdated',
                     }
                 )
-
 
 
                 await self.channel_layer.group_send(
@@ -502,7 +500,8 @@ class GameSessionConsumer(AsyncWebsocketConsumer):
     async def connect(self):
   
         self.user = self.scope['user']
-        self.GROUP_NAME = f'session_{self.scope['url_route']['kwargs']['session_id']}'
+        session_id = self.scope['url_route']['kwargs']['session_id']
+        self.GROUP_NAME = f'session_{session_id}'
 
 
         await self.channel_layer.group_add(
