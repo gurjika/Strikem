@@ -59,9 +59,9 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
                 'changed': changed
             }
         ))
+        
 
 class MatchMakeConsumer(AsyncWebsocketConsumer):
-
     async def connect(self):
         self.GROUP_NAME = 'matchmake'
         self.room_name_for_specific_user = f"user_{self.scope['user'].username}"
@@ -93,7 +93,9 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         
 
     async def receive(self, text_data=None, bytes_data=None):
+
         text_data_json = json.loads(text_data)
+
         username = text_data_json['username']
         
         matchmaker_username = text_data_json.get('matchmaker_username')
@@ -110,7 +112,7 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
             if invite_response == 'accept':
 
 
-                # IF PLAYER ACCEPTS CREATE M`ATCHUP AND REMOVE THE PLAYER FROM THE INVITING PLAYERS' LIST
+                # IF PLAYER ACCEPTS CREATE MATCHUP AND REMOVE THE PLAYER FROM THE INVITING PLAYERS' LIST
          
 
                 match_make_instance_accepter = await database_sync_to_async(MatchMake.objects.get)(player=response_player)

@@ -21,7 +21,7 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('poolstore.urls')),
+    # path('', include('poolstore.urls')),
     path("__debug__/", include("debug_toolbar.urls")),
     path('users/', include('core.urls')),
     path('api/', include('poolstore_api.urls')),
@@ -32,3 +32,6 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+    

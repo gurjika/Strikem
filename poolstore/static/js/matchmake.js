@@ -1,4 +1,5 @@
 const username = JSON.parse(document.getElementById('username').textContent);
+
 const matchSocket = new WebSocket(
     'ws://' + 
     window.location.host + 
