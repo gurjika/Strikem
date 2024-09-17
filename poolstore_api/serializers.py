@@ -1,6 +1,6 @@
 from datetime import timedelta
 from rest_framework import serializers
-from poolstore.models import Player, PoolHouse, PoolTable, Reservation
+from poolstore.models import Matchup, Message, Player, PoolHouse, PoolTable, Reservation
 from django.utils import timezone
 from .tasks import send_email_before_res
 
@@ -44,6 +44,7 @@ class PoolTableSerializer(serializers.ModelSerializer):
         fields = ['id', 'current_reservation']
 
     def get_current_reservation(self, obj):
+        ## SHOW ONGOING RESERVATION IF THE SESSION EXISTS
         if obj.game_sessions.first():
             return ReservationSerializer(obj.reservations.filter(end_time__gte=now).first()).data
         return None
@@ -53,3 +54,21 @@ class PoolHouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = PoolHouse
         fields = ['id', 'title', 'address', 'tables']
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender = SimplePlayerSerializer(read_only=True)
+    class Meta:
+        model = Message
+        fields = ['id', 'body', 'time_sent', 'sender']
+
+class MatchupSerializer(serializers.ModelSerializer):
+    last_message = serializers.SerializerMethodField()
+    class Meta:
+        model = Matchup
+        fields = ['id', 'player_inviting', 'player_accepting', 'last_message']
+
+
+    def get_last_message(self, obj):
+        messages = obj.messages
+        return MessageSerializer(messages.last()).data

@@ -24,6 +24,7 @@ djangorestframework = "*"
 drf-nested-routers = "*"
 django-filter = "*"
 drf-yasg = "*"
+django-channels-jwt = "*"
 
 [dev-packages]
 

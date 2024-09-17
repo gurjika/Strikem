@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import PoolHouse, PoolTable, Reservation
-from poolstore_api.serializers import PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
+from poolstore.models import Matchup, PoolHouse, PoolTable, Reservation
+from poolstore_api.serializers import MatchupSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -10,6 +10,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ReservationFilter
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly
+from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 # Create your views here.
 
 
@@ -57,3 +61,15 @@ class ReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         if self.request.user.is_staff:
             return Reservation.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
         return Reservation.objects.filter(player=self.request.user.player)
+
+
+class MatchupViewSet(ModelViewSet):
+    serializer_class = MatchupSerializer
+
+    def get_queryset(self):
+        queryset = Matchup.objects.filter(Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player))
+        return queryset
+
+    @method_decorator(cache_page(60 * 15))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
