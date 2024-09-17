@@ -25,7 +25,6 @@ class TableViewSet(ModelViewSet):
         return PoolTable.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
 
 
-
     @action(detail=True, methods=['POST', 'GET'])
     def reserve(self, request, pk, poolhouse_pk):
 

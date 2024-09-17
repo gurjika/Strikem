@@ -17,7 +17,7 @@ class Player(models.Model):
     games_won = models.PositiveIntegerField()
     inviting_to_play = models.BooleanField(default=False)
     profile_image = models.ImageField(default='default.jpg', upload_to='profile-pics')
-     
+    
     
     def get_opponents(self):
         invited = Player.objects.select_related('user').filter(sent_matchup_invitings__player_accepting=self)
