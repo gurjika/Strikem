@@ -31,6 +31,7 @@ class ReservationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('nu kvetav dzma')
     
 
+    
         send_email_before_res.apply_async((player.user.id,), eta=start_time - timedelta(minutes=20))
         obj = Reservation.objects.create(**validated_data, end_time=end_time, table_id=table_id, player=player, real_end_datetime=real_end_datetime)
         return obj
@@ -56,11 +57,13 @@ class PoolHouseSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'address', 'tables']
 
 
+
 class MessageSerializer(serializers.ModelSerializer):
     sender = SimplePlayerSerializer(read_only=True)
     class Meta:
         model = Message
         fields = ['id', 'body', 'time_sent', 'sender']
+
 
 class MatchupSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()

@@ -24,7 +24,8 @@ class Player(models.Model):
         invited = Player.objects.select_related('user').filter(sent_matchup_invitings__player_accepting=self)
         accepted = Player.objects.select_related('user').filter(accepted_matchups__player_inviting=self)
         return (invited | accepted).distinct()
-
+    
+    
     def save(self, *args, **kwargs):
         super().save()
 
@@ -82,6 +83,7 @@ class Reservation(models.Model):
     end_time = models.DateTimeField()
     real_end_datetime = models.DateTimeField()
 
+    
 
     def __str__(self) -> str:
         return f'{self.start_time} - {self.end_time}'

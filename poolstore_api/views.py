@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import Matchup, PoolHouse, PoolTable, Reservation
-from poolstore_api.serializers import MatchupSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
-from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
+from poolstore.models import Matchup, Message, PoolHouse, PoolTable, Reservation
+from poolstore_api.serializers import MatchupSerializer, MessageSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -11,6 +11,7 @@ from .filters import ReservationFilter
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly
 from django.db.models import Q
+from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
@@ -22,6 +23,7 @@ class PoolHouseViewSet(ModelViewSet):
     queryset = PoolHouse.objects.all()
     serializer_class = PoolHouseSerializer
     permission_classes = [IsAdminOrReadOnly]
+
 
 
 class TableViewSet(ModelViewSet):
@@ -52,6 +54,8 @@ class TableViewSet(ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         
+
+        
 class ReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     http_method_names = ['get', 'head', 'options', 'delete']
     serializer_class = ReservationSerializer
@@ -63,8 +67,11 @@ class ReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         return Reservation.objects.filter(player=self.request.user.player)
 
 
-class MatchupViewSet(ModelViewSet):
+
+class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
     serializer_class = MatchupSerializer
+    pagination_class = MessagePageNumberPagination
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = Matchup.objects.filter(Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player))
@@ -73,3 +80,18 @@ class MatchupViewSet(ModelViewSet):
     @method_decorator(cache_page(60 * 15))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+    
+
+    @action(detail=True, methods=['GET'])
+    def chat(self, request, pk):
+        if self.request.method == 'GET':
+            messages = Message.objects.filter(matchup_id=pk)
+            page = self.paginate_queryset(messages)
+            if page is not None:
+                serializer = MessageSerializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = MessageSerializer(messages, many=True)
+            return Response(serializer.data)
+
+    
