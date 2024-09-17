@@ -23,6 +23,7 @@ djangorestframework-simplejwt = "*"
 djangorestframework = "*"
 drf-nested-routers = "*"
 django-filter = "*"
+drf-yasg = "*"
 
 [dev-packages]
 
