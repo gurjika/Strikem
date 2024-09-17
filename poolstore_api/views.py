@@ -3,12 +3,13 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from poolstore.models import PoolHouse, PoolTable, Reservation
 from poolstore_api.serializers import PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
-from rest_framework.mixins import CreateModelMixin, ListModelMixin
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ReservationFilter
-
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdminOrReadOnly
 # Create your views here.
 
 
@@ -16,10 +17,13 @@ from .filters import ReservationFilter
 class PoolHouseViewSet(ModelViewSet):
     queryset = PoolHouse.objects.all()
     serializer_class = PoolHouseSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
 
 class TableViewSet(ModelViewSet):
     serializer_class = PoolTableSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
     
     def get_queryset(self):
         return PoolTable.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
@@ -44,10 +48,10 @@ class TableViewSet(ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         
-class ReservationViewSet(ModelViewSet):
-    
+class ReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     http_method_names = ['get', 'head', 'options', 'delete']
     serializer_class = ReservationSerializer
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         if self.request.user.is_staff:

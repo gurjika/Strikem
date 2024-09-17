@@ -37,7 +37,6 @@ class ReservationSerializer(serializers.ModelSerializer):
     
 
 
-
 class PoolTableSerializer(serializers.ModelSerializer):
     current_reservation = serializers.SerializerMethodField()
     class Meta:
