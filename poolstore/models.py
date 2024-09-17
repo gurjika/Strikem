@@ -6,6 +6,8 @@ import uuid
 from django.utils.text import slugify
 from PIL import Image
 from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 # Create your models here.
 
 
@@ -88,7 +90,10 @@ class Reservation(models.Model):
 
 
 class Rating(models.Model):
-    pass
+    rate = models.PositiveSmallIntegerField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
     
 
 class PlayerGameSession(models.Model):
