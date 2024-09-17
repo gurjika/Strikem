@@ -11,8 +11,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 # Create your models here.
 
 
-class Player(models.Model):
-    
+class Player(models.Model): 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='player')
     games_played = models.PositiveIntegerField()
     opponents_met = models.PositiveIntegerField()
