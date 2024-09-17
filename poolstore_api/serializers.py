@@ -2,6 +2,7 @@ from datetime import timedelta
 from rest_framework import serializers
 from poolstore.models import Player, PoolHouse, PoolTable, Reservation
 from django.utils import timezone
+from .tasks import send_email_before_res
 
 now = timezone.now()
 
@@ -28,7 +29,9 @@ class ReservationSerializer(serializers.ModelSerializer):
         for reservation in existing_reservations:
             if not (validated_data['start_time'] >= reservation.real_end_datetime or real_end_datetime <= reservation.start_time):
                 raise serializers.ValidationError('nu kvetav dzma')
-            
+    
+
+        send_email_before_res.apply_async((player.user.id,), eta=start_time - timedelta(minutes=20))
         obj = Reservation.objects.create(**validated_data, end_time=end_time, table_id=table_id, player=player, real_end_datetime=real_end_datetime)
         return obj
     
