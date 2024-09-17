@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'poolstore_api',
     'django_htmx',
     'django_extensions',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
