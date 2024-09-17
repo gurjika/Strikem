@@ -38,6 +38,7 @@ services:
       - .:/app
 
     environment:
+      - DB_HOST=mysql
       - DB_PASSWORD=${DB_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
