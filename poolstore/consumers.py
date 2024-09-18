@@ -96,6 +96,27 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         }, default=str))
 
 
+    async def handle_user_state(self, event):
+        username = event['username']
+        user_state = event['user_state']
+        await self.send(json.dumps(
+            {
+                'username': username,
+                'protocol': 'handleUserState',
+                'user_state': user_state,
+            }, default=str
+        ))
+ 
+    async def handle_acknowledge(self, event):
+        
+        await self.send(json.dumps(
+            {   
+                'username': event['active_user'],
+                'protocol': 'handleAcknowledge',
+            }, default=str
+        ))
+
+
 
 
 class PoolhouseConsumer(AsyncWebsocketConsumer):
@@ -441,6 +462,7 @@ class MatchupConsumer(BaseNotificationConsumer):
             opponents = await database_sync_to_async(list)(player.get_opponents())
                 
             for opponent in opponents:
+                print(opponent)
                 await self.channel_layer.group_send(
                     f'user_{opponent.user.username}', 
                     {
@@ -523,25 +545,7 @@ class MatchupConsumer(BaseNotificationConsumer):
 
 
 
-    async def handle_user_state(self, event):
-        username = event['username']
-        user_state = event['user_state']
-        await self.send(json.dumps(
-            {
-                'username': username,
-                'protocol': 'handleUserState',
-                'user_state': user_state,
-            }, default=str
-        ))
- 
-    async def handle_acknowledge(self, event):
-        
-        await self.send(json.dumps(
-            {   
-                'username': event['active_user'],
-                'protocol': 'handleAcknowledge',
-            }, default=str
-        ))
+
 
 
 
