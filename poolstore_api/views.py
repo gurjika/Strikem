@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import Matchup, Message, PoolHouse, PoolTable, Reservation
-from poolstore_api.serializers import MatchupSerializer, MessageSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
+from poolstore.models import Invitation, Matchup, Message, PoolHouse, PoolTable, Reservation
+from poolstore_api.serializers import InvitationSerializer, MatchupSerializer, MessageSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -94,4 +94,10 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
             serializer = MessageSerializer(messages, many=True)
             return Response(serializer.data)
 
-    
+
+class MatchMakeViewSet(ListModelMixin, GenericViewSet, RetrieveModelMixin):
+    serializer_class = InvitationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Invitation.objects.filter(player_invited=self.request.user.player)

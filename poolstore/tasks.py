@@ -1,5 +1,5 @@
 from celery import shared_task
 
 @shared_task
-def notify(form_id):
-    print('task executed')
+def save_message_to_db(form_id):
+    pass

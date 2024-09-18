@@ -462,7 +462,6 @@ class MatchupConsumer(BaseNotificationConsumer):
             opponents = await database_sync_to_async(list)(player.get_opponents())
                 
             for opponent in opponents:
-                print(opponent)
                 await self.channel_layer.group_send(
                     f'user_{opponent.user.username}', 
                     {
