@@ -14,9 +14,86 @@ from datetime import timedelta
 
 
 
+class BaseNotificationConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope['user']
+        self.room_name_for_specific_user = f"user_{self.user.username}"
+
+
+        await self.channel_layer.group_add(
+            self.room_name_for_specific_user,
+            self.channel_name
+        )
+        
+
+    async def disconnect(self, code=None):
+   
+
+        await self.channel_layer.group_discard(
+            self.room_name_for_specific_user,
+            self.channel_name
+        )
 
 
 
+    async def display_invite(self, event):
+        invite_sender_username = event['invite_sender_username']
+        print('here')
+        await self.send(text_data=json.dumps(
+            {
+                'inviteSenderUsername': invite_sender_username,
+                'protocol': 'invited',
+            }
+        ))
+
+
+    async def handle_invite_response(self, event):
+        username = event['username']
+        response = event['invite_response']
+        invite_sender_username = event['invite_sender_username']
+        sub_protocol = event.get('sub_protocol')
+        matchup_id = event.get('matchup_id')
+
+        if response == 'accept':
+
+
+            await self.send(text_data=json.dumps(
+                {   
+                    'invite_response': 'ACCEPTED',
+                    'accepterUsername': username,
+                    'inviteSenderUsername': invite_sender_username,
+                    'protocol': 'handling_invite_response',
+                    'sub_protocol': sub_protocol,
+                    'matchup_id': matchup_id
+                }, default=str #FOR UUID SERIALIZATION ISSUES
+            ))
+
+        elif response == 'deny':
+            await self.send(text_data=json.dumps(
+                {   
+                    'invite_response': 'DENIED',
+                    'accepterUsername': username,
+                    'protocol': 'handling_invite_response'
+                }
+            ))
+
+
+    async def chat_message(self, event):
+        message = event['message']
+        username = event['username']
+        sub_protocol = event.get('sub_protocol')
+        time_sent = event.get('time_sent')
+        matchup_id = event['matchup_id']
+        
+        await self.send(text_data=json.dumps(
+            {
+                'matchup_id': matchup_id,
+                'message': message,
+                'username': username,
+                'protocol': 'handleMessage',
+                'sub_protocol': sub_protocol,
+                'time_sent': time_sent
+        }, default=str))
 
 
 
@@ -87,18 +164,10 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
 
 
 
-
-
-
-
-
-
-
-
-class MatchMakeConsumer(AsyncWebsocketConsumer):
+class MatchMakeConsumer(BaseNotificationConsumer):
     async def connect(self):
+        await super().connect()
         self.GROUP_NAME = 'matchmake'
-        self.room_name_for_specific_user = f"user_{self.scope['user'].username}"
 
 
         await self.channel_layer.group_add(
@@ -107,24 +176,17 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
         )
 
 
-        await self.channel_layer.group_add(
-            self.room_name_for_specific_user,
-            self.channel_name
-        )
-        
+
         await self.accept()
 
     async def disconnect(self, code):
+        await super().disconnect()
         await self.channel_layer.group_discard(
             self.GROUP_NAME,
             self.channel_name
         )
 
-        await self.channel_layer.group_discard(
-            self.room_name_for_specific_user,
-            self.channel_name
-        )
-        
+
 
     async def receive(self, text_data=None, bytes_data=None):
 
@@ -293,46 +355,9 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
             }
         ))
 
-    async def display_invite(self, event):
-        invite_sender_username = event['invite_sender_username']
-
-        await self.send(text_data=json.dumps(
-            {
-                'inviteSenderUsername': invite_sender_username,
-                'protocol': 'invited',
-            }
-        ))
 
 
-    async def handle_invite_response(self, event):
-        username = event['username']
-        response = event['invite_response']
-        invite_sender_username = event['invite_sender_username']
-        sub_protocol = event.get('sub_protocol')
-        matchup_id = event.get('matchup_id')
 
-        if response == 'accept':
-
-
-            await self.send(text_data=json.dumps(
-                {   
-                    'invite_response': 'ACCEPTED',
-                    'accepterUsername': username,
-                    'inviteSenderUsername': invite_sender_username,
-                    'protocol': 'handling_invite_response',
-                    'sub_protocol': sub_protocol,
-                    'matchup_id': matchup_id
-                }, default=str #FOR UUID SERIALIZATION ISSUES
-            ))
-
-        elif response == 'deny':
-            await self.send(text_data=json.dumps(
-                {   
-                    'invite_response': 'DENIED',
-                    'accepterUsername': username,
-                    'protocol': 'handling_invite_response'
-                }
-            ))
 
 
     async def accepting_player_cleanup(self, event):
@@ -362,42 +387,34 @@ class MatchMakeConsumer(AsyncWebsocketConsumer):
 
 
         
-class MatchupConsumer(AsyncWebsocketConsumer):
+class MatchupConsumer(BaseNotificationConsumer):
     async def connect(self):
+        await super().connect()
+
+
         self.opponent_username = ''
-        self.user = self.scope['user']
-        
-        self.GROUP_NAME = f'matchup_{self.user.username}'
-
-
-        await self.channel_layer.group_add(
-            self.GROUP_NAME,
-            self.channel_name
-        )
 
         
         await self.accept()
 
     async def disconnect(self, code):
+
         player = await database_sync_to_async(Player.objects.get)(user=self.user)
         opponents = await database_sync_to_async(list)(player.get_opponents())
                     
         # TODO PUT THIS IN CELERY TASK
         for opponent in opponents:
             await self.channel_layer.group_send(
-                f'matchup_{opponent.user.username}', 
+                f'user_{opponent.user.username}', 
                 {
                     'type': 'handle_user_state',
                     'username': self.user.username,
                     'user_state': 'left'
                 }
             )
+        await super().disconnect()
 
-        await self.channel_layer.group_discard(
-            self.GROUP_NAME,
-            self.channel_name
-        )
-        
+ 
     
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
@@ -412,7 +429,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
         if protocol == 'acknowledge':
             active_user_username = text_data_json['active_user']
             await self.channel_layer.group_send(
-                f'matchup_{active_user_username}',
+                f'user_{active_user_username}',
                 {
                     
                     'type': 'handle_acknowledge',
@@ -425,7 +442,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                 
             for opponent in opponents:
                 await self.channel_layer.group_send(
-                    f'matchup_{opponent.user.username}', 
+                    f'user_{opponent.user.username}', 
                     {
                         'type': 'handle_user_state',
                         'username': self.user.username,
@@ -460,7 +477,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                 formatted_datetime = new_message.time_sent.strftime('%b %#d, %I:%M %p')
 
                 await self.channel_layer.group_send(
-                    f'matchup_{self.opponent_username}',
+                    f'user_{self.opponent_username}',
                     {
                         'type': 'chat_message',
                         'message': message,
@@ -473,7 +490,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
 
 
                 await self.channel_layer.group_send(
-                    f'matchup_{username}',
+                    f'user_{username}',
                     {
                         'type': 'chat_message',
                         'message': message,
@@ -485,7 +502,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                 )
             else:
                 await self.channel_layer.group_send(
-                    f'matchup_{self.opponent_username}',
+                    f'user_{self.opponent_username}',
                     {
                         'type': 'chat_message',
                         'message': message,
@@ -495,7 +512,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                 )
                    
                 await self.channel_layer.group_send(
-                    f'matchup_{username}',
+                    f'user_{username}',
                     {
                         'type': 'chat_message',
                         'message': message,
@@ -504,22 +521,7 @@ class MatchupConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
-    async def chat_message(self, event):
-        message = event['message']
-        username = event['username']
-        sub_protocol = event.get('sub_protocol')
-        time_sent = event.get('time_sent')
-        matchup_id = event['matchup_id']
-        
-        await self.send(text_data=json.dumps(
-            {
-                'matchup_id': matchup_id,
-                'message': message,
-                'username': username,
-                'protocol': 'handleMessage',
-                'sub_protocol': sub_protocol,
-                'time_sent': time_sent
-        }, default=str))
+
 
     async def handle_user_state(self, event):
         username = event['username']

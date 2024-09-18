@@ -21,8 +21,8 @@ def all_matchups(request):
     last_messages = []
     context = {}
 
-    for matchup in all_matchups:
-        last_messages.append(list(matchup.messages.all())[-1])
+    # for matchup in all_matchups:
+    #     last_messages.append(list(matchup.messages.all())[0])
     
     matchups_with_last_message = zip(last_messages, list(all_matchups))
 

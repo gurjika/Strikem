@@ -83,7 +83,7 @@ class Reservation(models.Model):
     end_time = models.DateTimeField()
     real_end_datetime = models.DateTimeField()
 
-    
+
 
     def __str__(self) -> str:
         return f'{self.start_time} - {self.end_time}'
@@ -108,6 +108,7 @@ class Invitation(models.Model):
 
 
 class Matchup(models.Model):
+    
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,

@@ -15,7 +15,7 @@ from collections import OrderedDict
 from django.db.models import Q
 from django.db.models import Max
 from django.http import Http404, HttpResponse
-from .forms import ReservationForm
+# from .forms import ReservationForm
 from .tasks import notify
 from django.db.models import Prefetch
 from datetime import time
@@ -35,7 +35,6 @@ def matchmakings(request):
     matches = MatchMake.objects.all()
 
     invites = Invitation.objects.filter(player_invited__user=request.user)
-
 
     context = {
         'invites': invites,
@@ -146,61 +145,61 @@ def matchup_list(request):
     return render(request, 'poolstore/matchup-list.html', context)
 
 
-class ReservationView(LoginRequiredMixin, CreateView):
-    template_name = 'poolstore/booking.html'
-    form_class = ReservationForm
-    success_url = '/'
+# class ReservationView(LoginRequiredMixin, CreateView):
+#     template_name = 'poolstore/booking.html'
+#     form_class = ReservationForm
+#     success_url = '/'
 
 
 
 
-    def form_valid(self, form):
-        start_time = form.instance.start_time
-        reservation_date = form.instance.date
+#     def form_valid(self, form):
+#         start_time = form.instance.start_time
+#         reservation_date = form.instance.date
         
-        start_datetime = datetime.combine(reservation_date, start_time)
-        tbilisi_tz = pytz.timezone('Asia/Tbilisi')
-        start_time_tbilisi = tbilisi_tz.localize(start_datetime)
+#         start_datetime = datetime.combine(reservation_date, start_time)
+#         tbilisi_tz = pytz.timezone('Asia/Tbilisi')
+#         start_time_tbilisi = tbilisi_tz.localize(start_datetime)
 
-        start_time_tbilisi_utc = start_time_tbilisi.astimezone(pytz.UTC)
+#         start_time_tbilisi_utc = start_time_tbilisi.astimezone(pytz.UTC)
 
-        reminder_time = start_time_tbilisi_utc - timedelta(minutes=5)
+#         reminder_time = start_time_tbilisi_utc - timedelta(minutes=5)
 
-        notify.apply_async((form.instance.id,), eta=reminder_time)
-
-
-
-        end_datetime = (start_datetime + timedelta(minutes=int(form.instance.duration)))
-        real_end_datetime = end_datetime + timedelta(minutes=5)
+#         notify.apply_async((form.instance.id,), eta=reminder_time)
 
 
-        end_datetime_utc = end_datetime.astimezone(pytz.UTC)
-        real_end_datetime_utc = real_end_datetime.astimezone(pytz.UTC)
+
+#         end_datetime = (start_datetime + timedelta(minutes=int(form.instance.duration)))
+#         real_end_datetime = end_datetime + timedelta(minutes=5)
 
 
-        form.instance.end_time = end_datetime_utc
-        form.instance.real_end_time = real_end_datetime_utc
-        form.instance.table_id = self.kwargs['table_pk']
-        form.instance.player = self.request.user.player
+#         end_datetime_utc = end_datetime.astimezone(pytz.UTC)
+#         real_end_datetime_utc = real_end_datetime.astimezone(pytz.UTC)
 
 
-        return super().form_valid(form)
+#         form.instance.end_time = end_datetime_utc
+#         form.instance.real_end_time = real_end_datetime_utc
+#         form.instance.table_id = self.kwargs['table_pk']
+#         form.instance.player = self.request.user.player
+
+
+#         return super().form_valid(form)
     
 
-    # TODO FIX RESERVATION ENDING NEXT DAY
+#     # TODO FIX RESERVATION ENDING NEXT DAY
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
 
-        reservations = Reservation.objects.filter(date=datetime.today()).order_by('start_time').all()
-        context.update(display_available_reservations(reservations))
+#         reservations = Reservation.objects.filter(date=datetime.today()).order_by('start_time').all()
+#         context.update(display_available_reservations(reservations))
         
-        return context
+#         return context
     
-class MyReservationView(LoginRequiredMixin, ListView):
-    template_name = 'poolstore/my-reservations.html'
-    context_object_name = 'reservations'
+# class MyReservationView(LoginRequiredMixin, ListView):
+#     template_name = 'poolstore/my-reservations.html'
+#     context_object_name = 'reservations'
 
-    def get_queryset(self) -> QuerySet[Any]:
-        queryset = Reservation.objects.filter(player=self.request.user.player)
-        return queryset
+#     def get_queryset(self) -> QuerySet[Any]:
+#         queryset = Reservation.objects.filter(player=self.request.user.player)
+#         return queryset

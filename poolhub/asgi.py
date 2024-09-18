@@ -18,7 +18,7 @@ application = get_asgi_application()
 application = ProtocolTypeRouter({
     'http': application,
     'websocket': AllowedHostsOriginValidator(
-        JwtAuthMiddlewareStack(
+        AuthMiddlewareStack(
             URLRouter(poolstore.routing.websocket_urlpatterns)
         )
     ),

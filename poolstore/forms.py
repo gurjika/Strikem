@@ -37,77 +37,77 @@ DURATION_CHOICES = [
 ]
 
 
-class ReservationForm(forms.ModelForm):
+# class ReservationForm(forms.ModelForm):
 
-    duration = forms.ChoiceField(
-    choices=DURATION_CHOICES,
-    label='Select Duration',
-    widget=forms.RadioSelect(attrs={
-        'class': 'form-check-input',
+#     duration = forms.ChoiceField(
+#     choices=DURATION_CHOICES,
+#     label='Select Duration',
+#     widget=forms.RadioSelect(attrs={
+#         'class': 'form-check-input',
         
-    })
-    )
+#     })
+#     )
 
-    class Meta:
-        model = Reservation
-        fields = ['start_time', 'duration', 'date']
+#     class Meta:
+#         model = Reservation
+#         fields = ['start_time', 'duration', 'date']
 
-        widgets = {
-            'start_time': TimeInput(attrs={'class': 'form-control', 'id': 'start_time', 'min': '10:00', 'max': '04:00'}),
-            'date': DateInput(
-                attrs={
-                    'class': 'form-control datepicker', 
-                    'hx-trigger': 'input',
-                    'hx-get': '/all_reservations/',
-                    'hx-target': '#reservations',
-                    'min': min_value_date_format,
-                    'max': max_value_date_format,
-                    'id': 'date'
-                })}
+#         widgets = {
+#             'start_time': TimeInput(attrs={'class': 'form-control', 'id': 'start_time', 'min': '10:00', 'max': '04:00'}),
+#             'date': DateInput(
+#                 attrs={
+#                     'class': 'form-control datepicker', 
+#                     'hx-trigger': 'input',
+#                     'hx-get': '/all_reservations/',
+#                     'hx-target': '#reservations',
+#                     'min': min_value_date_format,
+#                     'max': max_value_date_format,
+#                     'id': 'date'
+#                 })}
         
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        now = datetime.now()
-        self.fields['date'].initial = now.date()
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         now = datetime.now()
+#         self.fields['date'].initial = now.date()
    
 
-    def clean(self) -> dict[str, Any]:
-        cleaned_data = super().clean()
-        date = cleaned_data.get('date')
-        start_time = cleaned_data.get('start_time')
-        duration = cleaned_data.get('duration')
+#     def clean(self) -> dict[str, Any]:
+#         cleaned_data = super().clean()
+#         date = cleaned_data.get('date')
+#         start_time = cleaned_data.get('start_time')
+#         duration = cleaned_data.get('duration')
 
 
-        start_datetime = datetime.combine(date, start_time)
-        end_datetime = start_datetime + timedelta(minutes=int(duration))
-        real_end_datetime = end_datetime + timedelta(minutes=5)
-
-
-
-
-
-        # TODO CHECK IF RESERVATION END TIME IS THE NEXT DAY
-        existing_reservations = Reservation.objects.filter(
-            real_end_time__date=date,
-        ).exclude(id=self.instance.id)
+#         start_datetime = datetime.combine(date, start_time)
+#         end_datetime = start_datetime + timedelta(minutes=int(duration))
+#         real_end_datetime = end_datetime + timedelta(minutes=5)
 
 
 
 
-        print(existing_reservations)
+
+#         # TODO CHECK IF RESERVATION END TIME IS THE NEXT DAY
+#         existing_reservations = Reservation.objects.filter(
+#             real_end_time__date=date,
+#         ).exclude(id=self.instance.id)
+
+
+
+
+#         print(existing_reservations)
 
 
         
-        for reservation in existing_reservations:
-            existing_start = datetime.combine(reservation.date, reservation.start_time)
-            existing_end = reservation.real_end_time.astimezone(timezone.get_current_timezone()).replace(tzinfo=None)
+#         for reservation in existing_reservations:
+#             existing_start = datetime.combine(reservation.date, reservation.start_time)
+#             existing_end = reservation.real_end_time.astimezone(timezone.get_current_timezone()).replace(tzinfo=None)
 
             
     
-            if not (start_datetime >= existing_end or real_end_datetime <= existing_start):
-                raise forms.ValidationError('nu kvetav dzma')
+#             if not (start_datetime >= existing_end or real_end_datetime <= existing_start):
+#                 raise forms.ValidationError('nu kvetav dzma')
 
    
 
-        return cleaned_data
+#         return cleaned_data
         

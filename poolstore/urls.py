@@ -10,13 +10,15 @@ urlpatterns = [
     path('poolhouses/', views.PoolHouseListView.as_view(), name='poolhouse-list'),
     path('', views.home, name='home'),
     path('matchup/', views.matchup_list, name='matchup-list'),
-    path('reservations/', views.MyReservationView.as_view(), name='my-reservations'),
-    path('poolhouses/<str:poolhouse>/<int:table_pk>/reservation', views.ReservationView.as_view(), name='reservation')
+    # path('reservations/', views.MyReservationView.as_view(), name='my-reservations'),
+    # path('poolhouses/<str:poolhouse>/<int:table_pk>/reservation', views.ReservationView.as_view(), name='reservation')
 ]
+
+
 
 htmx_urlpatterns = [
     path('all_matchups/', htmx_views.all_matchups, name='all-matchups'),
-    path('all_reservations/', htmx_views.reservations, name='all-reservations')
+    # path('all_reservations/', htmx_views.reservations, name='all-reservations')
 
 ]
 
