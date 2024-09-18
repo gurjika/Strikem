@@ -16,7 +16,6 @@ from django.db.models import Q
 from django.db.models import Max
 from django.http import Http404, HttpResponse
 # from .forms import ReservationForm
-from .tasks import notify
 from django.db.models import Prefetch
 from datetime import time
 from .utils import display_available_reservations

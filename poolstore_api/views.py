@@ -1,15 +1,15 @@
 from datetime import datetime, timedelta
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import Invitation, Matchup, Message, PoolHouse, PoolTable, Reservation
-from poolstore_api.serializers import InvitationSerializer, MatchupSerializer, MessageSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
+from poolstore.models import Invitation, Matchup, Message, Player, PoolHouse, PoolTable, Reservation
+from poolstore_api.serializers import InvitationSerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ReservationFilter
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly
 from django.db.models import Q
 from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
@@ -101,3 +101,16 @@ class MatchMakeViewSet(ListModelMixin, GenericViewSet, RetrieveModelMixin):
 
     def get_queryset(self):
         return Invitation.objects.filter(player_invited=self.request.user.player)
+    
+
+class PlayerViewSet(ModelViewSet):
+    serializer_class = PlayerSerializer
+    filter_backends = [DjangoFilterBackend]
+    permission_classes = [IsCurrentUserOrReadOnly]
+    filterset_fields = ['user__username']
+
+
+    def get_queryset(self):
+        return Player.objects.all()
+    
+

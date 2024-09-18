@@ -3,8 +3,27 @@ from rest_framework import serializers
 from poolstore.models import Invitation, Matchup, Message, Player, PoolHouse, PoolTable, Reservation
 from django.utils import timezone
 from .tasks import send_email_before_res
-
+from django.contrib.auth import get_user_model
 now = timezone.now()
+
+User = get_user_model()
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'id']
+
+
+class PlayerSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    inviting_to_play = serializers.BooleanField(read_only=True)
+    opponents_met = serializers.IntegerField(read_only=True)
+    games_played = serializers.IntegerField(read_only=True)
+    games_won = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Player
+        fields = ['id', 'games_played', 'opponents_met', 'games_won', 'inviting_to_play', 'profile_image', 'user']
 
 
 class SimplePlayerSerializer(serializers.ModelSerializer):
