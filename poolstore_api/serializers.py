@@ -81,6 +81,10 @@ class PoolHouseSerializer(serializers.ModelSerializer):
         model = PoolHouse
         fields = ['id', 'title', 'address', 'tables', 'avg_rating']
 
+class SimplePoolHouseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PoolHouse
+        fields = ['id', 'title', 'address']
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -111,6 +115,7 @@ class InvitationSerializer(serializers.ModelSerializer):
 
 class PoolHouseRatingSerializer(serializers.ModelSerializer):
     rater = SimplePlayerSerializer(read_only=True)
+    poolhouse = SimplePoolHouseSerializer(read_only=True)
     class Meta:
         model = PoolHouseRating
         fields = ['rate', 'rater', 'poolhouse']
