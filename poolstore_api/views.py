@@ -1,13 +1,11 @@
 from datetime import datetime, timedelta
-from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from poolstore.models import Invitation, Matchup, Message, Player, PoolHouse, PoolTable, Reservation
 from poolstore_api.serializers import InvitationSerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
-from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, DestroyModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import ReservationFilter
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly
 from django.db.models import Q
