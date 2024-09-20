@@ -119,3 +119,16 @@ class PoolHouseRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = PoolHouseRating
         fields = ['rate', 'rater', 'poolhouse']
+
+
+    def create(self, validated_data):
+        obj, created = PoolHouseRating.objects.update_or_create(
+            rater=self.context['player'],
+            poolhouse_id=self.context['poolhouse_pk'],
+            defaults={
+                'rate': validated_data['rate'],
+            }
+        )
+
+
+        return obj

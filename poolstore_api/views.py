@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from poolstore.models import Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
 from poolstore_api.serializers import InvitationSerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -115,9 +115,12 @@ class PlayerViewSet(ModelViewSet):
     
 
 
-class PoolHouseRatingViewSet(ModelViewSet):
+class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet, CreateModelMixin):
     serializer_class = PoolHouseRatingSerializer
     permission_classes = [IsRaterOrReadOnly]
 
     def get_queryset(self):
         return PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
+    
+    def get_serializer_context(self):
+        return {'player': self.request.user.player, 'poolhouse_pk': self.kwargs['poolhouse_pk']}
