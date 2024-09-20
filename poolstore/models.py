@@ -8,7 +8,12 @@ from PIL import Image
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericRelation
+
 # Create your models here.
+
+
+
 
 
 class Player(models.Model): 
@@ -42,7 +47,6 @@ class PoolHouse(models.Model):
     title = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
-    
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -58,6 +62,7 @@ class MatchMake(models.Model):
 
 class PoolTable(models.Model):
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='tables')
+
         
 
 
@@ -90,11 +95,7 @@ class Reservation(models.Model):
     
 
 
-class Rating(models.Model):
-    rate = models.PositiveSmallIntegerField()
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+
     
 
 class PlayerGameSession(models.Model):
@@ -108,7 +109,6 @@ class Invitation(models.Model):
 
 
 class Matchup(models.Model):
-    
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -130,3 +130,9 @@ class Message(models.Model):
     def __str__(self) -> str:
         return self.body
     
+
+
+class PoolHouseRating(models.Model):
+    rate = models.PositiveSmallIntegerField()
+    rater = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='my_ratings')
+    poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='ratings')

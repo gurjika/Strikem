@@ -12,13 +12,15 @@ from django.db.models import Q
 from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.db.models import Avg
+
 
 # Create your views here.
 
 
 
 class PoolHouseViewSet(ModelViewSet):
-    queryset = PoolHouse.objects.all()
+    queryset = PoolHouse.objects.annotate(avg_rating=Avg('ratings__rate')).all()
     serializer_class = PoolHouseSerializer
     permission_classes = [IsAdminOrReadOnly]
 

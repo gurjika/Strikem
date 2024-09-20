@@ -1,12 +1,17 @@
 from datetime import timedelta
 from rest_framework import serializers
-from poolstore.models import Invitation, Matchup, Message, Player, PoolHouse, PoolTable, Reservation
+from poolstore.models import Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
 from django.utils import timezone
 from .tasks import send_email_before_res
 from django.contrib.auth import get_user_model
 now = timezone.now()
 
 User = get_user_model()
+
+
+
+
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -71,9 +76,10 @@ class PoolTableSerializer(serializers.ModelSerializer):
 
 class PoolHouseSerializer(serializers.ModelSerializer):
     tables = PoolTableSerializer(many=True)
+    avg_rating = serializers.FloatField()
     class Meta:
         model = PoolHouse
-        fields = ['id', 'title', 'address', 'tables']
+        fields = ['id', 'title', 'address', 'tables', 'avg_rating']
 
 
 
@@ -102,3 +108,9 @@ class InvitationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invitation
         fields = ['id', 'player_invited', 'player_inviting']
+
+class PoolHouseRatingSerializer(serializers.ModelSerializer):
+    rater = SimplePlayerSerializer(read_only=True)
+    class Meta:
+        model = PoolHouseRating
+        fields = ['rate', 'rater', 'poolhouse']
