@@ -19,7 +19,6 @@ def finish_game_session(game_session_id):
     }
 
     async_to_sync(channel_layer.group_send)(group_name, event)
-    game_session.delete()
 
 
 
@@ -34,4 +33,6 @@ def send_email_before_res(user_id):
         recipient_list=[user.email],
         fail_silently=False ## TESTING
     )
+
+
 

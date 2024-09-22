@@ -1,6 +1,6 @@
 from datetime import timedelta
 from rest_framework import serializers
-from poolstore.models import Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
+from poolstore.models import History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
 from django.utils import timezone
 from .tasks import send_email_before_res
 from django.contrib.auth import get_user_model
@@ -132,3 +132,22 @@ class PoolHouseRatingSerializer(serializers.ModelSerializer):
 
 
         return obj
+    
+class CreateHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = History
+        fields = ['winner_player', 'loser_player', 'result_winner', 'result_loser', 'poolhouse']
+
+
+    
+class ListHistorySerializer(serializers.ModelSerializer):
+    poolhouse = SimplePoolHouseSerializer()
+    winner_player = SimplePlayerSerializer()
+    loser_player = SimplePlayerSerializer()
+    class Meta:
+        model = History
+        fields = ['winner_player', 'loser_player', 'result_winner',
+                  'result_loser', 'points_given', 'penalty_points', 'tie', 'timestamp', 
+                  'poolhouse']
+
+

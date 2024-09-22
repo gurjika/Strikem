@@ -77,7 +77,6 @@ class GameSession(models.Model):
 
     pooltable = models.ForeignKey(PoolTable, on_delete=models.SET_NULL, related_name='game_sessions', null=True)
     players = models.ManyToManyField(Player, through='PlayerGameSession', related_name='game_session')
-    result = models.CharField(max_length=50)
 
 
 
@@ -140,9 +139,14 @@ class PoolHouseRating(models.Model):
 class History(models.Model):
     winner_player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='win_history')
     loser_player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='loss_history')
-    result = models.CharField(max_length=100)
+    result_winner = models.PositiveSmallIntegerField()
+    result_loser = models.PositiveSmallIntegerField()
     points_given = models.PositiveSmallIntegerField()
     penalty_points = models.PositiveSmallIntegerField()
     tie = models.BooleanField(default=False) 
     timestamp = models.DateTimeField()
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.SET_NULL, null=True, related_name='matches_history')
+
+
+
+    

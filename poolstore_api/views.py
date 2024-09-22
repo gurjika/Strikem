@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
-from poolstore_api.serializers import InvitationSerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
+from poolstore.models import History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
+from poolstore_api.serializers import CreateHistorySerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -124,3 +124,16 @@ class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMix
     
     def get_serializer_context(self):
         return {'player': self.request.user.player, 'poolhouse_pk': self.kwargs['poolhouse_pk']}
+    
+
+class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
+
+    def get_queryset(self):
+        queryset = History.objects.filter(Q(winner_player=self.request.user.player) | Q(loser_player=self.request.user.player))
+        return queryset
+    
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ListHistorySerializer
+        return CreateHistorySerializer
