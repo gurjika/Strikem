@@ -23,6 +23,7 @@ class Player(models.Model):
     games_won = models.PositiveIntegerField()
     inviting_to_play = models.BooleanField(default=False)
     profile_image = models.ImageField(default='default.jpg', upload_to='profile-pics')
+    total_points = models.PositiveIntegerField()
     
     
     def get_opponents(self):
@@ -93,9 +94,6 @@ class Reservation(models.Model):
     def __str__(self) -> str:
         return f'{self.start_time} - {self.end_time}'
     
-
-
-
     
 
 class PlayerGameSession(models.Model):
@@ -136,3 +134,15 @@ class PoolHouseRating(models.Model):
     rate = models.PositiveSmallIntegerField()
     rater = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='my_ratings')
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='ratings')
+
+
+
+class History(models.Model):
+    winner_player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='win_history')
+    loser_player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='loss_history')
+    result = models.CharField(max_length=100)
+    points_given = models.PositiveSmallIntegerField()
+    penalty_points = models.PositiveSmallIntegerField()
+    tie = models.BooleanField(default=False) 
+    timestamp = models.DateTimeField()
+    poolhouse = models.ForeignKey(PoolHouse, on_delete=models.SET_NULL, null=True, related_name='matches_history')
