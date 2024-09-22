@@ -18,14 +18,14 @@ TIE_POINTS = 1
 
 
 
-class UserSerializer(serializers.ModelSerializer):
+class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'id']
 
 
 class PlayerSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = SimpleUserSerializer(read_only=True)
     inviting_to_play = serializers.BooleanField(read_only=True)
     opponents_met = serializers.IntegerField(read_only=True)
     games_played = serializers.IntegerField(read_only=True)
