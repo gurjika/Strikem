@@ -137,3 +137,7 @@ class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Gener
         if self.request.method == 'GET':
             return ListHistorySerializer
         return CreateHistorySerializer
+    
+
+    def get_serializer_context(self):
+        return {'player_id': self.request.user.player.id}

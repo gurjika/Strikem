@@ -19,7 +19,7 @@ def finish_game_session(game_session_id):
     }
 
     async_to_sync(channel_layer.group_send)(group_name, event)
-
+    game_session.status_finished = True
 
 
 @shared_task

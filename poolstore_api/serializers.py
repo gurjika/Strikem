@@ -1,13 +1,18 @@
 from datetime import timedelta
 from rest_framework import serializers
-from poolstore.models import History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
+from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
 from django.utils import timezone
 from .tasks import send_email_before_res
 from django.contrib.auth import get_user_model
+from django.db import transaction
+
 now = timezone.now()
 
 User = get_user_model()
 
+PENALTY_POINTS = 2
+WIN_POINTS = 10
+TIE_POINTS = 1
 
 
 
@@ -134,11 +139,45 @@ class PoolHouseRatingSerializer(serializers.ModelSerializer):
         return obj
     
 class CreateHistorySerializer(serializers.ModelSerializer):
+    game_session = serializers.UUIDField(write_only=True)
     class Meta:
         model = History
-        fields = ['winner_player', 'loser_player', 'result_winner', 'result_loser', 'poolhouse']
+        fields = ['id', 'game_session', 'winner_player', 'loser_player', 'result_winner', 'result_loser']
 
 
+    def validate_game_session(self, value):
+        game_session = GameSession.objects.filter(id=value).filter(players__id__in=[self.context['player_id']]).filter(status_finished=True)
+        if game_session.exists():
+            return game_session.first()
+        raise serializers.ValidationError('Game Session Does not exist')
+
+    def create(self, validated_data):
+        try:
+            with transaction.atomic():
+                validated_data.update({'poolhouse': validated_data['game_session'].poolhouse})
+                print(validated_data['winner_player'])
+                game_session = validated_data.pop('game_session')
+
+                if int(validated_data['result_winner']) == int(validated_data['result_loser']):
+                    obj = History.objects.create(tie=True, penalty_points=0, points_given=TIE_POINTS,  **validated_data)
+                    player_tie_f = validated_data['winner_player']
+                    player_tie_s = validated_data['loser_player']
+                    player_tie_f.total_points += TIE_POINTS
+                    player_tie_s.total_points += TIE_POINTS
+                    return obj
+
+
+                player_winner = validated_data['winner_player']
+                player_winner.total_points += WIN_POINTS
+                player_loser = validated_data['loser_player']
+                player_loser.total_points -= PENALTY_POINTS 
+                game_session.delete()
+
+                return History.objects.create(penalty_points=PENALTY_POINTS, points_given=WIN_POINTS, **validated_data)
+        except Exception as e:
+            raise serializers.ValidationError(f"Error occurred: {str(e)}")
+
+        
     
 class ListHistorySerializer(serializers.ModelSerializer):
     poolhouse = SimplePoolHouseSerializer()
