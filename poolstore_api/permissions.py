@@ -8,7 +8,6 @@ class IsAdminOrReadOnly(BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        print(request.user.is_superuser)
         return request.user.is_superuser
     
 

@@ -123,7 +123,7 @@ class PoolHouseRatingSerializer(serializers.ModelSerializer):
     poolhouse = SimplePoolHouseSerializer(read_only=True)
     class Meta:
         model = PoolHouseRating
-        fields = ['rate', 'rater', 'poolhouse']
+        fields = ['id', 'rate', 'rater', 'poolhouse']
 
 
     def create(self, validated_data):
@@ -145,11 +145,15 @@ class CreateHistorySerializer(serializers.ModelSerializer):
         fields = ['id', 'game_session', 'winner_player', 'loser_player', 'result_winner', 'result_loser']
 
 
+    # CHECK IF THE GAME SESSION IS FINISHED AND THE REQUEST IS SENT BY THE PLAYER THAT IS IN THE SESSION
+
     def validate_game_session(self, value):
         game_session = GameSession.objects.filter(id=value).filter(players__id__in=[self.context['player_id']]).filter(status_finished=True)
         if game_session.exists():
             return game_session.first()
+        
         raise serializers.ValidationError('Game Session Does not exist')
+    
 
     def create(self, validated_data):
         try:
@@ -160,17 +164,27 @@ class CreateHistorySerializer(serializers.ModelSerializer):
 
                 if int(validated_data['result_winner']) == int(validated_data['result_loser']):
                     obj = History.objects.create(tie=True, penalty_points=0, points_given=TIE_POINTS,  **validated_data)
+                    
                     player_tie_f = validated_data['winner_player']
                     player_tie_s = validated_data['loser_player']
+
                     player_tie_f.total_points += TIE_POINTS
                     player_tie_s.total_points += TIE_POINTS
+
+                    player_tie_f.save()
+                    player_tie_s.save()
                     return obj
 
 
                 player_winner = validated_data['winner_player']
                 player_winner.total_points += WIN_POINTS
+
                 player_loser = validated_data['loser_player']
-                player_loser.total_points -= PENALTY_POINTS 
+                player_loser.total_points -= PENALTY_POINTS
+
+                player_loser.save()
+                player_winner.save()
+
                 game_session.delete()
 
                 return History.objects.create(penalty_points=PENALTY_POINTS, points_given=WIN_POINTS, **validated_data)
