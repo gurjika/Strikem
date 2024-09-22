@@ -23,7 +23,7 @@ class Player(models.Model):
     games_won = models.PositiveIntegerField()
     inviting_to_play = models.BooleanField(default=False)
     profile_image = models.ImageField(default='default.jpg', upload_to='profile-pics')
-    total_points = models.PositiveIntegerField()
+    total_points = models.PositiveIntegerField(default=1000)
     
     
     def get_opponents(self):

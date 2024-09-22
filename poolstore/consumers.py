@@ -567,7 +567,7 @@ class MatchupConsumer(BaseNotificationConsumer):
 
 
     
-class GameSessionConsumer(AsyncWebsocketConsumer):
+class GameSessionConsumer(BaseNotificationConsumer):
     async def connect(self):
   
         self.user = self.scope['user']

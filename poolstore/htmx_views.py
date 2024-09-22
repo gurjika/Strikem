@@ -8,6 +8,8 @@ from django.db.models import Prefetch
 from django.db.models import Max
 from collections import OrderedDict
 from .utils import display_available_reservations
+
+
 #NEEEDS FIX. WHOLE PARTIAL RELOAD NOT EFFICIENT
 @login_required
 def all_matchups(request):

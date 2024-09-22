@@ -7,7 +7,6 @@ from django.contrib import messages
 from .models import User
 
 
-# Create your views here.
 
 class MyLoginView(LoginView):
     template_name='core/login.html'

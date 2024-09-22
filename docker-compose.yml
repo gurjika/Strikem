@@ -12,7 +12,7 @@ services:
 
     volumes:
 
-      - ../mysqldata:/var/lib/mysql 
+      - ../poolhubdata:/var/lib/mysql 
 
 
   redis:
