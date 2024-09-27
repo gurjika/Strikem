@@ -35,6 +35,17 @@ class TableViewSet(ModelViewSet):
         return PoolTable.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
 
 
+
+    def get_permissions(self):
+        if self.action == 'reserve':
+            if self.request.method == 'POST' or self.request.method == 'GET':
+                permission_classes = [IsAuthenticated]  # Only authenticated users can reserve
+
+        else:
+            
+            permission_classes = self.permission_classes
+        return [permission() for permission in permission_classes]
+
     @action(detail=True, methods=['POST', 'GET'])
     def reserve(self, request, pk, poolhouse_pk):
 

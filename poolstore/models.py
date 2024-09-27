@@ -80,6 +80,16 @@ class GameSession(models.Model):
     status_finished = models.BooleanField(default=False)
 
 
+class Matchup(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_matchup_invitings')
+    player_accepting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='accepted_matchups')
+
 
 class Reservation(models.Model):
     start_time = models.DateTimeField()
@@ -88,7 +98,7 @@ class Reservation(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='reservations')
     end_time = models.DateTimeField()
     real_end_datetime = models.DateTimeField()
-
+    matchup = models.OneToOneField(Matchup, on_delete=models.SET_NULL, null=True, related_name='reservation')
 
 
     def __str__(self) -> str:
@@ -105,16 +115,6 @@ class Invitation(models.Model):
     player_invited = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='received_invitations')
     player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_invitations')
 
-
-class Matchup(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
-
-    player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_matchup_invitings')
-    player_accepting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='accepted_matchups')
     
 
 

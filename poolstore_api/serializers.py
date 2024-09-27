@@ -2,7 +2,7 @@ from datetime import timedelta
 from rest_framework import serializers
 from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
 from django.utils import timezone
-from .tasks import send_email_before_res
+from .tasks import send_email_before_res, start_game_session
 from django.contrib.auth import get_user_model
 from django.db import transaction
 
@@ -46,7 +46,7 @@ class ReservationSerializer(serializers.ModelSerializer):
     player = SimplePlayerSerializer(read_only=True)
     class Meta:
         model = Reservation
-        fields = ['id', 'start_time', 'player', 'duration']
+        fields = ['id', 'start_time', 'player', 'duration', 'matchup']
 
     def create(self, validated_data):
         player = self.context['player']
@@ -60,9 +60,9 @@ class ReservationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('nu kvetav dzma')
     
 
-
         send_email_before_res.apply_async((player.user.id,), eta=start_time - timedelta(minutes=20))
         obj = Reservation.objects.create(**validated_data, end_time=end_time, table_id=table_id, player=player, real_end_datetime=real_end_datetime)
+        start_game_session.apply_async((obj.id,), eta=start_time)
         return obj
     
 

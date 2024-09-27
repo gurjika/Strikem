@@ -1,12 +1,31 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
-from poolstore.models import GameSession
+from poolstore.models import GameSession, PlayerGameSession, PoolTable, Reservation
 from asgiref.sync import async_to_sync
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 
 
 User = get_user_model()
+
+
+@shared_task
+def start_game_session(reservation_id):
+    reservation = Reservation.objects.get(id=reservation_id)
+    game_session = GameSession.objects.create(poolhouse=reservation.table.poolhouse, pooltable=reservation.table)
+
+    if reservation.matchup:
+        PlayerGameSession.objects.create(game_session=game_session, player=reservation.matchup.player_inviting)
+        PlayerGameSession.objects.create(game_session=game_session, player=reservation.matchup.player_accepting)
+    
+    else:
+        PlayerGameSession.objects.create(game_session=game_session, player=reservation.player)
+    
+
+    
+
+
+
 
 @shared_task
 def finish_game_session(game_session_id):

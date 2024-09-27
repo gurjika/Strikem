@@ -216,8 +216,8 @@ DJOSER = {
         'current_user': 'core.serializers.UserSerializer'
     },
 
-    'ACTIVATION_URL': 'activate/{uid}/{token}/',
-    'SEND_ACTIVATION_EMAIL': True,
+    # 'ACTIVATION_URL': 'activate/{uid}/{token}/',
+    # 'SEND_ACTIVATION_EMAIL': True,
 }
 
 
