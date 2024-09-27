@@ -139,11 +139,11 @@ class PoolHouseRating(models.Model):
 
 class History(models.Model):
     winner_player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='win_history')
-    loser_player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='loss_history')
-    result_winner = models.PositiveSmallIntegerField()
-    result_loser = models.PositiveSmallIntegerField()
-    points_given = models.PositiveSmallIntegerField()
-    penalty_points = models.PositiveSmallIntegerField()
+    loser_player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='loss_history', null=True)
+    result_winner = models.PositiveSmallIntegerField(null=True)
+    result_loser = models.PositiveSmallIntegerField(null=True)
+    points_given = models.PositiveSmallIntegerField(null=True)
+    penalty_points = models.PositiveSmallIntegerField(null=True)
     tie = models.BooleanField(default=False) 
     timestamp = models.DateTimeField(auto_now_add=True)
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.SET_NULL, null=True, related_name='matches_history')
