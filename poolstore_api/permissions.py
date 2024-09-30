@@ -25,3 +25,12 @@ class IsRaterOrReadOnly(BasePermission):
             return True
         
         return obj.rater.user == request.user
+    
+
+class IsStaffOrDenied(BasePermission):
+    """
+    Custom permission to only allow staff members to access the view.
+    """
+
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.is_staff

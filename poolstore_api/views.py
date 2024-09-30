@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsRaterOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied
 from django.db.models import Q
 from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
@@ -15,6 +15,7 @@ from django.views.decorators.cache import cache_page
 from django.db.models import Avg
 from .tasks import finish_game_session
 from rest_framework import status
+
 # Create your views here.
 
 
@@ -156,6 +157,7 @@ class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Gener
 
 class GameSessionControlViewSet(ListModelMixin, DestroyModelMixin, GenericViewSet, RetrieveModelMixin):
     serializer_class = GameSessionSerializer
+    authentication_classes = [IsStaffOrDenied]
 
     def get_queryset(self):
         return GameSession.objects.filter(poolhouse=self.kwargs['poolhouse_pk'])
