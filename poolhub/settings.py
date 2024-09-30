@@ -257,3 +257,16 @@ DEFAULT_FROM_EMAIL = 'noreply@poolhub.com'
 #         },
 #     },
 # }
+
+
+
+# settings.py
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6739/2',  # Replace with your Redis URL
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}

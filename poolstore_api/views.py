@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
-from poolstore_api.serializers import CreateHistorySerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
+from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
+from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,8 +13,8 @@ from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.db.models import Avg
-
-
+from .tasks import finish_game_session
+from rest_framework import status
 # Create your views here.
 
 
@@ -152,3 +152,15 @@ class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Gener
 
     def get_serializer_context(self):
         return {'player_id': self.request.user.player.id}
+    
+
+class GameSessionControlViewSet(ListModelMixin, DestroyModelMixin, GenericViewSet, RetrieveModelMixin):
+    serializer_class = GameSessionSerializer
+
+    def get_queryset(self):
+        return GameSession.objects.filter(poolhouse=self.kwargs['poolhouse_pk'])
+    
+    def destroy(self, request, *args, **kwargs):
+        game_session = self.get_object()
+        game_session.delete()
+        return Response({"detail": "game session ended successfully."}, status=status.HTTP_204_NO_CONTENT)
