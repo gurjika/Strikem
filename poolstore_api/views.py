@@ -15,6 +15,10 @@ from django.views.decorators.cache import cache_page
 from django.db.models import Avg
 from .tasks import finish_game_session
 from rest_framework import status
+import os
+import requests
+from .utils import get_nearby_poolhouses
+
 
 # Create your views here.
 
@@ -26,6 +30,25 @@ class PoolHouseViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
 
 
+    @method_decorator(cache_page(60 * 15))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+
+class FilterPoolHouseViewSet(ListModelMixin, GenericViewSet):
+    queryset = PoolHouse.objects.annotate(avg_rating=Avg('ratings__rate')).all()
+    serializer_class = PoolHouseSerializer
+
+
+    @method_decorator(cache_page(60 * 5))
+    def list(self, request, *args, **kwargs):
+        user_lat = request.query_params.get('lat')
+        user_lng = request.query_params.get('lng')
+        venues = self.get_queryset()
+        nearby_poolhouses = get_nearby_poolhouses(lat=user_lat, long=user_lng, poolhouses=venues)
+   
+        serializer = self.get_serializer(nearby_poolhouses, many=True)
+        return Response(serializer.data)
 
 class TableViewSet(ModelViewSet):
     serializer_class = PoolTableSerializer
@@ -68,7 +91,7 @@ class TableViewSet(ModelViewSet):
         
 
         
-class ReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+class ReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet, DestroyModelMixin):
     http_method_names = ['get', 'head', 'options', 'delete']
     serializer_class = ReservationSerializer
     permission_classes = [IsAuthenticated]
@@ -76,7 +99,7 @@ class ReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     def get_queryset(self):
         if self.request.user.is_staff:
             return Reservation.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
-        return Reservation.objects.filter(player=self.request.user.player)
+        return Reservation.objects.filter(player=self.request.user.player, finished_reservation=False)
 
 
 
@@ -89,7 +112,6 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
         queryset = Matchup.objects.filter(Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player))
         return queryset
 
-    @method_decorator(cache_page(60 * 15))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
@@ -166,3 +188,7 @@ class GameSessionControlViewSet(ListModelMixin, DestroyModelMixin, GenericViewSe
         game_session = self.get_object()
         game_session.delete()
         return Response({"detail": "game session ended successfully."}, status=status.HTTP_204_NO_CONTENT)
+    
+
+
+

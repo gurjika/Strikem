@@ -25,8 +25,6 @@ def start_game_session(reservation_id):
     
 
 
-
-
 @shared_task
 def finish_game_session(game_session_id):
     game_session = GameSession.objects.get(id=game_session_id)
@@ -39,7 +37,10 @@ def finish_game_session(game_session_id):
 
     async_to_sync(channel_layer.group_send)(group_name, event)
     game_session.status_finished = True
+    game_session.reservation.finished_reservation = True
     game_session.save()
+
+    
 
 @shared_task
 def send_email_before_res(user_id):

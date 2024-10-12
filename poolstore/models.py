@@ -48,6 +48,8 @@ class PoolHouse(models.Model):
     title = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -99,6 +101,7 @@ class Reservation(models.Model):
     end_time = models.DateTimeField()
     real_end_datetime = models.DateTimeField()
     matchup = models.OneToOneField(Matchup, on_delete=models.SET_NULL, null=True, related_name='reservation')
+    finished_reservation = models.BooleanField(default=False)
 
 
     def __str__(self) -> str:

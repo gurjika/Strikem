@@ -264,7 +264,7 @@ DEFAULT_FROM_EMAIL = 'noreply@poolhub.com'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6739/2',  # Replace with your Redis URL
+        'LOCATION': 'redis://redis:6379/2', 
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
