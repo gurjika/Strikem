@@ -21,6 +21,5 @@ def get_nearby_poolhouses(lat, long, poolhouses):
         if distance_in_meters <= 5000:  # 5 km in meters
             nearby_venues.append(venue)
 
-    # Serialize the nearby venues
 
     return nearby_venues

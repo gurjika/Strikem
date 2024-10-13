@@ -5,7 +5,9 @@ from django.views.generic import CreateView, View
 from django.contrib.auth import logout
 from django.contrib import messages
 from .models import User
-
+from rest_framework.views import APIView
+import requests
+from rest_framework.response import Response
 
 
 class MyLoginView(LoginView):
@@ -44,3 +46,15 @@ def profile(request, username):
     user = get_object_or_404(User, username=username)
 
     return render(request, 'core/profile.html', {'user': user})
+
+
+
+class ActivateUserEmail(APIView):
+    def get (self, request, uid, token):
+        protocol = 'https://' if request.is_secure() else 'http://'
+        web_url = protocol + request.get_host()
+        post_url = web_url + "/auth/users/activation/"
+        post_data = {'uid': uid, 'token': token}
+        result = requests.post(post_url, data = post_data)
+        message = result.text
+        return Response(message)
