@@ -138,6 +138,7 @@ class MatchMakeViewSet(ListModelMixin, GenericViewSet, RetrieveModelMixin):
     
 
 class PlayerViewSet(ModelViewSet):
+    http_method_names = ['get', 'put', 'patch', 'options', 'head', 'delete']
     serializer_class = PlayerSerializer
     filter_backends = [DjangoFilterBackend]
     permission_classes = [IsCurrentUserOrReadOnly]
@@ -161,7 +162,7 @@ class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMix
     
 
 class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
-
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
         queryset = History.objects.filter(Q(winner_player=self.request.user.player) | Q(loser_player=self.request.user.player))
         return queryset

@@ -83,7 +83,7 @@ class PoolTableSerializer(serializers.ModelSerializer):
 
 class PoolHouseSerializer(serializers.ModelSerializer):
     tables = PoolTableSerializer(many=True)
-    avg_rating = serializers.FloatField()
+    avg_rating = serializers.FloatField(read_only=True)
     class Meta:
         model = PoolHouse
         fields = ['id', 'title', 'address', 'tables', 'avg_rating']

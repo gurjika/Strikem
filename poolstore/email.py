@@ -1,8 +1,6 @@
 from django.conf import settings
 from djoser.email import ActivationEmail
 from django.core.mail import EmailMultiAlternatives, send_mail
-
-
 from djoser.email import ActivationEmail
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
