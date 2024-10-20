@@ -1,0 +1,22 @@
+body{
+    background-color: orange;
+    
+}
+
+
+#imageContainer {
+    overflow: hidden;
+    position: relative;
+}
+
+#largeImage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: top 0.5s, left 0.5s;
+}
+
+
+.div-container {
+    transition: top 0.5s, left 0.5s;
+}

@@ -1,0 +1,23 @@
+.matchamaking-users-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+
+#matchamaking-users {
+    width: 300px;
+}
+
+#matches {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.invite-notification-container {
+    display: flex;
+    flex-direction: column;
+}

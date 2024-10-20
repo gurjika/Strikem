@@ -5,8 +5,5 @@ __pycache__
 db.sqlite3
 .env
 /data
-/poolstore/static
-/poolstore/templates
-/poolstore/templatetags
-/core/templates
+
 
