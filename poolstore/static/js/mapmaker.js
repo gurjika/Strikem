@@ -17,11 +17,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('south').addEventListener('click', () => { navigate('south'); });
 
     function handleResize() {
+        document.body.style.overflow = 'hidden';
 
+        const containerWidth = imgContainer.getBoundingClientRect().width;
+    
+        // Reset scrollbar
+        document.body.style.overflow = '';
    
-        console.log(imgContainer.getBoundingClientRect().width);
-        overlayDiv.style.width = `${imgContainer.getBoundingClientRect().width * sectionNumHorizontal}px`;
-        console.log(overlayDiv.style.width);
+        console.log(containerWidth);
+        overlayDiv.style.width = `${containerWidth * sectionNumHorizontal}px`;
         
         
         const rect = img.getBoundingClientRect();
@@ -53,15 +57,13 @@ function navigate(direction, resizing) {
     const stepHorizontal = Number((img.getBoundingClientRect().width / sectionNumHorizontal).toFixed(2));
     
 
-    console.log(stepVertical);
+   
 
 
 
     let overlayTop = parseInt(overlayDiv.style.top, 10);
     let overlayLeft = parseInt(overlayDiv.style.left, 10);
 
-    console.log(overlayTop);
-    console.log(overlayLeft);
 
 
     if (resizing) {
@@ -115,9 +117,8 @@ function navigate(direction, resizing) {
         case 'east':
         positionHorizontal += 1;
         exact = stepHorizontal * (positionHorizontal - 1) * leftSign;
-        console.log(exact)
         overlayDiv.style.left = `${exact}px`;
-
+        console.log()
         break;
     }
 
