@@ -216,13 +216,13 @@ DJOSER = {
         'current_user': 'core.serializers.UserSerializer'
     },
 
-    'ACTIVATION_URL': 'activate/{uid}/{token}/',
-    'SEND_ACTIVATION_EMAIL': True,
+    # 'ACTIVATION_URL': 'activate/{uid}/{token}/',
+    # 'SEND_ACTIVATION_EMAIL': True,
+    # 'EMAIL': {
+    #     'activation': 'poolstore.email.CustomActivationEmail',
+    # }
 
-
-    'EMAIL': {
-        'activation': 'poolstore.email.CustomActivationEmail',
-    }
+    
 }
 
 

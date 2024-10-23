@@ -1,5 +1,6 @@
 const sectionNumHorizontal = 3;
-const sectionNumVertical = 2;
+const sectionNumVertical = 4;
+
 
 let positionVertical = 1;
 let positionHorizontal = 1;
@@ -16,6 +17,20 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('south').addEventListener('click', () => { navigate('south'); });
 
     function handleResize() {
+
+   
+        console.log(imgContainer.getBoundingClientRect().width);
+        overlayDiv.style.width = `${imgContainer.getBoundingClientRect().width * sectionNumHorizontal}px`;
+        console.log(overlayDiv.style.width);
+        
+        
+        const rect = img.getBoundingClientRect();
+    
+        overlayDiv.style.height = `${rect.height}px`;
+        imgContainer.style.height = `${img.getBoundingClientRect().height / sectionNumVertical}px`;
+    
+    
+        
         navigate('', true);
 
     }
@@ -33,17 +48,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function navigate(direction, resizing) {
-    const stepVertical = img.offsetHeight / sectionNumVertical;
-    const stepHorizontal = img.offsetWidth / sectionNumHorizontal;
 
-    overlayDiv.style.width = `${imgContainer.offsetWidth * sectionNumHorizontal}px`;
-    const rect = img.getBoundingClientRect();
-    overlayDiv.style.height = `${rect.height}px`;
-    imgContainer.style.height = `${img.offsetHeight / sectionNumVertical}px`;
+    const stepVertical = Number((img.getBoundingClientRect().height / sectionNumVertical).toFixed(2));
+    const stepHorizontal = Number((img.getBoundingClientRect().width / sectionNumHorizontal).toFixed(2));
+    
+
+    console.log(stepVertical);
+
 
 
     let overlayTop = parseInt(overlayDiv.style.top, 10);
     let overlayLeft = parseInt(overlayDiv.style.left, 10);
+
+    console.log(overlayTop);
+    console.log(overlayLeft);
+
 
     if (resizing) {
        
@@ -55,27 +74,49 @@ function navigate(direction, resizing) {
 
 
     else {
+        let topSign, leftSign;
+        let exact;
 
+        topSign = Math.sign(overlayTop);
+        topSign = (topSign === 0) ? -1 : topSign
+        
+
+        leftSign = Math.sign(overlayLeft);
+        leftSign = (leftSign === 0) ? -1 : leftSign
+
+
+
+
+        
         switch(direction) {
         case 'north':
-        overlayDiv.style.top = `${overlayTop + stepVertical}px`;
+
         positionVertical -= 1;
+        exact = stepVertical * (positionVertical - 1) * topSign;
+        overlayDiv.style.top = `${exact}px`;
         break;
 
         case 'south':
-        overlayDiv.style.top = `${overlayTop - stepVertical}px`;
         positionVertical += 1;
+        exact = stepVertical * (positionVertical - 1) * topSign;
+        console.log(exact)
+        overlayDiv.style.top = `${exact}px`;
 
         break;
+
 
         case 'west':
-        overlayDiv.style.left = `${overlayLeft + stepHorizontal}px`;
         positionHorizontal -= 1;
+        exact = stepHorizontal * (positionHorizontal - 1) * leftSign;
+        overlayDiv.style.left = `${exact}px`;
         break;
+        
 
         case 'east':
-        overlayDiv.style.left = `${overlayLeft - stepHorizontal}px`;
         positionHorizontal += 1;
+        exact = stepHorizontal * (positionHorizontal - 1) * leftSign;
+        console.log(exact)
+        overlayDiv.style.left = `${exact}px`;
 
         break;
     }
