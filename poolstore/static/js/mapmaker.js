@@ -23,11 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
         // Reset scrollbar
         document.body.style.overflow = '';
-   
-        console.log(containerWidth);
+
         overlayDiv.style.width = `${containerWidth * sectionNumHorizontal}px`;
-        
-        
         const rect = img.getBoundingClientRect();
     
         overlayDiv.style.height = `${rect.height}px`;
@@ -52,30 +49,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function navigate(direction, resizing) {
-
-    const stepVertical = Number((img.getBoundingClientRect().height / sectionNumVertical).toFixed(2));
-    const stepHorizontal = Number((img.getBoundingClientRect().width / sectionNumHorizontal).toFixed(2));
     
-
-   
-
-
-
-    let overlayTop = parseInt(overlayDiv.style.top, 10);
-    let overlayLeft = parseInt(overlayDiv.style.left, 10);
-
-
-
+    
+    
     if (resizing) {
-       
+        
         overlayDiv.style.top = `0px`;
         overlayDiv.style.left = `0px`;
         positionHorizontal = 1;
         positionVertical = 1;
     }
-
-
+    
+    
     else {
+        const stepVertical = Number((img.getBoundingClientRect().height / sectionNumVertical).toFixed(2));
+        const stepHorizontal = Number((img.getBoundingClientRect().width / sectionNumHorizontal).toFixed(2));
+
+        let overlayTop = parseInt(overlayDiv.style.top, 10);
+        let overlayLeft = parseInt(overlayDiv.style.left, 10);
+
+
         let topSign, leftSign;
         let exact;
 
@@ -101,7 +94,6 @@ function navigate(direction, resizing) {
         case 'south':
         positionVertical += 1;
         exact = stepVertical * (positionVertical - 1) * topSign;
-        console.log(exact)
         overlayDiv.style.top = `${exact}px`;
 
         break;
