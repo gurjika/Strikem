@@ -5,7 +5,7 @@ from django.utils import timezone
 from .tasks import send_email_before_res, start_game_session
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.core.cache import cache
+
 now = timezone.now()
 
 User = get_user_model()
@@ -164,7 +164,14 @@ class PoolHouseRatingSerializer(serializers.ModelSerializer):
     poolhouse = SimplePoolHouseSerializer(read_only=True)
     class Meta:
         model = PoolHouseRating
-        fields = ['id', 'rate', 'rater', 'poolhouse']
+        fields = ['id', 'rate', 'rater', 'poolhouse', 'review']
+
+    
+    def validate_rate(self, value):
+        if value < 0 or value > 5:
+            raise serializers.ValidationError('Enter a valid rating')
+        return value
+
 
 
     def create(self, validated_data):
@@ -172,6 +179,7 @@ class PoolHouseRatingSerializer(serializers.ModelSerializer):
             rater=self.context['player'],
             poolhouse_id=self.context['poolhouse_pk'],
             defaults={
+                'review':validated_data['review'],
                 'rate': validated_data['rate'],
             }
         )
