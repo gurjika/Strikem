@@ -12,30 +12,48 @@ User = get_user_model()
 @shared_task
 def start_game_session(reservation_id):
     reservation = Reservation.objects.get(id=reservation_id)
-    game_session = GameSession.objects.create(poolhouse=reservation.table.poolhouse, pooltable=reservation.table)
+    game_session = GameSession.objects.create(pooltable=reservation.table)
 
     if reservation.other_player:
         PlayerGameSession.objects.create(game_session=game_session, player=reservation.other_player)
     
     PlayerGameSession.objects.create(game_session=game_session, player=reservation.player_reserving)
     
-
+    finish_game_session.apply_async((
+        game_session.id, reservation.id, 'Finished'), 
+        eta=reservation.end_time, 
+        task_id=f'game_session_{game_session.id}'
+    )
     
 
 
 @shared_task
-def finish_game_session(game_session_id):
+def finish_game_session(game_session_id, reservation_id, protocol):
     game_session = GameSession.objects.get(id=game_session_id)
+    reservation = Reservation.objects.get(id=reservation_id)
     channel_layer = get_channel_layer()
     group_name = f'session_{game_session.id}'
     
-    event = {
-        'type': 'finish_game_session',
-    }
+    if protocol == 'Finished':
+        event = {
+            'type': 'finish_game_session',
+        }
+    else:
+        event = {
+            'type': 'abort_game_session'
+        }
 
-    async_to_sync(channel_layer.group_send)(group_name, event)
-    game_session.status_finished = True
-    game_session.save()
+    for player in game_session.players.all():
+        async_to_sync(channel_layer.group_send)(f'user_{player.user.username}', event)
+
+
+
+    reservation.finished_reservation = True
+    game_session.delete()
+    reservation.save()
+
+
+
 
     
 

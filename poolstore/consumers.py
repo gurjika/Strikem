@@ -116,6 +116,13 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             }, default=str
         ))
 
+    async def finish_game_session(self, event):
+
+        await self.send(json.dumps(
+            {
+                'protocol': 'finish session'
+            }
+        ))
 
 
 
@@ -170,6 +177,8 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
             }
         ))
         
+
+
 
 
 
@@ -594,11 +603,11 @@ class GameSessionConsumer(BaseNotificationConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         pass
 
-    async def finish_game_session(self, event):
 
-        await self.send(json.dumps(
-            {
-                'protocol': 'finish session'
-            }
-        ))
+    
+
+
+  
+
+
 

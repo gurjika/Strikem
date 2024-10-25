@@ -82,10 +82,8 @@ class GameSession(models.Model):
         editable=False
     )
 
-    poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='house_game_sessions')
     pooltable = models.ForeignKey(PoolTable, on_delete=models.SET_NULL, related_name='game_sessions', null=True)
     players = models.ManyToManyField(Player, through='PlayerGameSession', related_name='game_session')
-    status_finished = models.BooleanField(default=False)
 
 
 class Matchup(models.Model):

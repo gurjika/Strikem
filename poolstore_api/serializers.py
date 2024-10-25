@@ -64,7 +64,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         end_time = validated_data['start_time'] + timedelta(minutes=validated_data['duration'])
         real_end_datetime = end_time + timedelta(minutes=5)
         start_time = validated_data['start_time']
-        existing_reservations = Reservation.objects.filter(table_id=table_id, start_time__range=[start_time - timedelta(hours=3), start_time + timedelta(hours=3)])
+        existing_reservations = Reservation.objects.filter(table_id=table_id, start_time__range=[start_time - timedelta(hours=3), start_time + timedelta(hours=3)], finished_reservation=False)
         for reservation in existing_reservations:
             if not (validated_data['start_time'] >= reservation.real_end_datetime or real_end_datetime <= reservation.start_time):
                 raise serializers.ValidationError('nu kvetav dzma')
