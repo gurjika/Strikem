@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied
+from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied
 from django.db.models import Q
 from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
@@ -18,9 +18,10 @@ from rest_framework import status
 import os
 import requests
 from .utils import get_nearby_poolhouses
+from celery.result import AsyncResult
 
 
-# Create your views here.
+
 
 
 
@@ -91,14 +92,26 @@ class TableViewSet(ModelViewSet):
         
 
         
-class ReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet, DestroyModelMixin):
+class ReservationViewSet(ListModelMixin, RetrieveModelMixin,DestroyModelMixin, GenericViewSet):
     http_method_names = ['get', 'head', 'options', 'delete']
     serializer_class = ReservationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsPlayerReservingUserOrReadOnly]
     
     def get_queryset(self):
         queryset = Reservation.objects.filter(Q(player_reserving=self.request.user.player) | Q(other_player=self.request.user.player), finished_reservation=False)
         return queryset
+
+
+    def destroy(self, request, *args, **kwargs):
+        
+
+        reservation = self.get_object()
+        result = AsyncResult(f'custom_task_id_{reservation.id}')
+        result.revoke()
+        return super().destroy(request, *args, **kwargs)
+    
+
+
 
 
 
@@ -197,5 +210,6 @@ class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericVie
 
     def get_queryset(self):
         return Reservation.objects.filter(table__poolhouse_id=self.kwargs['poolhouse_pk'])
+
 
 

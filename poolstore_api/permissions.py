@@ -34,3 +34,11 @@ class IsStaffOrDenied(BasePermission):
 
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and request.user.is_staff
+    
+
+class IsPlayerReservingUserOrReadOnly(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        return obj.player_reserving.user == request.user

@@ -72,7 +72,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 
         send_email_before_res.apply_async((player_reserving.user.id,), eta=start_time - timedelta(minutes=20))
         obj = Reservation.objects.create(**validated_data, end_time=end_time, table_id=table_id, player_reserving=player_reserving, real_end_datetime=real_end_datetime)
-        celery_task_id = start_game_session.apply_async((obj.id,), eta=start_time)
+        start_game_session.apply_async((obj.id,), eta=start_time, task_id=f'custom_task_id_{obj.id}')
 
 
         return obj

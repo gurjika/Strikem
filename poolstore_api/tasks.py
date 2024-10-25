@@ -14,12 +14,10 @@ def start_game_session(reservation_id):
     reservation = Reservation.objects.get(id=reservation_id)
     game_session = GameSession.objects.create(poolhouse=reservation.table.poolhouse, pooltable=reservation.table)
 
-    if reservation.matchup:
-        PlayerGameSession.objects.create(game_session=game_session, player=reservation.matchup.player_inviting)
-        PlayerGameSession.objects.create(game_session=game_session, player=reservation.matchup.player_accepting)
+    if reservation.other_player:
+        PlayerGameSession.objects.create(game_session=game_session, player=reservation.other_player)
     
-    else:
-        PlayerGameSession.objects.create(game_session=game_session, player=reservation.player)
+    PlayerGameSession.objects.create(game_session=game_session, player=reservation.player_reserving)
     
 
     
@@ -37,7 +35,6 @@ def finish_game_session(game_session_id):
 
     async_to_sync(channel_layer.group_send)(group_name, event)
     game_session.status_finished = True
-    game_session.reservation.finished_reservation = True
     game_session.save()
 
     
