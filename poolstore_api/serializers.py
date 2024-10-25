@@ -1,6 +1,6 @@
 from datetime import timedelta
 from rest_framework import serializers
-from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
+from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
 from django.utils import timezone
 from .tasks import send_email_before_res, start_game_session
 from django.contrib.auth import get_user_model
@@ -90,15 +90,41 @@ class PoolTableSerializer(serializers.ModelSerializer):
         if obj.game_sessions.first():
             return ReservationSerializer(obj.reservations.filter(end_time__gte=now).first()).data
         return None
+    
+
+
+class PoolHouseImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(read_only=True)
+    pics_upload = serializers.ListField(
+        child=serializers.ImageField(), 
+        write_only=True
+    )
+    class Meta:
+        model = PoolHouseImage
+        fields = ['image', 'pics_upload']
+
+
+
+    def create(self, validated_data):
+        images = validated_data.pop('pics_upload')
+        poolhouse = PoolHouse.objects.get(id=self.context['poolhouse_id'])
+        poolhouse_images = [
+            PoolHouseImage(poolhouse=poolhouse, image=image) for image in images
+        ]
+        PoolHouseImage.objects.bulk_create(poolhouse_images)
+
+
+        return poolhouse
 
 class PoolHouseSerializer(serializers.ModelSerializer):
     tables = PoolTableSerializer(many=True, read_only=True)
     avg_rating = serializers.FloatField(read_only=True)
     latitude = serializers.FloatField(write_only=True)
     longitude = serializers.FloatField(write_only=True)
+    pics = PoolHouseImageSerializer(read_only=True, many=True)
     class Meta:
         model = PoolHouse
-        fields = ['id', 'title', 'address', 'tables', 'avg_rating', 'latitude', 'longitude']
+        fields = ['id', 'title', 'address', 'tables', 'avg_rating', 'latitude', 'longitude', 'pics']
 
 class SimplePoolHouseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -225,4 +251,5 @@ class GameSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = GameSession
         fields = ['id', 'pooltable', 'players', 'status_finished', 'poolhouse']
+
 

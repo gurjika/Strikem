@@ -23,7 +23,14 @@ ratings_router.register(prefix='ratings', viewset=views.PoolHouseRatingViewSet, 
 game_session_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
 game_session_router.register(prefix='game-sessions', viewset=views.GameSessionControlViewSet, basename='game-session')
 
-urlpatterns = router.urls + tables_router.urls + ratings_router.urls + game_session_router.urls + reservations_router.urls
+poolhouse_image_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
+poolhouse_image_router.register(prefix='images', viewset=views.PoolHouseImageViewSet, basename='image')
+
+
+
+
+
+urlpatterns = router.urls + tables_router.urls + ratings_router.urls + game_session_router.urls + reservations_router.urls + poolhouse_image_router.urls
 
 
 

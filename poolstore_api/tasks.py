@@ -32,7 +32,6 @@ def finish_game_session(game_session_id, reservation_id, protocol):
     game_session = GameSession.objects.get(id=game_session_id)
     reservation = Reservation.objects.get(id=reservation_id)
     channel_layer = get_channel_layer()
-    group_name = f'session_{game_session.id}'
     
     if protocol == 'Finished':
         event = {
@@ -49,7 +48,6 @@ def finish_game_session(game_session_id, reservation_id, protocol):
 
 
     reservation.finished_reservation = True
-    game_session.delete()
     reservation.save()
 
 

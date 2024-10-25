@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseRating, PoolTable, Reservation
-from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer
+from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
+from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied
+from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
 from django.db.models import Q
 from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
@@ -215,3 +215,21 @@ class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericVie
 
 
 
+
+class PoolHouseImageViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin, GenericViewSet):
+    serializer_class = PoolHouseImageSerializer
+    permission_classes = [IsStaffOrReadOnly]
+
+    def get_queryset(self):
+        return PoolHouseImage.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
+    
+
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'poolhouse_id': self.kwargs['poolhouse_pk']})
+        serializer.is_valid(raise_exception=True)
+        
+        poolhouse = serializer.save()
+
+        poolhouse_serializer = PoolHouseSerializer(poolhouse, context=self.get_serializer_context())
+        return Response(poolhouse_serializer.data, status=status.HTTP_201_CREATED)

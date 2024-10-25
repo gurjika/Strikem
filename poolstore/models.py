@@ -60,6 +60,11 @@ class PoolHouse(models.Model):
         return self.title
 
 
+class PoolHouseImage(models.Model):
+    image = models.ImageField(upload_to='poolhall-pics')
+    poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='pics')
+
+
 class MatchMake(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matchmakings')
     time_created = models.DateTimeField(auto_now_add=True)
