@@ -30,10 +30,11 @@ class PlayerSerializer(serializers.ModelSerializer):
     opponents_met = serializers.IntegerField(read_only=True)
     games_played = serializers.IntegerField(read_only=True)
     games_won = serializers.IntegerField(read_only=True)
+    total_points = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Player
-        fields = ['id', 'games_played', 'opponents_met', 'games_won', 'inviting_to_play', 'profile_image', 'user']
+        fields = ['id', 'games_played', 'opponents_met', 'games_won', 'inviting_to_play', 'profile_image', 'user', 'total_points']
 
 
 class SimplePlayerSerializer(serializers.ModelSerializer):

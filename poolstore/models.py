@@ -153,6 +153,9 @@ class PoolHouseRating(models.Model):
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='ratings')
 
 
+    class Meta:
+        unique_together = [['rater', 'poolhouse']]
+
 
 class History(models.Model):
     winner_player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='win_history')
