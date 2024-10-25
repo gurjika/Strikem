@@ -260,6 +260,6 @@ class GameSessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GameSession
-        fields = ['id', 'pooltable', 'players', 'status_finished', 'poolhouse']
+        fields = ['id', 'pooltable', 'players', 'status_finished']
 
 

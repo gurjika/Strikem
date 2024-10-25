@@ -58,6 +58,7 @@ class PoolHouse(models.Model):
 
     def __str__(self) -> str:
         return self.title
+    
 
 
 class PoolHouseImage(models.Model):
