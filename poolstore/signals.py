@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Matchup, Player
+from .models import Matchup, Player, PoolHouseStaff
 
 
 @receiver(post_save, sender=Matchup)
@@ -27,4 +27,3 @@ def create_player_for_new_user(sender, instance, created, **kwargs):
     if created:
         if not instance.is_staff:
             Player.objects.create(user=instance, games_played=0, opponents_met=0, games_won=0)
-        

@@ -59,7 +59,9 @@ class PoolHouse(models.Model):
     def __str__(self) -> str:
         return self.title
     
-
+class PoolHouseStaff(models.Model):
+    poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='staff')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='staff_profile')
 
 class PoolHouseImage(models.Model):
     image = models.ImageField(upload_to='poolhall-pics')

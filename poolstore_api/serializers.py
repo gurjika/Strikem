@@ -51,7 +51,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reservation
-        fields = ['id', 'start_time', 'player_reserving', 'duration', 'other_player', 'other_player_details']
+        fields = ['id', 'start_time', 'player_reserving', 'duration', 'other_player', 'other_player_details', 'finished_reservation']
 
     def validate(self, data):
         if self.context['player'] == data['other_player']:

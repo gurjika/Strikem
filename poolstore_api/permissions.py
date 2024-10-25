@@ -1,6 +1,8 @@
 from rest_framework.permissions import BasePermission
 from rest_framework import permissions
 
+from poolstore.models import PoolHouse, PoolHouseStaff
+
 
 class IsAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
@@ -13,11 +15,16 @@ class IsAdminOrReadOnly(BasePermission):
 
 class IsStaffOrReadOnly(BasePermission):
     def has_permission(self, request, view):
-
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        return request.user.is_staff
+        poolhouse_id = view.kwargs.get('poolhouse_pk')
+        if poolhouse_id:
+            try:
+                poolhouse = PoolHouse.objects.get(id=poolhouse_id)
+                staff_member = PoolHouseStaff.objects.filter(poolhouse=poolhouse, user=request.user).first()
+                if staff_member or request.method in permissions.SAFE_METHODS:
+                    return True
+            except PoolHouse.DoesNotExist:
+                return False
+        return False
     
 
 class IsCurrentUserOrReadOnly(BasePermission):
@@ -42,7 +49,16 @@ class IsStaffOrDenied(BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.is_staff
+        poolhouse_id = view.kwargs.get('poolhouse_pk')
+        if poolhouse_id:
+            try:
+                poolhouse = PoolHouse.objects.get(id=poolhouse_id)
+                staff_member = PoolHouseStaff.objects.filter(poolhouse=poolhouse, user=request.user).first()
+                if staff_member:
+                    return True
+            except PoolHouse.DoesNotExist:
+                return False
+        return False
     
 
 class IsPlayerReservingUserOrReadOnly(BasePermission):

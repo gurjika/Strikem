@@ -203,6 +203,7 @@ class GameSessionControlViewSet(ListModelMixin, DestroyModelMixin, GenericViewSe
         return Response({"detail": "game session ended successfully."}, status=status.HTTP_204_NO_CONTENT)
     
 
+
 class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     serializer_class = ReservationSerializer
     permission_classes = [IsStaffOrDenied]
