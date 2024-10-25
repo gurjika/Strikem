@@ -46,9 +46,10 @@ def finish_game_session(game_session_id, reservation_id, protocol):
         async_to_sync(channel_layer.group_send)(f'user_{player.user.username}', event)
 
 
-
+    game_session.status_finished = True
     reservation.finished_reservation = True
     reservation.save()
+    game_session.save()
 
 
 

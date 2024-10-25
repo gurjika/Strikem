@@ -80,15 +80,16 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 
 class PoolTableSerializer(serializers.ModelSerializer):
-    current_reservation = serializers.SerializerMethodField()
+    current_session = serializers.SerializerMethodField()
     class Meta:
         model = PoolTable
-        fields = ['id', 'current_reservation']
+        fields = ['id', 'current_session']
 
-    def get_current_reservation(self, obj):
-        ## SHOW ONGOING RESERVATION IF THE SESSION EXISTS
-        if obj.game_sessions.first():
-            return ReservationSerializer(obj.reservations.filter(end_time__gte=now).first()).data
+    def get_current_session(self, obj):
+        ## SHOW ONGOING RESERVATION IF THE ACTIVE SESSION EXISTS
+        for session in obj.game_sessions.all():
+            if not session.status_finished:
+                return ReservationSerializer(obj.reservations.filter(end_time__gte=now).first()).data
         return None
     
 
@@ -101,7 +102,7 @@ class PoolHouseImageSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = PoolHouseImage
-        fields = ['image', 'pics_upload']
+        fields = ['id', 'image', 'pics_upload']
 
 
 
@@ -187,20 +188,29 @@ class CreateHistorySerializer(serializers.ModelSerializer):
 
     # CHECK IF THE GAME SESSION IS FINISHED AND THE REQUEST IS SENT BY THE PLAYER THAT IS IN THE SESSION
 
-    def validate_game_session(self, value):
-        game_session = GameSession.objects.filter(id=value).filter(players__id__in=[self.context['player_id']]).filter(status_finished=True)
-        if game_session.exists():
-            return game_session.first()
+    def validate(self, data):
+        game_session_player_ids = GameSession.objects.filter(id=data['game_session'], status_finished=True).values_list('players', flat=True)
+        print(game_session_player_ids)
+        print(data['loser_player'])
+        if data['loser_player'].id in game_session_player_ids and data['winner_player'].id in game_session_player_ids and self.context['player_id'] in game_session_player_ids:
+            return data
+        raise serializers.ValidationError('Player ids not provided correctly')
+    
+
+    # def validate_game_session(self, value):
+    #     game_session = GameSession.objects.filter(id=value).filter(players__id__in=[self.context['player_id']], status_finished=True)
+    #     if game_session.exists():
+    #         return game_session.first()
         
-        raise serializers.ValidationError('Game Session Does not exist')
+    #     raise serializers.ValidationError('Game Session Does not exist')
     
 
     def create(self, validated_data):
         try:
             with transaction.atomic():
-                validated_data.update({'poolhouse': validated_data['game_session'].poolhouse})
-                print(validated_data['winner_player'])
-                game_session = validated_data.pop('game_session')
+                game_session = GameSession.objects.get(id=validated_data['game_session'])
+                validated_data.update({'poolhouse': game_session.pooltable.poolhouse})
+                validated_data.pop('game_session')
 
                 if int(validated_data['result_winner']) == int(validated_data['result_loser']):
                     obj = History.objects.create(tie=True, penalty_points=0, points_given=TIE_POINTS,  **validated_data)
