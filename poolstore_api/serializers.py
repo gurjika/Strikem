@@ -39,17 +39,27 @@ class PlayerSerializer(serializers.ModelSerializer):
 class SimplePlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
-        fields = ['user', 'profile_image', 'games_won']
+        fields = ['user', 'profile_image', 'total_points']
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    player = SimplePlayerSerializer(read_only=True)
+    player_reserving = SimplePlayerSerializer(read_only=True)
+    other_player = serializers.PrimaryKeyRelatedField(queryset=Player.objects.all(), write_only=True)
+    other_player_details = SimplePlayerSerializer(source='other_player', read_only=True)
+
+
     class Meta:
         model = Reservation
-        fields = ['id', 'start_time', 'player', 'duration', 'matchup']
+        fields = ['id', 'start_time', 'player_reserving', 'duration', 'other_player', 'other_player_details']
+
+    def validate(self, data):
+        if self.context['player'] == data['other_player']:
+            raise serializers.ValidationError('Same Player Error')
+        return data
+    
 
     def create(self, validated_data):
-        player = self.context['player']
+        player_reserving = self.context['player']
         table_id = self.context['table_id']
         end_time = validated_data['start_time'] + timedelta(minutes=validated_data['duration'])
         real_end_datetime = end_time + timedelta(minutes=5)
@@ -60,8 +70,8 @@ class ReservationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('nu kvetav dzma')
     
 
-        send_email_before_res.apply_async((player.user.id,), eta=start_time - timedelta(minutes=20))
-        obj = Reservation.objects.create(**validated_data, end_time=end_time, table_id=table_id, player=player, real_end_datetime=real_end_datetime)
+        send_email_before_res.apply_async((player_reserving.user.id,), eta=start_time - timedelta(minutes=20))
+        obj = Reservation.objects.create(**validated_data, end_time=end_time, table_id=table_id, player_reserving=player_reserving, real_end_datetime=real_end_datetime)
         celery_task_id = start_game_session.apply_async((obj.id,), eta=start_time)
 
 
@@ -82,11 +92,13 @@ class PoolTableSerializer(serializers.ModelSerializer):
         return None
 
 class PoolHouseSerializer(serializers.ModelSerializer):
-    tables = PoolTableSerializer(many=True)
+    tables = PoolTableSerializer(many=True, read_only=True)
     avg_rating = serializers.FloatField(read_only=True)
+    latitude = serializers.FloatField(write_only=True)
+    longitude = serializers.FloatField(write_only=True)
     class Meta:
         model = PoolHouse
-        fields = ['id', 'title', 'address', 'tables', 'avg_rating']
+        fields = ['id', 'title', 'address', 'tables', 'avg_rating', 'latitude', 'longitude']
 
 class SimplePoolHouseSerializer(serializers.ModelSerializer):
     class Meta:

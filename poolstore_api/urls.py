@@ -9,12 +9,13 @@ router.register(prefix='invitations', viewset=views.MatchMakeViewSet, basename='
 router.register(prefix='players', viewset=views.PlayerViewSet,basename='player')
 router.register(prefix='history', viewset=views.HistoryViewSet, basename='history')
 router.register(prefix='poolhouses-filter', viewset=views.FilterPoolHouseViewSet, basename='poolhouse-filter')
+router.register(prefix='reservations', viewset=views.ReservationViewSet, basename='reservation')
 
 tables_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
 tables_router.register(prefix='tables', viewset=views.TableViewSet, basename='table')
 
 reservations_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
-reservations_router.register(prefix='reservations', viewset=views.ReservationViewSet, basename='reservation')
+reservations_router.register(prefix='reservations', viewset=views.PoolHouseReservationViewSet, basename='reservation')
 
 ratings_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
 ratings_router.register(prefix='ratings', viewset=views.PoolHouseRatingViewSet, basename='rating')
@@ -22,7 +23,7 @@ ratings_router.register(prefix='ratings', viewset=views.PoolHouseRatingViewSet, 
 game_session_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
 game_session_router.register(prefix='game-sessions', viewset=views.GameSessionControlViewSet, basename='game-session')
 
-urlpatterns = router.urls + tables_router.urls + reservations_router.urls + ratings_router.urls + game_session_router.urls
+urlpatterns = router.urls + tables_router.urls + ratings_router.urls + game_session_router.urls + reservations_router.urls
 
 
 

@@ -1,3 +1,11 @@
+from poolstore.models import PoolTable
 from django.contrib import admin
+from poolstore.models import PoolHouse
 
-# Register your models here.
+
+
+
+
+
+admin.site.register(PoolHouse)
+admin.site.register(PoolTable)

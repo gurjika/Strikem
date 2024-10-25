@@ -56,6 +56,9 @@ class PoolHouse(models.Model):
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
+    def __str__(self) -> str:
+        return self.title
+
 
 class MatchMake(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matchmakings')
@@ -65,7 +68,10 @@ class MatchMake(models.Model):
 
 class PoolTable(models.Model):
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='tables')
+    table_id = models.IntegerField(null=True)
 
+    def __str__(self) -> str:
+        return f'{self.poolhouse.title} - {self.table_id}'
         
 
 
@@ -83,6 +89,8 @@ class GameSession(models.Model):
 
 
 class Matchup(models.Model):
+
+
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -91,16 +99,17 @@ class Matchup(models.Model):
 
     player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_matchup_invitings')
     player_accepting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='accepted_matchups')
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 
 class Reservation(models.Model):
     start_time = models.DateTimeField()
     duration = models.PositiveSmallIntegerField(default=30)
     table = models.ForeignKey(PoolTable, on_delete=models.CASCADE, related_name='reservations')
-    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='reservations')
+    player_reserving = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='my_reservations')
+    other_player = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='other_reservations')
     end_time = models.DateTimeField()
     real_end_datetime = models.DateTimeField()
-    matchup = models.OneToOneField(Matchup, on_delete=models.SET_NULL, null=True, related_name='reservation')
     finished_reservation = models.BooleanField(default=False)
 
 
@@ -135,6 +144,7 @@ class Message(models.Model):
 
 class PoolHouseRating(models.Model):
     rate = models.PositiveSmallIntegerField()
+    review = models.TextField()
     rater = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='my_ratings')
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='ratings')
 

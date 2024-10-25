@@ -2,6 +2,7 @@ const sectionNumHorizontal = 3;
 const sectionNumVertical = 4;
 
 
+
 let positionVertical = 1;
 let positionHorizontal = 1;
 
@@ -19,10 +20,12 @@ document.addEventListener("DOMContentLoaded", () => {
     function handleResize() {
         document.body.style.overflow = 'hidden';
 
-        const containerWidth = imgContainer.getBoundingClientRect().width;
+        const containerWidth = Number((imgContainer.getBoundingClientRect().width).toFixed(2));
     
         // Reset scrollbar
         document.body.style.overflow = '';
+
+
 
         overlayDiv.style.width = `${containerWidth * sectionNumHorizontal}px`;
         const rect = img.getBoundingClientRect();
@@ -110,7 +113,6 @@ function navigate(direction, resizing) {
         positionHorizontal += 1;
         exact = stepHorizontal * (positionHorizontal - 1) * leftSign;
         overlayDiv.style.left = `${exact}px`;
-        console.log()
         break;
     }
 

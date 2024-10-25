@@ -97,9 +97,8 @@ class ReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet, Des
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return Reservation.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
-        return Reservation.objects.filter(player=self.request.user.player, finished_reservation=False)
+        queryset = Reservation.objects.filter(Q(player_reserving=self.request.user.player) | Q(other_player=self.request.user.player), finished_reservation=False)
+        return queryset
 
 
 
@@ -191,5 +190,12 @@ class GameSessionControlViewSet(ListModelMixin, DestroyModelMixin, GenericViewSe
         return Response({"detail": "game session ended successfully."}, status=status.HTTP_204_NO_CONTENT)
     
 
+class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+    serializer_class = ReservationSerializer
+    permission_classes = [IsStaffOrDenied]
+
+
+    def get_queryset(self):
+        return Reservation.objects.filter(table__poolhouse_id=self.kwargs['poolhouse_pk'])
 
 
