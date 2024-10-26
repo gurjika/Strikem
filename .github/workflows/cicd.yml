@@ -61,30 +61,30 @@ jobs:
       GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
 
-  deploy:
-    name: deploy to digitalocean
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    steps: 
-      - name: deploy to digitalocean
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-           host: ${{ secrets.SSH_HOST}}
-           username: ${{ secrets.SSH_USERNAME}}
-           key: ${{ secrets.SSH_PRIVATE_KEY}}
+  # deploy:
+  #   name: deploy to digitalocean
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+  #   steps: 
+  #     - name: deploy to digitalocean
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #          host: ${{ secrets.SSH_HOST}}
+  #          username: ${{ secrets.SSH_USERNAME}}
+  #          key: ${{ secrets.SSH_PRIVATE_KEY}}
 
-           script: |
-              cd poolhub
-              echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
-              echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-              echo "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
-              echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
+  #          script: |
+  #             cd poolhub
+  #             echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
+  #             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+  #             echo "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
+  #             echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
 
               
-              docker compose down
-              git pull
-              docker compose up --build --detach
+  #             docker compose down
+  #             git pull
+  #             docker compose up --build --detach
 
 
 
