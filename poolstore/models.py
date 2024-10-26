@@ -153,6 +153,7 @@ class PoolHouseRating(models.Model):
     review = models.TextField()
     rater = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='my_ratings')
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='ratings')
+    timestamp = models.DateTimeField(auto_now=True)
 
 
     class Meta:

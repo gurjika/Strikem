@@ -12,7 +12,7 @@ from django.db.models import Q
 from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from django.db.models import Avg
+from django.db.models import Avg, Count
 from .tasks import finish_game_session
 from rest_framework import status
 import os
@@ -26,18 +26,25 @@ from celery.result import AsyncResult
 
 
 class PoolHouseViewSet(ModelViewSet):
-    queryset = PoolHouse.objects.annotate(avg_rating=Avg('ratings__rate')).all()
+    queryset = PoolHouse.objects.annotate(
+        avg_rating=Avg('ratings__rate'),
+        table_count=Count('tables', distinct=True)
+    )
+
     serializer_class = PoolHouseSerializer
     permission_classes = [IsAdminOrReadOnly]
 
 
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 5))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
 
 class FilterPoolHouseViewSet(ListModelMixin, GenericViewSet):
-    queryset = PoolHouse.objects.annotate(avg_rating=Avg('ratings__rate')).all()
+    queryset = PoolHouse.objects.annotate(
+        avg_rating=Avg('ratings__rate'),
+        table_count=Count('tables', distinct=True)
+    )
     serializer_class = PoolHouseSerializer
 
 
@@ -234,3 +241,6 @@ class PoolHouseImageViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin
 
         poolhouse_serializer = PoolHouseSerializer(poolhouse, context=self.get_serializer_context())
         return Response(poolhouse_serializer.data, status=status.HTTP_201_CREATED)
+    
+
+## TODO ADD TABLE COUNT

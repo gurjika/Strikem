@@ -124,9 +124,10 @@ class PoolHouseSerializer(serializers.ModelSerializer):
     latitude = serializers.FloatField(write_only=True)
     longitude = serializers.FloatField(write_only=True)
     pics = PoolHouseImageSerializer(read_only=True, many=True)
+    table_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = PoolHouse
-        fields = ['id', 'title', 'address', 'tables', 'avg_rating', 'latitude', 'longitude', 'pics']
+        fields = ['id', 'title', 'address', 'tables', 'avg_rating', 'latitude', 'longitude', 'pics', 'table_count']
 
 class SimplePoolHouseSerializer(serializers.ModelSerializer):
     class Meta:
