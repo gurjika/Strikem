@@ -101,7 +101,7 @@ DATABASES = {
         'NAME': 'poolhub',
         'USER': 'root',
         'PASSWORD': DB_PASSWORD,
-        'HOST': DB_HOST,   
+        'HOST': 'mysql',   
     }
 }
 
