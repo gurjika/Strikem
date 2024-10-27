@@ -1,0 +1,68 @@
+{% extends 'poolstore/base.html' %}
+
+
+
+
+
+{% block content %}
+
+<div class="row">
+    
+    <div class="col-md-8">
+        {% for poolhouse in poolhouses %}
+        <div class="my-5 border-bottom">
+        
+            <div class="d-flex justify-content-start">
+                <div class="h2">
+                    {{ poolhouse.title }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-start align-items-start">
+                <div class="w-25 me-3 mt-2">
+                    <img src="https://picsum.photos/id/230/600/400" class="img-fluid">
+                </div>
+
+                <div class="text-secondary w-75">
+                    Lorem ipsum dolor, sit amet consectetur adipisicing
+                    elit. Sed quae minus obcaecati maiores delectus corporis odit,
+                    vel consectetur dolorem odio facere ducimus consequatur, voluptate illo?
+                </div>
+            </div>
+
+
+
+            <div class="d-flex justify-content-between align-items-center my-3">
+
+                    
+                <div>
+                    <a class="btn btn-info" href="{% url 'poolhouse' poolhouse.slug %}">
+                        Check it out
+
+                    </a>
+                </div>
+
+                <div class="text-muted">
+                    {{ poolhouse.address }}
+                </div>
+            </div>
+
+        </div>
+
+        {% endfor %}
+    </div>
+
+
+    <div class="col-md-4">
+        NEWS
+    </div>
+
+</div>
+
+<script>
+    makeMeActive('poolhouses');
+</script>
+
+
+{% endblock %}
+
+

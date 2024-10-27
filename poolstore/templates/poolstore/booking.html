@@ -1,0 +1,116 @@
+{% extends 'poolstore/base.html' %}
+
+{% block content %}
+<div class="row">
+
+    <div class="col-lg-7">
+      <div id="reservations" >
+        {% include 'poolstore/partials/reservations.html' %}
+      </div>
+    </div>
+
+
+    <div class="col-lg-5">
+      
+
+        <div class="shadow p-5 my-5" style="border-radius: 20px;">
+
+            <div class="h2 text-center mb-5">
+                Reserve A Table
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+    
+    
+                <div class="form-group ">
+                    <div class="my-4 form-floating">
+                        {{ form.start_time }}
+                        {% if form.email.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.start_time.errors %}
+                                <div>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+    
+                        <label for="start_time">Start Time</label>
+                    </div>
+    
+                    <div class="my-4 form-floating">
+                        {{ form.date }}
+                        {% if form.email.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.date.errors %}
+                                <div>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+    
+                        <label for="date">Date</label>
+                    </div>
+    
+                    <div class="h5 d-flex">
+                        <div class="border-bottom border-3">
+                            Select Duration
+    
+                        </div>
+                    </div>
+    
+                    <div class="my-4">
+                        {% for radio in form.duration %}
+                          <div class="form-check">
+                            {{ radio }}
+                          </div>
+                        {% endfor %}
+                      </div>
+                      
+                    </div>
+    
+                    
+                    <div class="text-center my-5">
+                        <button type="submit" class="btn btn-primary btn-lg">Reserve</button>
+    
+                    </div>
+            </form>
+        </div>
+        
+
+    </div>
+
+
+</div>
+<script>
+window.onload = function () {
+  let myTimepicker = document.getElementById("start_time");
+  myTimepicker.addEventListener("change", function() {
+    
+    let [hours, minutes] = myTimepicker.value.split(":");
+    
+    if(minutes <= 2) {
+        minutes = '00';
+    }
+    else {
+        minutes = (Math.ceil(minutes / 5) * 5);
+        if (minutes == 60) { minutes = "00"; ++hours % 24; }
+        if (minutes == 5) minutes = "05";
+    }
+
+
+        
+    let newValue = hours + ":" + minutes;
+    
+    
+    myTimepicker.value = newValue;
+  });
+}
+
+makeMeActive('reservation');
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% include 'poolstore/partials/messages.html' %}
+
+<div class="h1 text-center">
+    {{ user.username }}
+</div>
+
+<div class="h5 text-center text-muted">
+    {{ user.first_name }} {{ user.last_name }}
+</div>
+{% if user == request.user %}
+<div class="mt-4 text-center" hx-get="/users/edit_profile/" hx-target="#edit-profile">
+    <button class="btn btn-info">Edit Profile</button>
+</div>
+{% endif %}

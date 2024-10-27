@@ -1,0 +1,66 @@
+{% load static %} 
+    <div class="border rounded">
+       <div class="border-bottom">
+
+          <div class="w-50 px-3 d-flex align-items-center my-1 ">
+             <div class="w-25 me-2 ">
+                <img src="{{ matchup.player_accepting.profile_image.url }}" class="img-fluid" style="border-radius: 50%;">
+             </div>
+
+             <div class="w-75  h6">
+                {{ opponent.user.first_name }}  {{ opponent.user.last_name }}
+
+             </div>
+          </div>
+
+       </div>
+  
+       <div style="height: 400px; overflow-y: scroll;" id="message-hold" class="px-3 rounded">
+          <div class="d-flex justify-content-center mt-2">
+             <div class="spinner-border text-secondary invisible" role="status" id="spinner">
+                <span class="visually-hidden">Loading...</span>
+             </div>
+          </div>
+    
+          <div class="mt-4" id="saved-message-holder">
+    
+             {% include 'poolstore/partials/matchup-elements.html' %}
+ 
+          </div>
+ 
+          <div class="new-message" id="{{ matchup_id }}">
+             
+          </div>
+
+       </div>
+
+       <div style="bottom: 0; position: sticky;">
+          <div class="input-group  px-0 mx-0">
+             <textarea class="form-control rounded-top-0" id="input" rows="2" style="flex:1; resize: none;" ></textarea>
+ 
+             <button class="btn btn-primary rounded-top-0" type="button" id="submit">Send</button>
+ 
+             </div>
+       </div>
+    
+
+    </div>
+    {{ request.user.username|json_script:"username" }}
+
+    {{ matchup.id|json_script:"matchup_id" }}
+
+    {{ opponent.user.username|json_script:"opponent_username" }}
+
+ 
+
+<script>
+
+    matchupId = JSON.parse(document.getElementById('matchup_id').textContent);
+    username = JSON.parse(document.getElementById('username').textContent);
+    opponentUsername = JSON.parse(document.getElementById('opponent_username').textContent);
+
+
+</script>
+
+    
+
