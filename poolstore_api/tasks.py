@@ -26,6 +26,20 @@ def start_game_session(reservation_id):
     )
     
 
+    event = {
+        'type': 'update_table',
+        'table_id': reservation.table.table_id,
+        'protocol': 'now_busy'
+    }
+
+    channel_layer = get_channel_layer()
+    game_session.pooltable.free = False
+    game_session.save()
+
+    async_to_sync(channel_layer.group_send)(f'poolhouse_{reservation.table.poolhouse.slug}', event)
+
+
+
 
 @shared_task
 def finish_game_session(game_session_id, reservation_id, protocol):
@@ -45,7 +59,16 @@ def finish_game_session(game_session_id, reservation_id, protocol):
     for player in game_session.players.all():
         async_to_sync(channel_layer.group_send)(f'user_{player.user.username}', event)
 
+    event = {
+        'type': 'update_table',
+        'table_id': reservation.table.table_id,
+        'protocol': 'now_free'
+    }
 
+
+    async_to_sync(channel_layer.group_send)(f'poolhouse_{reservation.table.poolhouse.slug}', event)
+
+    game_session.pooltable.free = True
     game_session.status_finished = True
     reservation.finished_reservation = True
     reservation.save()

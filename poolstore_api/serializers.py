@@ -48,7 +48,7 @@ class ReservationSerializer(serializers.ModelSerializer):
     player_reserving = SimplePlayerSerializer(read_only=True)
     other_player = serializers.PrimaryKeyRelatedField(queryset=Player.objects.all(), write_only=True)
     other_player_details = SimplePlayerSerializer(source='other_player', read_only=True)
-
+    finished_reservation = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Reservation
@@ -83,15 +83,17 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 class PoolTableSerializer(serializers.ModelSerializer):
     current_session = serializers.SerializerMethodField()
+    free = serializers.BooleanField(read_only=True)
     class Meta:
         model = PoolTable
-        fields = ['id', 'current_session']
+        fields = ['id', 'current_session', 'free']
 
     def get_current_session(self, obj):
         ## SHOW ONGOING RESERVATION IF THE ACTIVE SESSION EXISTS
-        for session in obj.game_sessions.all():
-            if not session.status_finished:
-                return ReservationSerializer(obj.reservations.filter(end_time__gte=now).first()).data
+        if not obj.free:
+            for session in obj.game_sessions.all():
+                if not session.status_finished:
+                    return ReservationSerializer(obj.reservations.filter(end_time__gte=now).first()).data
         return None
     
 

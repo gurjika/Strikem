@@ -150,17 +150,20 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data=None, bytes_data=None):
-        text_data_json = json.loads(text_data)
-        changed = text_data_json['changed']
+        # text_data_json = json.loads(text_data)
+        # table_id = text_data_json['table_id']
+        # protocol = text_data_json['protocol']
 
+        # await self.channel_layer.group_send(
+        #     self.room_group_name,
+        #     {
+        #         'type': 'update_table',
+        #         'changed_table_local_id': table_id,
+        #         'protocol': protocol
+        #     }
+        # )
 
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'update_table',
-                'changed': changed
-            }
-        )
+        pass
 
 
 
@@ -169,11 +172,14 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
 
     async def update_table(self, event):
 
-        changed = event['changed']
+
+        changed_table_local_id = event['table_id']
+        protocol = event['protocol']
 
         await self.send(text_data=json.dumps(
             {
-                'changed': changed
+                'changed_table_local_id': changed_table_local_id,
+                'protocol': protocol
             }
         ))
         

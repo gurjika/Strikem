@@ -77,11 +77,12 @@ class MatchMake(models.Model):
 class PoolTable(models.Model):
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='tables')
     table_id = models.IntegerField(null=True)
+    free = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         return f'{self.poolhouse.title} - {self.table_id}'
         
-
+    
 
 class GameSession(models.Model):
     id = models.UUIDField(
