@@ -101,27 +101,27 @@ REMOTE_DB_USER = os.environ.get('REMOTE_DB_USER')
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': REMOTE_DB_NAME,
-#         'USER': REMOTE_DB_USER,
-#         'PASSWORD': REMOTE_DB_PASSWORD,
-#         'HOST': REMOTE_DB_HOST,   
-#         'PORT': REMOTE_DB_PORT
-#     }
-# }
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'poolhub',
-        'USER': 'root',
-        'PASSWORD': DB_PASSWORD,
-        'HOST': 'mysql',   
+        'NAME': REMOTE_DB_NAME,
+        'USER': REMOTE_DB_USER,
+        'PASSWORD': REMOTE_DB_PASSWORD,
+        'HOST': REMOTE_DB_HOST,   
+        'PORT': REMOTE_DB_PORT
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'poolhub',
+#         'USER': 'root',
+#         'PASSWORD': DB_PASSWORD,
+#         'HOST': 'mysql',   
+#     }
+# }
 
 
 # Password validation
