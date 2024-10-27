@@ -82,7 +82,7 @@ jobs:
            key: ${{ secrets.SSH_PRIVATE_KEY}}
 
            script: |
-              cd Poolhub
+              cd PoolHub
               echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
               echo "REMOTE_DB_HOST: ${{ secrets.REMOTE_DB_HOST }}" >> .env
               echo "REMOTE_DB_NAME: ${{ secrets.REMOTE_DB_NAME }}" >> .env
@@ -93,7 +93,7 @@ jobs:
               echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
 
               
-              
+
               docker compose down
               git pull origin daphne_deploy
               docker compose up --build --detach
