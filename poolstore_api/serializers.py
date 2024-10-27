@@ -38,6 +38,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 
 class SimplePlayerSerializer(serializers.ModelSerializer):
+    user = SimpleUserSerializer(read_only=True)
     class Meta:
         model = Player
         fields = ['user', 'profile_image', 'total_points']
