@@ -27,3 +27,6 @@ def create_player_for_new_user(sender, instance, created, **kwargs):
     if created:
         if not instance.is_staff:
             Player.objects.create(user=instance, games_played=0, opponents_met=0, games_won=0)
+
+
+
