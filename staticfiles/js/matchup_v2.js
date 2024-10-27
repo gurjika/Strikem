@@ -8,7 +8,7 @@ var opponentUsername = JSON.parse(document.getElementById('opponent_username').t
 var matchUpSocket = new WebSocket(
     'ws://' + 
     window.location.hostname + 
-    ':8001/ws/matchup/' + 
+    ':/ws/matchup/' + 
     username + 
     '/'
 );

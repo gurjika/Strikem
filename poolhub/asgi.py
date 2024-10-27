@@ -15,6 +15,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "poolhub.settings")
 application = get_asgi_application()
 
 import poolstore.routing
+
 application = ProtocolTypeRouter({
     'http': application,
     'websocket': AllowedHostsOriginValidator(
