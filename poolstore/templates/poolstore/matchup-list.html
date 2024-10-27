@@ -1,0 +1,76 @@
+{% extends 'poolstore/base.html' %}
+
+{% block content %}
+    <div class="row justify-content-center">    
+        <div class="col-lg-6">
+            <div class="h4">
+                {% for last_message, matchup in matchups %}
+                <a href="{% url 'matchup' matchup.id %}" style="text-decoration: none; color: inherit;" class="d-block">
+                    <div class="">
+                        <div class="d-flex align-items-center my-3 message-header p-2">
+    
+                            {% if matchup.player_accepting.user == request.user %}
+                        
+                            <div class="w-25 me-2">
+                                <img src="{{ matchup.player_inviting.profile_image.url}}" class="img-fluid" style="border-radius: 50%;">
+                            </div>
+                        
+                            <div class="w-75" >
+                                <div class="h4">
+                                    {{ matchup.player_inviting.user.first_name}} {{ matchup.player_inviting.user.last_name}}
+                            
+                                    
+                                </div>
+                                {% else %}
+                        
+                                <div class="w-25 me-2">
+                                    <img src="{{ matchup.player_accepting.profile_image.url}}" class="img-fluid" style="border-radius: 50%;">
+                                </div>
+                        
+                                <div class="w-75" >
+                                    <div class="h4">
+                                    {{ matchup.player_accepting.user.first_name}} {{ matchup.player_accepting.user.last_name}}
+                                    
+                                    
+                                    
+                                    </div>
+                        
+                                {% endif %}
+                        
+                                {% if last_message.sender.user == request.user %}
+                        
+                                <div class="d-flex">
+                        
+                                    <div class="mt-4">
+                                        You: {{ last_message.body }}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="d-flex">
+                        
+                                    <div class="mt-4">
+                                        {{ last_message.sender.user.username }}: {{ last_message.body }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                        
+                        
+                                
+                            </div>
+                        </div>
+    
+                    </div>
+                </a>
+
+                <hr>
+                
+                
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+<script>
+    makeMeActive('matchup');
+</script>
+{% endblock %}

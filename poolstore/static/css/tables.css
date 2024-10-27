@@ -1,0 +1,30 @@
+/* TEST DESIGN. MUST CHANGE LATER */
+
+
+#first-table-div {
+    position: absolute;
+    top: 20%;
+    left: 10%;
+    z-index: 40;
+    width: 100px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+#second-table-div {
+    position: absolute;
+    top: 10%;
+    right: 20%;
+    z-index: 40;
+}
+
+
+.first-table-btn {
+    padding: 10px 15px;
+    background-color: green;
+    color: white;
+    font-weight: bold;
+}

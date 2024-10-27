@@ -25,7 +25,7 @@ drf-nested-routers = "*"
 django-filter = "*"
 drf-yasg = "*"
 django-channels-jwt = "*"
-gunicorn = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
