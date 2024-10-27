@@ -10,3 +10,4 @@ poolstore/templates/poolstore
 poolstore/scripts
 core/templates
 poolstore/templatetags
+tmp/
