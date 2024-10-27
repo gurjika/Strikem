@@ -92,11 +92,11 @@ DB_PASSWORD = os.environ.get('DB_PASSWORD')
 DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 
 
-REMOTE_DB_HOST=os.environ.get('REMOTE_DB_HOST')
-REMOTE_DB_PORT=os.environ.get('REMOTE_DB_PORT')
-REMOTE_DB_PASSWORD=os.environ.get('REMOTE_DB_PASSWORD')
-REMOTE_DB_NAME=os.environ.get('REMOTE_DB_NAME')
-REMOTE_DB_USER=os.environ.get('REMOTE_DB_USER')
+REMOTE_DB_HOST = os.environ.get('REMOTE_DB_HOST')
+REMOTE_DB_PORT = os.environ.get('REMOTE_DB_PORT')
+REMOTE_DB_PASSWORD = os.environ.get('REMOTE_DB_PASSWORD')
+REMOTE_DB_NAME = os.environ.get('REMOTE_DB_NAME')
+REMOTE_DB_USER = os.environ.get('REMOTE_DB_USER')
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

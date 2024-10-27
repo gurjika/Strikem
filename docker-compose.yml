@@ -41,6 +41,11 @@ services:
     environment:
       - DB_HOST=mysql
       - DB_PASSWORD=${DB_PASSWORD}
+      - REMOTE_DB_HOST=${ REMOTE_DB_HOST}
+      - REMOTE_DB_NAME=${REMOTE_DB_NAME}
+      - REMOTE_DB_USER=${REMOTE_DB_USER}
+      - REMOTE_DB_PORT=${REMOTE_DB_PORT}
+      - REMOTE_DB_PASSWORD=${REMOTE_DB_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
 
@@ -87,6 +92,12 @@ services:
       - daphne-socket:/tmp
     environment:
       - DB_HOST=mysql
+
+      - REMOTE_DB_HOST=${ REMOTE_DB_HOST}
+      - REMOTE_DB_NAME=${REMOTE_DB_NAME}
+      - REMOTE_DB_USER=${REMOTE_DB_USER}
+      - REMOTE_DB_PORT=${REMOTE_DB_PORT}
+      - REMOTE_DB_PASSWORD=${REMOTE_DB_PASSWORD}
       - DB_PASSWORD=${DB_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
