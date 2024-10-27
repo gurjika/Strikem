@@ -2,10 +2,10 @@ name: PoolHub CI/CD Pipeline
 
 on:
   push:
-    branches: [ master ]
+    branches: [ daphne_deploy ]
 
   pull_request:
-    branches: [ master ] 
+    branches: [ daphne_deploy ] 
 
 jobs:
   build:
@@ -94,7 +94,7 @@ jobs:
 
               
               docker compose down
-              git pull
+              git pull origin daphne_deploy
               docker compose up --build --detach
 
 
