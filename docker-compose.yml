@@ -1,18 +1,18 @@
 services:
-  mysql:
-    image: mysql:8.0
-    ports:
-      - 3306:3306
+#   mysql:
+#     image: mysql:8.0
+#     ports:
+#       - 3306:3306
 
-    environment:
+#     environment:
     
-      - MYSQL_DATABASE=poolhub
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+#       - MYSQL_DATABASE=poolhub
+#       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
 
 
-    volumes:
+#     volumes:
 
-      - poolhubdata:/var/lib/mysql 
+#       - poolhubdata:/var/lib/mysql 
 
 
   redis:
@@ -29,7 +29,8 @@ services:
   django:
 
     build: .
-    command: ["./wait-for-it.sh", "mysql:3306", "--", "gunicorn", "poolhub.wsgi:application", "-b", "0.0.0.0:8000", '--reload']
+    command: ["gunicorn", "poolhub.wsgi:application", "-b", "0.0.0.0:8000", '--reload']
+    # ./wait-for-it.sh", "mysql:3306", "--",
 
     # ports:
     #   - "8000:8000"
@@ -46,7 +47,7 @@ services:
 
 
     depends_on:
-      - mysql
+      # - mysql
       - redis
       - celery
 
@@ -90,7 +91,7 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
     depends_on:
-      - mysql
+      # - mysql
       - redis
 
 
@@ -111,4 +112,4 @@ services:
 
 volumes:
   daphne-socket:
-  poolhubdata:
+  # poolhubdata:
