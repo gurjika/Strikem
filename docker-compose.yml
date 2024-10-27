@@ -93,7 +93,7 @@ services:
     environment:
       - DB_HOST=mysql
 
-      - REMOTE_DB_HOST=${ REMOTE_DB_HOST}
+      - REMOTE_DB_HOST=${REMOTE_DB_HOST}
       - REMOTE_DB_NAME=${REMOTE_DB_NAME}
       - REMOTE_DB_USER=${REMOTE_DB_USER}
       - REMOTE_DB_PORT=${REMOTE_DB_PORT}
