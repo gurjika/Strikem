@@ -21,7 +21,7 @@ TIE_POINTS = 1
 class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'id']
+        fields = ['first_name', 'last_name', 'email', 'id', 'username']
 
 
 class PlayerSerializer(serializers.ModelSerializer):
