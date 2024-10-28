@@ -1,5 +1,5 @@
 const sectionNumHorizontal = 3;
-const sectionNumVertical = 4;
+const sectionNumVertical = 2;
 
 
 
