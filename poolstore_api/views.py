@@ -31,13 +31,13 @@ class PoolHouseViewSet(ModelViewSet):
     queryset = PoolHouse.objects.annotate(
         avg_rating=Avg('ratings__rate'),
         table_count=Count('tables', distinct=True)
-    )
+    ).prefetch_related('pics').prefetch_related('tables')
 
     serializer_class = PoolHouseSerializer
     permission_classes = [IsAdminOrReadOnly]
 
 
-    @method_decorator(cache_page(60 * 5))
+    # @method_decorator(cache_page(60 * 5))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
@@ -46,11 +46,11 @@ class FilterPoolHouseViewSet(ListModelMixin, GenericViewSet):
     queryset = PoolHouse.objects.annotate(
         avg_rating=Avg('ratings__rate'),
         table_count=Count('tables', distinct=True)
-    )
+    ).prefetch_related('pics').prefetch_related('tables')
     serializer_class = PoolHouseSerializer
 
 
-    @method_decorator(cache_page(60 * 5))
+    # @method_decorator(cache_page(60 * 5))
     def list(self, request, *args, **kwargs):
         user_lat = request.query_params.get('lat')
         user_lng = request.query_params.get('lng')
@@ -107,7 +107,8 @@ class ReservationViewSet(ListModelMixin, RetrieveModelMixin,DestroyModelMixin, G
     permission_classes = [IsAuthenticated, IsPlayerReservingUserOrReadOnly]
     
     def get_queryset(self):
-        queryset = Reservation.objects.filter(Q(player_reserving=self.request.user.player) | Q(other_player=self.request.user.player), finished_reservation=False)
+        queryset = Reservation.objects.filter(Q(player_reserving=self.request.user.player) | Q(other_player=self.request.user.player), finished_reservation=False) \
+        .select_related('player_reserving__user').select_related('other_player__user')
         return queryset
 
 
@@ -167,7 +168,7 @@ class PlayerViewSet(ModelViewSet):
 
 
     def get_queryset(self):
-        return Player.objects.all()
+        return Player.objects.select_related('user').all()
     
 
 
@@ -185,7 +186,8 @@ class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMix
 class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
-        queryset = History.objects.filter(Q(winner_player=self.request.user.player) | Q(loser_player=self.request.user.player))
+        queryset = History.objects.filter(Q(winner_player=self.request.user.player) | Q(loser_player=self.request.user.player)) \
+        .select_related('winner_player__user').select_related('loser_player__user').select_related('poolhouse')
         return queryset
     
 
@@ -231,7 +233,7 @@ class PoolHouseImageViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin
     permission_classes = [IsStaffOrReadOnly]
 
     def get_queryset(self):
-        return PoolHouseImage.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
+        return PoolHouseImage.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).select_related('poolhouse')
     
 
 
