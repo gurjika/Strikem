@@ -9,8 +9,12 @@ urlpatterns = [
     path('register/', views.SignUpView.as_view(), name='register'),
     path('logout/', views.MyLogoutView.as_view(), name='logout'),
     path('profile/<str:username>/', views.profile, name='profile'),
-    path('activate/<str:uid>/<str:token>/', views.ActivateUserEmail.as_view())
+    path('activate/<str:uid>/<str:token>/', views.ActivateUserEmail.as_view(), name='activate-email'),
+    path('current_user/', view=views.CurrentUserView.as_view(), name='current-user')
 ]
+
+
+
 
 
 # htmx_urlpatterns = [

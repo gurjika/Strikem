@@ -8,7 +8,8 @@ from .models import User
 from rest_framework.views import APIView
 import requests
 from rest_framework.response import Response
-
+from rest_framework.permissions import IsAuthenticated
+from .serializers import UserSerializer
 
 class MyLoginView(LoginView):
     template_name='core/login.html'
@@ -58,3 +59,11 @@ class ActivateUserEmail(APIView):
         result = requests.post(post_url, data = post_data)
         message = result.text
         return Response(message)
+    
+
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
