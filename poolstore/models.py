@@ -113,7 +113,7 @@ class Reservation(models.Model):
     start_time = models.DateTimeField()
     duration = models.PositiveSmallIntegerField(default=30)
     table = models.ForeignKey(PoolTable, on_delete=models.CASCADE, related_name='reservations')
-    player_reserving = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='my_reservations')
+    player_reserving = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='my_reservations', null=True)
     other_player = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='other_reservations')
     end_time = models.DateTimeField()
     real_end_datetime = models.DateTimeField()

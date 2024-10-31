@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
-from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer
+from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,10 +15,6 @@ from django.views.decorators.cache import cache_page
 from django.db.models import Avg, Count
 from .tasks import finish_game_session
 from rest_framework import status
-import os
-from rest_framework.views import APIView
-
-import requests
 from .utils import get_nearby_poolhouses
 from celery.result import AsyncResult
 
@@ -215,7 +211,7 @@ class GameSessionControlViewSet(ListModelMixin, DestroyModelMixin, GenericViewSe
     
 
 
-class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = ReservationSerializer
     permission_classes = [IsStaffOrDenied]
 
@@ -223,8 +219,12 @@ class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericVie
     def get_queryset(self):
         return Reservation.objects.filter(table__poolhouse_id=self.kwargs['poolhouse_pk'])
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return StaffReservationCreateSerializer
 
-
+    def get_serializer_context(self):
+        return {'poolhouse_id': self.kwargs['poolhouse_pk']}
 
 
 

@@ -276,3 +276,14 @@ class GameSessionSerializer(serializers.ModelSerializer):
         fields = ['id', 'pooltable', 'players', 'status_finished']
 
 
+class StaffReservationCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Reservation
+        fields = ['table_id', 'duration', 'start_time']
+
+
+    def create(self, validated_data):
+        table = PoolTable.objects.get(table_id=validated_data['table_id'], poolhouse=['poolhouse_pk'])
+        return Reservation.objects.create(table=table, **validated_data)
+

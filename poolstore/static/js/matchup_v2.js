@@ -35,6 +35,7 @@ matchUpSocket.onmessage = function (e) {
         var toast = new bootstrap.Toast(toastLiveExample);
         var invitationHeader = document.querySelector('#toast-header-text .me-auto').innerText = 'User State';
         if (data.user_state === 'joined') {
+
             const toastBody = document.querySelector('.toast-body').innerText = `${data.username} joined`;
             console.log(data.username);
             changeStatusOn(data);
@@ -185,12 +186,20 @@ function readySendMessage() {
         const message = messageInputDom.value;
         console.log(username);
         console.log(opponentUsername)
+
+
+
+
         matchUpSocket.send(JSON.stringify({
            'message': message,
            'username': username,
            'opponent_username': opponentUsername,
            'matchup_id': matchupId,
         }));
+
+
+
+
         messageInputDom.value = '';
      }
 }
