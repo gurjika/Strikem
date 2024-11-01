@@ -132,24 +132,15 @@ services:
 
   certbot:
     image: certbot/certbot
-    
     volumes:
       - certbot-etc:/etc/letsencrypt  # Stores the certificates
       - certbot-var:/var/lib/certbot   # Stores Certbot state
       - ./certbot/www:/var/www/certbot # Webroot for HTTP challenges
-    entrypoint: |
-      /bin/sh -c 'trap exit TERM;
-                  ./wait-for-it.sh nginx:80 --timeout=60 -- \
-                  certbot certonly --webroot -w /var/www/certbot \
-                  --email lgurjidze@gmail.com --agree-tos --no-eff-email \
-                  -d strikem.site;
-                  while :; do
-                    ./wait-for-it.sh nginx:80 --timeout=60 -- \
-                    certbot renew && nginx -s reload;
-                    sleep 12h;
-                  done;'
+    entrypoint: "/bin/sh -c 'trap exit TERM; certbot certonly --webroot -w /var/www/certbot --email lgurjidze@gmail.com --agree-tos --no-eff-email -d strikem.site; while :; do sleep 12h; done;'"
+
     depends_on:
       - nginx
+    
     restart: always
 
 
