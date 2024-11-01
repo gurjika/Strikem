@@ -111,8 +111,8 @@ services:
 
   nginx:
     image: nginx:latest
-
     command: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; nginx -s reload; sleep 12h & wait $${!}; done;'"
+
 
     ports:
       - "80:80"  
@@ -130,14 +130,14 @@ services:
     restart: always
 
 
+certbot:
+  image: certbot/certbot
+  volumes:
+    - certbot-etc:/etc/letsencrypt  # Stores the certificates
+    - certbot-var:/var/lib/certbot   # Stores Certbot state
+    - ./certbot/www:/var/www/certbot # Webroot for HTTP challenges
+  entrypoint: "/bin/sh -c 'trap exit TERM; certbot certonly --webroot -w /var/www/certbot --email lgurjidze@gmail.com --agree-tos --no-eff-email -d strikem.site; while :; do sleep 12h; done;'"
 
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/certbot
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 
 
