@@ -2,7 +2,7 @@ const poolhouseName = JSON.parse(document.getElementById('poolhouse_name').textC
 
 console.log(poolhouseName);
 const chatSocket = new WebSocket(
-    'ws://' +
+    'wss://' +
     window.location.host +
     '/ws/poolhouses/' +
     poolhouseName + 
