@@ -84,11 +84,11 @@ jobs:
            script: |
               cd PoolHub
               echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
-              echo "REMOTE_DB_HOST: ${{ secrets.REMOTE_DB_HOST }}" >> .env
-              echo "REMOTE_DB_NAME: ${{ secrets.REMOTE_DB_NAME }}" >> .env
-              echo "REMOTE_DB_USER: ${{ secrets.REMOTE_DB_USER }}" >> .env
-              echo "REMOTE_DB_PORT: ${{ secrets.REMOTE_DB_PORT }}" >> .env
-              echo "REMOTE_DB_PASSWORD: ${{ secrets.REMOTE_DB_PASSWORD }}" >> .env
+              echo "REMOTE_DB_HOST=${{ secrets.REMOTE_DB_HOST }}" >> .env
+              echo "REMOTE_DB_NAME=${{ secrets.REMOTE_DB_NAME }}" >> .env
+              echo "REMOTE_DB_USER=${{ secrets.REMOTE_DB_USER }}" >> .env
+              echo "REMOTE_DB_PORT=${{ secrets.REMOTE_DB_PORT }}" >> .env
+              echo "REMOTE_DB_PASSWORD=${{ secrets.REMOTE_DB_PASSWORD }}" >> .env
               echo "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
               echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
 
