@@ -125,6 +125,7 @@ services:
       - daphne-socket:/tmp
       - certbot-etc:/etc/letsencrypt  # For SSL certificates
       - certbot-var:/var/lib/certbot   # For Certbot challenges
+      - /var/www/certbot:/var/www/certbot 
     depends_on:
       - django
       - daphne
@@ -137,6 +138,7 @@ services:
       - certbot-etc:/etc/letsencrypt  # Stores the certificates
       - certbot-var:/var/lib/certbot   # Stores Certbot state
       - ./certbot/www:/var/www/certbot # Webroot for HTTP challenges
+      - /var/www/certbot:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; certbot certonly --webroot -w /var/www/certbot --email lgurjidze@gmail.com --agree-tos --no-eff-email -d strikem.site; while :; do sleep 12h; done;'"
 
     depends_on:
