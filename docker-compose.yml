@@ -111,7 +111,7 @@ services:
 
   nginx:
     image: nginx:latest
-    command: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; nginx -s reload; sleep 12h & wait $${!}; done;'"
+    # command: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; nginx -s reload; sleep 12h & wait $${!}; done;'"
 
 
     ports:
@@ -128,7 +128,6 @@ services:
     depends_on:
       - django
       - daphne
-      - certbot
     restart: always
 
 
@@ -140,6 +139,8 @@ services:
       - ./certbot/www:/var/www/certbot # Webroot for HTTP challenges
     entrypoint: "/bin/sh -c 'trap exit TERM; certbot certonly --webroot -w /var/www/certbot --email lgurjidze@gmail.com --agree-tos --no-eff-email -d strikem.site; while :; do sleep 12h; done;'"
 
+    depends_on:
+      - nginx
     
     restart: always
 
