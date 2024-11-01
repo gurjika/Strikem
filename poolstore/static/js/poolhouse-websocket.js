@@ -2,7 +2,7 @@ const poolhouseName = JSON.parse(document.getElementById('poolhouse_name').textC
 
 console.log(poolhouseName);
 const chatSocket = new WebSocket(
-    'ws://' +
+    'wss://' +
     window.location.host +
     '/ws/poolhouses/' +
     poolhouseName + 
@@ -17,6 +17,8 @@ chatSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     console.log(data.changed);
     document.getElementById('first-table').innerText = data.changed;
+
+    
 };
 
 
