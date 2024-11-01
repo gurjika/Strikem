@@ -111,6 +111,9 @@ services:
 
   nginx:
     image: nginx:latest
+
+    command: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; nginx -s reload; sleep 12h & wait $${!}; done;'"
+
     ports:
       - "80:80"  
       - "443:443"
@@ -119,11 +122,26 @@ services:
       - ./staticfiles:/app/static
       - ./media:/app/media
       - daphne-socket:/tmp
+      - certbot-etc:/etc/letsencrypt  # For SSL certificates
+      - certbot-var:/var/lib/certbot   # For Certbot challenges
     depends_on:
       - django
       - daphne
     restart: always
 
+
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+
+
 volumes:
   daphne-socket:
-  poolhubdata:
+  # poolhubdata:
+  certbot-etc:
+  certbot-var:
