@@ -19,8 +19,8 @@ import poolstore.routing
 application = ProtocolTypeRouter({
     'http': application,
     'websocket': AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
+        
             URLRouter(poolstore.routing.websocket_urlpatterns)
-        )
+        
     ),
 })
