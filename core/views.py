@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 import requests
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSerializer
+from poolstore_api.serializers import PlayerSerializer
 
 class MyLoginView(LoginView):
     template_name='core/login.html'
@@ -65,5 +65,5 @@ class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
+        serializer = PlayerSerializer(request.user)
         return Response(serializer.data)
