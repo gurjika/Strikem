@@ -32,7 +32,6 @@ document.getElementById('control-btn').onclick = function (e) {
 };
 
 document.getElementById('matches-container').addEventListener('click', function(e) {
-
     if (e.target && e.target.classList.contains('invite-btn')) {
         const matchMakerUsername = e.target.dataset.inviteeUserUsername;
         matchSocket.send(JSON.stringify({
@@ -66,7 +65,6 @@ matchSocket.onmessage = function (e) {
             </div>
             <hr>
         </div>
-
        `;
 
 
