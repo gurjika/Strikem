@@ -1,6 +1,6 @@
 from datetime import timedelta
 from rest_framework import serializers
-from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
+from poolstore.models import GameSession, History, Invitation, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
 from django.utils import timezone
 from .tasks import send_email_before_res, start_game_session
 from django.contrib.auth import get_user_model
@@ -276,3 +276,29 @@ class GameSessionSerializer(serializers.ModelSerializer):
         fields = ['id', 'pooltable', 'players', 'status_finished']
 
 
+class StaffReservationCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Reservation
+        fields = ['table_id', 'duration', 'start_time']
+
+
+    def create(self, validated_data):
+        table = PoolTable.objects.get(table_id=validated_data['table_id'], poolhouse=['poolhouse_pk'])
+        return Reservation.objects.create(table=table, **validated_data)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    content_object = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Notification
+        fields = ['id', 'player', 'content_type', 'object_id', 'content_object', 'body', 'timestamp', 'read']
+
+    def get_content_object(self, obj):
+        if obj.content_object:
+            if isinstance(obj.content_object, Message):
+                return MessageSerializer(obj.content_object).data
+            elif isinstance(obj.content_object, Invitation):
+                return InvitationSerializer(obj.content_object).data
+        return None

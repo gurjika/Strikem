@@ -1,10 +1,9 @@
 const username = JSON.parse(document.getElementById('username').textContent);
 
 const matchSocket = new WebSocket(
-    'ws://' + 
+    'wss://' + 
     window.location.hostname + 
-    ':8001/ws/matchmake/' 
-
+    '/ws/matchmake/' 
 );
 
 makeMeActive('matchmake');

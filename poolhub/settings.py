@@ -93,8 +93,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'poolhub.wsgi.application'
 
-DB_PASSWORD = os.environ.get('DB_PASSWORD')
-DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
+# DB_PASSWORD = os.environ.get('DB_PASSWORD')
+# DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 
 
 REMOTE_DB_HOST = os.environ.get('REMOTE_DB_HOST')
@@ -273,25 +273,7 @@ DEFAULT_FROM_EMAIL = 'noreply@poolhub.com'
 
 
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#         },
-#         'djoser': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#         },
-#     },
-# }
+
 
 
 

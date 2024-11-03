@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import GameSession, History, Invitation, Matchup, Message, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
-from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer
+from poolstore.models import GameSession, History, Invitation, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
+from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,10 +15,6 @@ from django.views.decorators.cache import cache_page
 from django.db.models import Avg, Count
 from .tasks import finish_game_session
 from rest_framework import status
-import os
-from rest_framework.views import APIView
-
-import requests
 from .utils import get_nearby_poolhouses
 from celery.result import AsyncResult
 
@@ -31,13 +27,13 @@ class PoolHouseViewSet(ModelViewSet):
     queryset = PoolHouse.objects.annotate(
         avg_rating=Avg('ratings__rate'),
         table_count=Count('tables', distinct=True)
-    )
+    ).prefetch_related('pics').prefetch_related('tables')
 
     serializer_class = PoolHouseSerializer
     permission_classes = [IsAdminOrReadOnly]
 
 
-    @method_decorator(cache_page(60 * 5))
+    # @method_decorator(cache_page(60 * 5))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
@@ -46,11 +42,11 @@ class FilterPoolHouseViewSet(ListModelMixin, GenericViewSet):
     queryset = PoolHouse.objects.annotate(
         avg_rating=Avg('ratings__rate'),
         table_count=Count('tables', distinct=True)
-    )
+    ).prefetch_related('pics').prefetch_related('tables')
     serializer_class = PoolHouseSerializer
 
 
-    @method_decorator(cache_page(60 * 5))
+    # @method_decorator(cache_page(60 * 5))
     def list(self, request, *args, **kwargs):
         user_lat = request.query_params.get('lat')
         user_lng = request.query_params.get('lng')
@@ -107,7 +103,8 @@ class ReservationViewSet(ListModelMixin, RetrieveModelMixin,DestroyModelMixin, G
     permission_classes = [IsAuthenticated, IsPlayerReservingUserOrReadOnly]
     
     def get_queryset(self):
-        queryset = Reservation.objects.filter(Q(player_reserving=self.request.user.player) | Q(other_player=self.request.user.player), finished_reservation=False)
+        queryset = Reservation.objects.filter(Q(player_reserving=self.request.user.player) | Q(other_player=self.request.user.player), finished_reservation=False) \
+        .select_related('player_reserving__user').select_related('other_player__user')
         return queryset
 
 
@@ -167,7 +164,7 @@ class PlayerViewSet(ModelViewSet):
 
 
     def get_queryset(self):
-        return Player.objects.all()
+        return Player.objects.select_related('user').all()
     
 
 
@@ -185,7 +182,8 @@ class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMix
 class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
-        queryset = History.objects.filter(Q(winner_player=self.request.user.player) | Q(loser_player=self.request.user.player))
+        queryset = History.objects.filter(Q(winner_player=self.request.user.player) | Q(loser_player=self.request.user.player)) \
+        .select_related('winner_player__user').select_related('loser_player__user').select_related('poolhouse')
         return queryset
     
 
@@ -213,7 +211,7 @@ class GameSessionControlViewSet(ListModelMixin, DestroyModelMixin, GenericViewSe
     
 
 
-class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = ReservationSerializer
     permission_classes = [IsStaffOrDenied]
 
@@ -221,8 +219,12 @@ class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, GenericVie
     def get_queryset(self):
         return Reservation.objects.filter(table__poolhouse_id=self.kwargs['poolhouse_pk'])
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return StaffReservationCreateSerializer
 
-
+    def get_serializer_context(self):
+        return {'poolhouse_id': self.kwargs['poolhouse_pk']}
 
 
 
@@ -231,7 +233,7 @@ class PoolHouseImageViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin
     permission_classes = [IsStaffOrReadOnly]
 
     def get_queryset(self):
-        return PoolHouseImage.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
+        return PoolHouseImage.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).select_related('poolhouse')
     
 
 
@@ -245,6 +247,15 @@ class PoolHouseImageViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin
         return Response(poolhouse_serializer.data, status=status.HTTP_201_CREATED)
     
 
+class NotificationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
 
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(player=self.request.user.player)
+
+
+    
 
 

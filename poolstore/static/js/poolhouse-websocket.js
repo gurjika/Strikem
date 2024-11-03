@@ -17,6 +17,8 @@ chatSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     console.log(data.changed);
     document.getElementById('first-table').innerText = data.changed;
+
+    
 };
 
 
