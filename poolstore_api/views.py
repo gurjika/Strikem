@@ -259,3 +259,18 @@ class NotificationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     
 
 
+
+class FilterPlayersWithRatingViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+
+    serializer_class = PlayerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+
+        point_range = 200
+        min_points = self.request.user.player.total_points - point_range
+        max_points = self.request.user.player.total_points + point_range
+
+        nearby_players = Player.objects.filter(total_points__gte=min_points, total_points__lte=max_points, inviting_to_play=True).exclude(id=self.request.user.player.id)
+
+        return nearby_players
