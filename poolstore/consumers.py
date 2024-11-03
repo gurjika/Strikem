@@ -9,7 +9,7 @@ from channels.db import database_sync_to_async
 from datetime import timedelta
 
 
-
+from .tasks import create_notification
 
 
 
@@ -245,7 +245,8 @@ class MatchMakeConsumer(BaseNotificationConsumer):
 
 
                 # IF PLAYER ACCEPTS CREATE MATCHUP AND REMOVE THE PLAYER FROM THE INVITING PLAYERS' LIST
-         
+
+
 
                 match_make_instance_accepter = await database_sync_to_async(MatchMake.objects.get)(player=response_player)
                 
@@ -256,6 +257,7 @@ class MatchMakeConsumer(BaseNotificationConsumer):
                     pass
                 
                 invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=response_player)
+                # create_notification.apply_async((invite_sender_username, 'invitation', ), eta=start_time, task_id=f'custom_task_id_{obj.id}')
                 await database_sync_to_async(invitations.delete)()
 
                 response_player.inviting_to_play = False
@@ -269,6 +271,8 @@ class MatchMakeConsumer(BaseNotificationConsumer):
                 mathup_object = await database_sync_to_async(Matchup.objects.create)(player_accepting=response_player, player_inviting=inviter_player)
                 
                 # SENDING ACCEPTING NOTIFICATION TO THE SENDER
+
+                create_notification.apply_async((invite_sender_username, '', None, f'{username} accepted your invite'))
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
@@ -319,6 +323,8 @@ class MatchMakeConsumer(BaseNotificationConsumer):
             player_invited = await database_sync_to_async(Player.objects.get)(user__username=matchmaker_username)
 
             invitation_instance = await database_sync_to_async(Invitation.objects.create)(player_inviting=player_inviting, player_invited=player_invited)
+            create_notification.apply_async((matchmaker_username, 'invitation', invitation_instance.id))
+
 
             await self.channel_layer.group_send(
                 f'user_{matchmaker_username}',
@@ -495,6 +501,7 @@ class MatchupConsumer(BaseNotificationConsumer):
             last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
 
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
+            create_notification.apply_async((self.opponent_username, 'message', new_message.id),)
 
             is_outdated = False
 

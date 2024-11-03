@@ -10,6 +10,8 @@ router.register(prefix='players', viewset=views.PlayerViewSet,basename='player')
 router.register(prefix='history', viewset=views.HistoryViewSet, basename='history')
 router.register(prefix='poolhouses-filter', viewset=views.FilterPoolHouseViewSet, basename='poolhouse-filter')
 router.register(prefix='reservations', viewset=views.ReservationViewSet, basename='reservation')
+router.register(prefix='notifications', viewset=views.NotificationViewSet, basename='notification')
+
 
 tables_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
 tables_router.register(prefix='tables', viewset=views.TableViewSet, basename='table')

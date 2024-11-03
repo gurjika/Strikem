@@ -3,7 +3,7 @@ const username = JSON.parse(document.getElementById('username').textContent);
 const matchSocket = new WebSocket(
     'ws://' + 
     window.location.hostname + 
-    ':/ws/matchmake/' 
+    ':8000/ws/matchmake/' 
 );
 
 makeMeActive('matchmake');
