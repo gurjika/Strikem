@@ -303,6 +303,8 @@ class MatchMakeConsumer(BaseNotificationConsumer):
             elif invite_response == 'deny':
 
                 invitation = await database_sync_to_async(Invitation.objects.get)(player_inviting=inviter_player, player_invited=response_player)
+                create_notification.apply_async((invite_sender_username, '', None, f'{username} denied your invite'))
+
                 await database_sync_to_async(invitation.delete)()
 
 

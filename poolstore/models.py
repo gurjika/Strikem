@@ -181,7 +181,7 @@ class Notification(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
     timestamp = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
-    body = models.TextField()
+    body = models.TextField(blank=True)
 
     def __str__(self):
         return f'Notification for {self.player} - {self.content_object}'

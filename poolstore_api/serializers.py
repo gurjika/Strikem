@@ -302,3 +302,9 @@ class NotificationSerializer(serializers.ModelSerializer):
             elif isinstance(obj.content_object, Invitation):
                 return InvitationSerializer(obj.content_object).data
         return None
+    
+
+    def update(self, instance, validated_data):
+        instance.read = True
+        instance.save()
+        return instance

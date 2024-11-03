@@ -39,7 +39,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('poolstore.urls')),
-    path("__debug__/", include("debug_toolbar.urls")),
+    # path("__debug__/", include("debug_toolbar.urls")),
     path('users/', include('core.urls')),
     path('api/', include('poolstore_api.urls')),
     path('auth/', include('djoser.urls')),
