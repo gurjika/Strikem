@@ -204,7 +204,7 @@ class MatchMakeConsumer(BaseNotificationConsumer):
     async def connect(self):
         await super().connect()
         self.GROUP_NAME = 'matchmake'
-
+        print(self.scope['user'])
 
         await self.channel_layer.group_add(
             self.GROUP_NAME,
