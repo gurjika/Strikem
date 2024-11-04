@@ -25,7 +25,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         
-
+        await self.accept()
+        
     async def disconnect(self, code=None):
    
 
@@ -213,7 +214,6 @@ class MatchMakeConsumer(BaseNotificationConsumer):
 
 
 
-        await self.accept()
 
     async def disconnect(self, code):
         await super().disconnect()
@@ -439,7 +439,7 @@ class MatchupConsumer(BaseNotificationConsumer):
         self.opponent_username = ''
 
         
-        await self.accept()
+        
 
     async def disconnect(self, code):
 
