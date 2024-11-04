@@ -24,7 +24,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             self.room_name_for_specific_user,
             self.channel_name
         )
-        
+        await self.accept()
 
     async def disconnect(self, code=None):
    
@@ -34,7 +34,10 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-
+    async def receive(self, text_data=None, bytes_data=None):
+        text_data_json = json.loads(text_data)
+        if text_data_json.get('action') == 'matchup':
+            await self.matchup(text_data_json)
 
     async def display_invite(self, event):
         invite_sender_username = event['invite_sender_username']
@@ -124,6 +127,111 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             }
         ))
 
+    async def matchup(self, text_data=None, bytes_data=None):
+        text_data_json = text_data
+        self.opponent_username = text_data_json.get('opponent_username')
+        username = text_data_json.get('username')
+        message = text_data_json.get('message')
+        user_state = text_data_json.get('user_state')
+        protocol = text_data_json.get('protocol')
+
+        player = await database_sync_to_async(Player.objects.get)(user=self.user)
+
+        if protocol == 'acknowledge':
+            active_user_username = text_data_json['active_user']
+            await self.channel_layer.group_send(
+                f'user_{active_user_username}',
+                {
+                    
+                    'type': 'handle_acknowledge',
+                    'active_user': self.user.username
+                },
+            )
+
+        if user_state:
+            opponents = await database_sync_to_async(list)(player.get_opponents())
+                
+            for opponent in opponents:
+                await self.channel_layer.group_send(
+                    f'user_{opponent.user.username}', 
+                    {
+                        'type': 'handle_user_state',
+                        'username': self.user.username,
+                        'user_state': 'joined'
+                    }
+                )
+
+
+       
+        elif message:
+            
+            matchup_id = text_data_json['matchup_id']
+
+            last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
+
+            new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
+            create_notification.apply_async((self.opponent_username, 'message', new_message.id),)
+
+            is_outdated = False
+
+            try:
+                time_difference = new_message.time_sent - last_message.time_sent
+                if time_difference > timedelta(minutes=20):
+                    is_outdated = True
+                
+            except AttributeError:
+                pass
+
+            if is_outdated or last_message is None:
+
+                new_message.after_outdated = True
+                await database_sync_to_async(new_message.save)()
+                formatted_datetime = new_message.time_sent.strftime('%b %#d, %I:%M %p')
+
+                await self.channel_layer.group_send(
+                    f'user_{self.opponent_username}',
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'username': username,
+                        'time_sent': formatted_datetime,
+                        'matchup_id': matchup_id,
+                        'sub_protocol': 'last_message_outdated',
+                    }
+                )
+
+
+                await self.channel_layer.group_send(
+                    f'user_{username}',
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'username': username,
+                        'time_sent': formatted_datetime,
+                        'matchup_id': matchup_id,
+                        'sub_protocol': 'last_message_outdated',
+                    }
+                )
+            else:
+                await self.channel_layer.group_send(
+                    f'user_{self.opponent_username}',
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'matchup_id': matchup_id,
+                        'username': username,
+                    }
+                )
+                   
+                await self.channel_layer.group_send(
+                    f'user_{username}',
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'matchup_id': matchup_id,
+                        'username': username,
+                    }
+                )
 
 
 class PoolhouseConsumer(AsyncWebsocketConsumer):
@@ -150,19 +258,6 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data=None, bytes_data=None):
-        # text_data_json = json.loads(text_data)
-        # table_id = text_data_json['table_id']
-        # protocol = text_data_json['protocol']
-
-        # await self.channel_layer.group_send(
-        #     self.room_group_name,
-        #     {
-        #         'type': 'update_table',
-        #         'changed_table_local_id': table_id,
-        #         'protocol': protocol
-        #     }
-        # )
-
         pass
 
 
@@ -188,18 +283,6 @@ class PoolhouseConsumer(AsyncWebsocketConsumer):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 class MatchMakeConsumer(BaseNotificationConsumer):
     async def connect(self):
         await super().connect()
@@ -213,7 +296,6 @@ class MatchMakeConsumer(BaseNotificationConsumer):
 
 
 
-        await self.accept()
 
     async def disconnect(self, code):
         await super().disconnect()
@@ -429,155 +511,35 @@ class MatchMakeConsumer(BaseNotificationConsumer):
 
 
         
-class MatchupConsumer(BaseNotificationConsumer):
-    async def connect(self):
-        await super().connect()
+# class MatchupConsumer(BaseNotificationConsumer):
+#     async def connect(self):
+#         await super().connect()
 
 
-        self.opponent_username = ''
+#         self.opponent_username = ''
 
         
-        await self.accept()
+#         await self.accept()
 
-    async def disconnect(self, code):
+#     async def disconnect(self, code):
 
-        player = await database_sync_to_async(Player.objects.get)(user=self.user)
-        opponents = await database_sync_to_async(list)(player.get_opponents())
+#         player = await database_sync_to_async(Player.objects.get)(user=self.user)
+#         opponents = await database_sync_to_async(list)(player.get_opponents())
                     
-        # TODO PUT THIS IN CELERY TASK
-        for opponent in opponents:
-            await self.channel_layer.group_send(
-                f'user_{opponent.user.username}', 
-                {
-                    'type': 'handle_user_state',
-                    'username': self.user.username,
-                    'user_state': 'left'
-                }
-            )
-        await super().disconnect()
+#         # TODO PUT THIS IN CELERY TASK
+#         for opponent in opponents:
+#             await self.channel_layer.group_send(
+#                 f'user_{opponent.user.username}', 
+#                 {
+#                     'type': 'handle_user_state',
+#                     'username': self.user.username,
+#                     'user_state': 'left'
+#                 }
+#             )
+#         await super().disconnect()
 
  
     
-    async def receive(self, text_data=None, bytes_data=None):
-        text_data_json = json.loads(text_data)
-        self.opponent_username = text_data_json.get('opponent_username')
-        username = text_data_json.get('username')
-        message = text_data_json.get('message')
-        user_state = text_data_json.get('user_state')
-        protocol = text_data_json.get('protocol')
-
-        player = await database_sync_to_async(Player.objects.get)(user=self.user)
-
-        if protocol == 'acknowledge':
-            active_user_username = text_data_json['active_user']
-            await self.channel_layer.group_send(
-                f'user_{active_user_username}',
-                {
-                    
-                    'type': 'handle_acknowledge',
-                    'active_user': self.user.username
-                },
-            )
-
-        if user_state:
-            opponents = await database_sync_to_async(list)(player.get_opponents())
-                
-            for opponent in opponents:
-                await self.channel_layer.group_send(
-                    f'user_{opponent.user.username}', 
-                    {
-                        'type': 'handle_user_state',
-                        'username': self.user.username,
-                        'user_state': 'joined'
-                    }
-                )
-
-
-       
-        elif message:
-            
-            matchup_id = text_data_json['matchup_id']
-
-            last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
-
-            new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
-            create_notification.apply_async((self.opponent_username, 'message', new_message.id),)
-
-            is_outdated = False
-
-            try:
-                time_difference = new_message.time_sent - last_message.time_sent
-                if time_difference > timedelta(minutes=20):
-                    is_outdated = True
-                
-            except AttributeError:
-                pass
-
-            if is_outdated or last_message is None:
-
-                new_message.after_outdated = True
-                await database_sync_to_async(new_message.save)()
-                formatted_datetime = new_message.time_sent.strftime('%b %#d, %I:%M %p')
-
-                await self.channel_layer.group_send(
-                    f'user_{self.opponent_username}',
-                    {
-                        'type': 'chat_message',
-                        'message': message,
-                        'username': username,
-                        'time_sent': formatted_datetime,
-                        'matchup_id': matchup_id,
-                        'sub_protocol': 'last_message_outdated',
-                    }
-                )
-
-
-                await self.channel_layer.group_send(
-                    f'user_{username}',
-                    {
-                        'type': 'chat_message',
-                        'message': message,
-                        'username': username,
-                        'time_sent': formatted_datetime,
-                        'matchup_id': matchup_id,
-                        'sub_protocol': 'last_message_outdated',
-                    }
-                )
-            else:
-                await self.channel_layer.group_send(
-                    f'user_{self.opponent_username}',
-                    {
-                        'type': 'chat_message',
-                        'message': message,
-                        'matchup_id': matchup_id,
-                        'username': username,
-                    }
-                )
-                   
-                await self.channel_layer.group_send(
-                    f'user_{username}',
-                    {
-                        'type': 'chat_message',
-                        'message': message,
-                        'matchup_id': matchup_id,
-                        'username': username,
-                    }
-                )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
