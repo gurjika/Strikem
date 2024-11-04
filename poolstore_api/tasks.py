@@ -34,6 +34,7 @@ def start_game_session(reservation_id):
 
     channel_layer = get_channel_layer()
     game_session.pooltable.free = False
+    game_session.pooltable.save()
     game_session.save()
 
     async_to_sync(channel_layer.group_send)(f'poolhouse_{reservation.table.poolhouse.slug}', event)
@@ -71,6 +72,7 @@ def finish_game_session(game_session_id, reservation_id, protocol):
     game_session.pooltable.free = True
     game_session.status_finished = True
     reservation.finished_reservation = True
+    game_session.pooltable.save()
     reservation.save()
     game_session.save()
 
