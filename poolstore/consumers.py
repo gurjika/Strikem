@@ -16,6 +16,9 @@ from .tasks import create_notification
 
 class BaseNotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        self.poolhouse_room_name = ''
+        self.matchmake_room_name = 'matchmake'
+
         self.user = self.scope['user']
         self.room_name_for_specific_user = f"user_{self.user.username}"
 
@@ -34,14 +37,79 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+
+
+
     async def receive(self, text_data=None, bytes_data=None):
+
+
+
         text_data_json = json.loads(text_data)
+
+
         if text_data_json.get('action') == 'matchup':
-            await self.matchup(text_data_json)
+
+
+            if text_data_json.get('protocol') == 'initial':
+                await self.channel_layer.group_discard(
+                    self.matchmake_room_name,
+                    self.channel_name
+                )
+
+                await self.channel_layer.group_discard(
+                    self.poolhouse_room_name,
+                    self.channel_name,
+                )
+            else:
+                await self.matchup(text_data_json)
+
+
+        elif text_data_json.get('action') == self.matchmake_room_name:
+
+            if text_data_json.get('protocol') == 'initial':
+
+
+                await self.channel_layer.group_discard(
+                    self.poolhouse_room_name,
+                    self.channel_name,
+                )
+
+
+                await self.channel_layer.group_add(
+                    self.matchmake_room_name,
+                    self.channel_name
+                )
+
+
+            else:
+                await self.matchmake(text_data_json)
+
+
+        elif text_data_json.get('action') == 'poolhouse':
+            poolhouse_name = text_data_json.get('poolhouseName')
+            self.poolhouse_room_name = f'poolhouse_{poolhouse_name}'
+
+            await self.channel_layer.group_discard(
+                self.matchmake_room_name,
+                self.channel_name
+            )
+
+            await self.channel_layer.group_add(
+                self.poolhouse_room_name,
+                self.channel_name
+            )
+
+
+
+
+
+
+
+
+
 
     async def display_invite(self, event):
         invite_sender_username = event['invite_sender_username']
-        print('here')
         await self.send(text_data=json.dumps(
             {
                 'inviteSenderUsername': invite_sender_username,
@@ -233,89 +301,17 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
+    async def matchmake(self, text_data=None, bytes_data=None):
 
-class PoolhouseConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        
-        self.room_name = self.scope['url_route']['kwargs']['poolhouse']
-        self.room_group_name = f'poolhouse_{self.room_name}'
-
-
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
-
-
-      
-        await self.accept()
-
-
-    async def disconnect(self, code):
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
-
-    async def receive(self, text_data=None, bytes_data=None):
-        pass
-
-
-
-
-
-
-    async def update_table(self, event):
-
-
-        changed_table_local_id = event['table_id']
-        protocol = event['protocol']
-
-        await self.send(text_data=json.dumps(
-            {
-                'changed_table_local_id': changed_table_local_id,
-                'protocol': protocol
-            }
-        ))
-        
-
-
-
-
-
-class MatchMakeConsumer(BaseNotificationConsumer):
-    async def connect(self):
-        await super().connect()
         self.GROUP_NAME = 'matchmake'
 
+        text_data_json = text_data
 
-        await self.channel_layer.group_add(
-            self.GROUP_NAME,
-            self.channel_name
-        )
-
-
-
-
-    async def disconnect(self, code):
-        await super().disconnect()
-        await self.channel_layer.group_discard(
-            self.GROUP_NAME,
-            self.channel_name
-        )
-
-
-
-    async def receive(self, text_data=None, bytes_data=None):
-
-        text_data_json = json.loads(text_data)
-
-        username = text_data_json['username']
+        username = text_data_json.get('username')
         
         matchmaker_username = text_data_json.get('matchmaker_username')
         invite_response = text_data_json.get('invite_response')
        
-
         player = await database_sync_to_async(Player.objects.get)(user__username=username)
 
         if invite_response:
@@ -460,9 +456,14 @@ class MatchMakeConsumer(BaseNotificationConsumer):
                     'username': username,
                     'protocol': 'delete'
                 }
-            )
+            ) 
+
+
+
 
     async def control_user(self, event):
+
+
         username = event['username']
         protocol = event['protocol']
 
@@ -494,9 +495,89 @@ class MatchMakeConsumer(BaseNotificationConsumer):
                 'inviter_username': event['inviter_username']
             }
         ))
+    
+    async def update_table(self, event):
+
+
+        changed_table_local_id = event['table_id']
+        protocol = event['protocol']
+
+        await self.send(text_data=json.dumps(
+            {
+                'changed_table_local_id': changed_table_local_id,
+                'protocol': protocol
+            }
+        ))
+        
 
 
 
+
+ 
+
+
+class PoolhouseConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        
+        self.room_name = self.scope['url_route']['kwargs']['poolhouse']
+        self.room_group_name = f'poolhouse_{self.room_name}'
+
+
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+
+
+      
+        await self.accept()
+
+
+    async def disconnect(self, code):
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    async def receive(self, text_data=None, bytes_data=None):
+        pass
+
+
+
+
+
+
+
+
+
+
+
+class MatchMakeConsumer(BaseNotificationConsumer):
+    async def connect(self):
+        await super().connect()
+        self.GROUP_NAME = 'matchmake'
+
+
+        await self.channel_layer.group_add(
+            self.GROUP_NAME,
+            self.channel_name
+        )
+
+
+
+
+    async def disconnect(self, code):
+        await super().disconnect()
+        await self.channel_layer.group_discard(
+            self.GROUP_NAME,
+            self.channel_name
+        )
+
+
+
+    async def receive(self, text_data=None, bytes_data=None):
+        pass
+       
 
 
 

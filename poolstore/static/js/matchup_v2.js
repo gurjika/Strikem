@@ -2,20 +2,20 @@ var matchupId = JSON.parse(document.getElementById('matchup_id').textContent);
 var username = JSON.parse(document.getElementById('username').textContent);
 var opponentUsername = JSON.parse(document.getElementById('opponent_username').textContent);
 
+import socket from "./websocket";
 
 
-
-var matchUpSocket = new WebSocket(
+var socket = new WebSocket(
     'ws://' + 
     window.location.hostname + 
-    ':8000/ws/matchup/' + 
+    ':8000/ws/base/' + 
     username + 
     '/'
 );
 
 
-// matchUpSocket.onopen = function (e) {
-//     matchUpSocket.send(JSON.stringify({
+// socket.onopen = function (e) {
+//     socket.send(JSON.stringify({
 //         'username': username,
 //         'user_state': 'joined',
 //         'opponent_username': opponentUsername,
@@ -26,7 +26,7 @@ var matchUpSocket = new WebSocket(
 
 
 
-matchUpSocket.onmessage = function (e) {
+socket.onmessage = function (e) {
 
     const data = JSON.parse(e.data);
 
@@ -41,7 +41,7 @@ matchUpSocket.onmessage = function (e) {
     //         changeStatusOn(data);
 
 
-    //         matchUpSocket.send(JSON.stringify(
+    //         socket.send(JSON.stringify(
     //             {
     //                 'protocol': 'acknowledge',
     //                 'active_user': data.username,
@@ -190,7 +190,7 @@ function readySendMessage() {
 
 
 
-        matchUpSocket.send(JSON.stringify({
+        socket.send(JSON.stringify({
             'action': 'matchup',    
            'message': message,
            'username': username,
