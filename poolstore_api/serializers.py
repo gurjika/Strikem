@@ -124,8 +124,6 @@ class PoolHouseImageSerializer(serializers.ModelSerializer):
 class PoolHouseSerializer(serializers.ModelSerializer):
     tables = PoolTableSerializer(many=True, read_only=True)
     avg_rating = serializers.FloatField(read_only=True)
-    latitude = serializers.FloatField(write_only=True)
-    longitude = serializers.FloatField(write_only=True)
     pics = PoolHouseImageSerializer(read_only=True, many=True)
     table_count = serializers.IntegerField(read_only=True)
     class Meta:
