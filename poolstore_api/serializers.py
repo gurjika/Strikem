@@ -127,11 +127,11 @@ class PoolHouseSerializer(serializers.ModelSerializer):
   
     pics = PoolHouseImageSerializer(read_only=True, many=True)
     table_count = serializers.IntegerField(read_only=True)
-
+    slug = serializers.CharField(read_only=True)
     
     class Meta:
         model = PoolHouse
-        fields = ['id', 'title', 'address', 'tables', 'avg_rating', 'latitude', 'longitude', 'pics', 'table_count']
+        fields = ['id', 'title', 'address', 'tables', 'avg_rating', 'latitude', 'longitude', 'pics', 'table_count', 'slug']
 
 class SimplePoolHouseSerializer(serializers.ModelSerializer):
     class Meta:
