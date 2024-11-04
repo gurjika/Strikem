@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 from . import htmx_views
+from django_channels_jwt.views import AsgiValidateTokenView
 
 
 urlpatterns = [
@@ -10,7 +11,9 @@ urlpatterns = [
     path('logout/', views.MyLogoutView.as_view(), name='logout'),
     path('profile/<str:username>/', views.profile, name='profile'),
     path('activate/<str:uid>/<str:token>/', views.ActivateUserEmail.as_view(), name='activate-email'),
-    path('current-user/', view=views.CurrentUserView.as_view(), name='current-user')
+    path('current-user/', view=views.CurrentUserView.as_view(), name='current-user'),
+    path("auth_for_ws_connection/", AsgiValidateTokenView.as_view())
+
 ]
 
 
