@@ -3,16 +3,25 @@ const username = JSON.parse(document.getElementById('username').textContent);
 const matchSocket = new WebSocket(
     'wss://' + 
     window.location.hostname + 
-    '/ws/matchmake/' 
+    '/ws/base/' 
 );
 
-makeMeActive('matchmake');
 
+makeMeActive('matchmake');
+matchSocket.onopen = function () {
+    matchSocket.send(JSON.stringify(
+        {
+            'protocol': 'initial',
+            'action': 'matchmake',
+        }
+    ))
+}
         
 document.getElementById('control-btn').onclick = function (e) {
     console.log(username);
     matchSocket.send(JSON.stringify(
         {
+            'action': 'matchmake',
             'username': username,
         }
     ));
@@ -21,19 +30,19 @@ document.getElementById('control-btn').onclick = function (e) {
 
     if (controlButton.innerText === 'ADD MYSELF') {
         changeControlButton('remove');
-
+        
     }
     else {
         changeControlButton('add')
     }
 
-    controlButton.innerText = newControl;
 };
 
 document.getElementById('matches-container').addEventListener('click', function(e) {
     if (e.target && e.target.classList.contains('invite-btn')) {
         const matchMakerUsername = e.target.dataset.inviteeUserUsername;
         matchSocket.send(JSON.stringify({
+            'action': 'matchmake',
             'matchmaker_username': matchMakerUsername,
             'username': username,
         }));
@@ -182,6 +191,7 @@ document.querySelector('.invite-notification-container').addEventListener('click
         changeControlButton('add');
         const inviteSender = e.target.dataset.inviterUsername;
         matchSocket.send(JSON.stringify({
+            'action': 'matchmake',
             'username': username,
             'invite_sender_username': inviteSender,
             'invite_response': 'accept'
@@ -195,6 +205,7 @@ document.querySelector('.invite-notification-container').addEventListener('click
     else if(e.target && e.target.classList.contains('deny-btn')) {
         const inviteSender = e.target.dataset.inviterUsername;
         matchSocket.send(JSON.stringify({
+            'action': 'matchmake',
             'username': username,
             'invite_sender_username': inviteSender,
             'invite_response': 'deny'

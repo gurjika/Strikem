@@ -2,69 +2,70 @@ var matchupId = JSON.parse(document.getElementById('matchup_id').textContent);
 var username = JSON.parse(document.getElementById('username').textContent);
 var opponentUsername = JSON.parse(document.getElementById('opponent_username').textContent);
 
+import socket from "./websocket";
 
 
 
 var matchUpSocket = new WebSocket(
     'wss://' + 
     window.location.hostname + 
-    '/ws/matchup/' + 
+    '/ws/base/' + 
     username + 
     '/'
 );
 
 
-matchUpSocket.onopen = function (e) {
-    matchUpSocket.send(JSON.stringify({
-        'username': username,
-        'user_state': 'joined',
-        'opponent_username': opponentUsername,
-    }));
-}
+// socket.onopen = function (e) {
+//     socket.send(JSON.stringify({
+//         'username': username,
+//         'user_state': 'joined',
+//         'opponent_username': opponentUsername,
+//     }));
+// }
 
 
 
 
 
-matchUpSocket.onmessage = function (e) {
+socket.onmessage = function (e) {
 
     const data = JSON.parse(e.data);
 
-    if(data.protocol === 'handleUserState' && data.username !== username){ 
-        var toastLiveExample = document.getElementById('liveToast');
-        var toast = new bootstrap.Toast(toastLiveExample);
-        var invitationHeader = document.querySelector('#toast-header-text .me-auto').innerText = 'User State';
-        if (data.user_state === 'joined') {
+    // if(data.protocol === 'handleUserState' && data.username !== username){ 
+    //     var toastLiveExample = document.getElementById('liveToast');
+    //     var toast = new bootstrap.Toast(toastLiveExample);
+    //     var invitationHeader = document.querySelector('#toast-header-text .me-auto').innerText = 'User State';
+    //     if (data.user_state === 'joined') {
 
-            const toastBody = document.querySelector('.toast-body').innerText = `${data.username} joined`;
-            console.log(data.username);
-            changeStatusOn(data);
+    //         const toastBody = document.querySelector('.toast-body').innerText = `${data.username} joined`;
+    //         console.log(data.username);
+    //         changeStatusOn(data);
 
 
-            matchUpSocket.send(JSON.stringify(
-                {
-                    'protocol': 'acknowledge',
-                    'active_user': data.username,
-                }
-            ))
+    //         socket.send(JSON.stringify(
+    //             {
+    //                 'protocol': 'acknowledge',
+    //                 'active_user': data.username,
+    //             }
+    //         ))
 
-        }
-        else {
-            const toastBody = document.querySelector('.toast-body').innerText = `${data.username} left`;
-            changeStatusOff(data);
+    //     }
+    //     else {
+    //         const toastBody = document.querySelector('.toast-body').innerText = `${data.username} left`;
+    //         changeStatusOff(data);
     
-        }
+    //     }
 
-        toast.show();
+    //     toast.show();
 
-    }
+    // }
 
-    else if(data.protocol === 'handleAcknowledge'){
-        changeStatusOn(data);
+    // else if(data.protocol === 'handleAcknowledge'){
+    //     changeStatusOn(data);
 
-    }
+    // }
 
-    else if (data.protocol === 'handleMessage'){
+    if (data.protocol === 'handleMessage'){
         const messageReceivedEvent = new CustomEvent('messageReceived', {
         });
         
@@ -190,7 +191,8 @@ function readySendMessage() {
 
 
 
-        matchUpSocket.send(JSON.stringify({
+        socket.send(JSON.stringify({
+            'action': 'matchup',    
            'message': message,
            'username': username,
            'opponent_username': opponentUsername,
