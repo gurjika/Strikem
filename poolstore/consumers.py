@@ -47,7 +47,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
 
         print(text_data_json.get('action'))
-        print(text_data_json.get('initial'))
+        print(text_data_json.get('protocol'))
 
         if text_data_json.get('action') == 'matchup':
             print('test poolhouse in matchup', self.poolhouse_room_name)
