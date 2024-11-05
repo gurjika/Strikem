@@ -41,7 +41,7 @@ class SimplePlayerSerializer(serializers.ModelSerializer):
     user = SimpleUserSerializer(read_only=True)
     class Meta:
         model = Player
-        fields = ['user', 'profile_image', 'total_points']
+        fields = ['id', 'user', 'profile_image', 'total_points']
 
 
 class ReservationSerializer(serializers.ModelSerializer):
@@ -152,7 +152,7 @@ class MatchupSerializer(serializers.ModelSerializer):
     player_inviting = SimplePlayerSerializer(read_only=True)
     player_accepting = SimplePlayerSerializer(read_only=True)
 
-    
+
     class Meta:
         model = Matchup
         fields = ['id', 'player_inviting', 'player_accepting', 'last_message']
