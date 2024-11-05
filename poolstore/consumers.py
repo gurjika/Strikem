@@ -46,10 +46,14 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
         text_data_json = json.loads(text_data)
 
+        print(text_data_json.get('action'))
+        print(text_data_json.get('initial'))
 
         if text_data_json.get('action') == 'matchup':
-
+            print('test poolhouse in matchup', self.poolhouse_room_name)
             if text_data_json.get('protocol') == 'initial':
+
+                
                 await self.channel_layer.group_discard(
                     self.matchmake_room_name,
                     self.channel_name
@@ -59,13 +63,17 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                     self.poolhouse_room_name,
                     self.channel_name,
                 )
+
+                print('1: matchup',self.poolhouse_room_name)
             else:
+
+                print('2: matchup',self.poolhouse_room_name)
                 await self.matchup(text_data_json)
 
 
         elif text_data_json.get('action') == self.matchmake_room_name:
             if text_data_json.get('protocol') == 'initial':
-
+                
 
                 await self.channel_layer.group_discard(
                     self.poolhouse_room_name,
@@ -87,6 +95,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             poolhouse_name = text_data_json.get('poolhouseName')
             self.poolhouse_room_name = f'poolhouse_{poolhouse_name}'
 
+
             await self.channel_layer.group_discard(
                 self.matchmake_room_name,
                 self.channel_name
@@ -96,6 +105,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 self.poolhouse_room_name,
                 self.channel_name
             )
+
+            print('poolhouse', self.poolhouse_room_name)
+
 
         elif text_data_json.get('action') == 'base':
             
