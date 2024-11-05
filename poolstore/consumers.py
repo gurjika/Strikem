@@ -116,7 +116,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 self.channel_name
             )
 
-            await self.channel_layer.group_add(
+            await self.channel_layer.group_discard(
                 self.poolhouse_room_name,
                 self.channel_name
             )

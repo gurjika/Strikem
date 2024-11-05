@@ -8,63 +8,63 @@ on:
     branches: [ daphne_deploy ] 
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  # build:
+  #   runs-on: ubuntu-latest
 
-    services:
-      docker:
-        image: docker:20.10
-        ports:
-          - 8000:8000
+  #   services:
+  #     docker:
+  #       image: docker:20.10
+  #       ports:
+  #         - 8000:8000
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+  #   - name: Set up Docker Buildx
+  #     uses: docker/setup-buildx-action@v2
 
-    - name: Cache Docker layers
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
+  #   - name: Cache Docker layers
+  #     uses: actions/cache@v3
+  #     with:
+  #       path: /tmp/.buildx-cache
+  #       key: ${{ runner.os }}-buildx-${{ github.sha }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-buildx-
   
-    - name: Build Docker images
-      run: |
-        docker compose build
+  #   - name: Build Docker images
+  #     run: |
+  #       docker compose build
 
-    - name: Start services
-      run: |
-        docker compose up -d
+  #   - name: Start services
+  #     run: |
+  #       docker compose up -d
 
-    - name: Wait for MySQL to be ready
-      run: |
-        ./wait-for-it.sh mysql:3306 -- echo "MySQL is up"
+  #   - name: Wait for MySQL to be ready
+  #     run: |
+  #       ./wait-for-it.sh mysql:3306 -- echo "MySQL is up"
 
-    - name: Run migrations
-      run: |
-        docker compose run --rm django python manage.py migrate
+  #   - name: Run migrations
+  #     run: |
+  #       docker compose run --rm django python manage.py migrate
 
 
-    - name: Stop and remove services
-      if: always()
-      run: |
-        docker compose down
+  #   - name: Stop and remove services
+  #     if: always()
+  #     run: |
+  #       docker compose down
 
-    env:
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  #   env:
+  #     SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
-      REMOTE_DB_PASSWORD: ${{ secrets.REMOTE_DB_PASSWORD }}
-      REMOTE_DB_HOST: ${{ secrets.REMOTE_DB_HOST }}
-      REMOTE_DB_NAME: ${{ secrets.REMOTE_DB_NAME }}
-      REMOTE_DB_USER: ${{ secrets.REMOTE_DB_USER }}
-      REMOTE_DB_PORT: ${{ secrets.REMOTE_DB_PORT }}
+  #     REMOTE_DB_PASSWORD: ${{ secrets.REMOTE_DB_PASSWORD }}
+  #     REMOTE_DB_HOST: ${{ secrets.REMOTE_DB_HOST }}
+  #     REMOTE_DB_NAME: ${{ secrets.REMOTE_DB_NAME }}
+  #     REMOTE_DB_USER: ${{ secrets.REMOTE_DB_USER }}
+  #     REMOTE_DB_PORT: ${{ secrets.REMOTE_DB_PORT }}
 
-      EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
-      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+  #     EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+  #     GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
 
 
