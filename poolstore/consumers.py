@@ -16,7 +16,7 @@ from .tasks import create_notification
 
 class BaseNotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.poolhouse_room_name = ''
+        self.poolhouse_room_name = 'none'
         self.matchmake_room_name = 'matchmake'
 
         self.user = self.scope['user']
@@ -49,7 +49,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
         if text_data_json.get('action') == 'matchup':
 
-
             if text_data_json.get('protocol') == 'initial':
                 await self.channel_layer.group_discard(
                     self.matchmake_room_name,
@@ -65,7 +64,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         elif text_data_json.get('action') == self.matchmake_room_name:
-
             if text_data_json.get('protocol') == 'initial':
 
 
@@ -98,6 +96,20 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 self.poolhouse_room_name,
                 self.channel_name
             )
+
+        elif text_data_json.get('action') == 'base':
+            
+            await self.channel_layer.group_discard(
+                self.matchmake_room_name,
+                self.channel_name
+            )
+
+            await self.channel_layer.group_add(
+                self.poolhouse_room_name,
+                self.channel_name
+            )
+
+
 
 
 
