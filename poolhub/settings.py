@@ -214,6 +214,10 @@ MESSAGE_TAGS = {
 }
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://strikem.site",
+]
+
 TIME_ZONE = 'Asia/Tbilisi'
 
 CELERY_BROKER_URL = 'redis://redis:6379/1'

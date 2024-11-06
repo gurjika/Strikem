@@ -270,7 +270,7 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
 
         filter = self.request.query_params.get('filter')
 
-        nearby_players = Player.objects.filter(inviting_to_play=True).order_by('total_points')
+        nearby_players = Player.objects.filter(inviting_to_play=True).order_by('-total_points')
 
         if filter == 'rating':
             point_range = 200
