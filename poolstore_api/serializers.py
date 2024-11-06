@@ -291,7 +291,7 @@ class StaffReservationCreateSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
-        table = PoolTable.objects.get(table_id=validated_data['table_id'], poolhouse=['poolhouse_pk'])
+        table = PoolTable.objects.get(table_id=validated_data['table_id'], poolhouse=self.context['poolhouse_id'])
         return Reservation.objects.create(table=table, **validated_data)
 
 
