@@ -284,7 +284,7 @@ class GameSessionSerializer(serializers.ModelSerializer):
 
 
 class StaffReservationCreateSerializer(serializers.ModelSerializer):
-
+    table_id = serializers.IntegerField(write_only=True)
     class Meta:
         model = Reservation
         fields = ['table_id', 'duration', 'start_time']
