@@ -222,6 +222,7 @@ class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, CreateMode
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return StaffReservationCreateSerializer
+        return ReservationSerializer
 
     def get_serializer_context(self):
         return {'poolhouse_id': self.kwargs['poolhouse_pk']}
