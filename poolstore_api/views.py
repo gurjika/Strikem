@@ -217,7 +217,9 @@ class PoolHouseReservationViewSet(ListModelMixin, RetrieveModelMixin, CreateMode
 
 
     def get_queryset(self):
-        return Reservation.objects.filter(table__poolhouse_id=self.kwargs['poolhouse_pk'])
+        return Reservation.objects.filter(table__poolhouse_id=self.kwargs['poolhouse_pk'], finished_reservation=False)
+
+
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

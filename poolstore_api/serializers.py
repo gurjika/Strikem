@@ -5,7 +5,7 @@ from django.utils import timezone
 from .tasks import send_email_before_res, start_game_session
 from django.contrib.auth import get_user_model
 from django.db import transaction
-
+from .utils import check_overlapping_reservations
 now = timezone.now()
 
 User = get_user_model()
@@ -67,8 +67,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         real_end_datetime = end_time + timedelta(minutes=5)
         start_time = validated_data['start_time']
         existing_reservations = Reservation.objects.filter(table_id=table_id, start_time__range=[start_time - timedelta(hours=3), start_time + timedelta(hours=3)], finished_reservation=False)
-        for reservation in existing_reservations:
-            if not (validated_data['start_time'] >= reservation.real_end_datetime or real_end_datetime <= reservation.start_time):
+        if not check_overlapping_reservations(existing_reservations, start_time=start_time, end_time=real_end_datetime):
                 raise serializers.ValidationError('nu kvetav dzma')
     
 
@@ -291,8 +290,19 @@ class StaffReservationCreateSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
+        end_time = validated_data['start_time'] + timedelta(minutes=validated_data['duration'])
+        real_end_datetime = end_time + timedelta(minutes=5)
+        start_time = validated_data['start_time']
+
         table = PoolTable.objects.get(table_id=validated_data['table_id'], poolhouse=self.context['poolhouse_id'])
-        return Reservation.objects.create(table=table, **validated_data)
+        validated_data.pop('table_id')
+
+        existing_reservations = Reservation.objects.filter(table_id=table.id, start_time__range=[start_time - timedelta(hours=3), start_time + timedelta(hours=3)], finished_reservation=False)
+        if not check_overlapping_reservations(existing_reservations, start_time=start_time, end_time=real_end_datetime):
+            raise serializers.ValidationError('nu kvetav dzma')
+        
+
+        return Reservation.objects.create(table_id=table.id, end_time=end_time, real_end_datetime=real_end_datetime, **validated_data)
 
 
 class NotificationSerializer(serializers.ModelSerializer):

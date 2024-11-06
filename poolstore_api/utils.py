@@ -20,3 +20,12 @@ def get_nearby_poolhouses(lat, long, poolhouses):
 
 
     return nearby_venues
+
+
+def check_overlapping_reservations(data, start_time, end_time):
+
+    for res in data:
+        if not (start_time >= res.real_end_datetime or end_time <= res.start_time):
+            return False
+        
+    return True
