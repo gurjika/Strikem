@@ -4,7 +4,7 @@ from poolstore.models import GameSession, PlayerGameSession, PoolTable, Reservat
 from asgiref.sync import async_to_sync
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
-
+from poolstore.tasks import create_notification
 
 User = get_user_model()
 
@@ -66,7 +66,6 @@ def finish_game_session(game_session_id, reservation_id, protocol):
         'table_id': reservation.table.table_id,
         'protocol': 'now_free'
     }
-
 
     async_to_sync(channel_layer.group_send)(f'poolhouse_{reservation.table.poolhouse.slug}', event)
 

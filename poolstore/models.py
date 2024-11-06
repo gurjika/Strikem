@@ -50,6 +50,8 @@ class PoolHouse(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
+    room_image = models.ImageField(upload_to='poolhouses', null=True)
+
 
     def save(self, *args, **kwargs):
         if not self.slug:
