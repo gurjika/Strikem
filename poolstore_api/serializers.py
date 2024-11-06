@@ -143,7 +143,7 @@ class MessageSerializer(serializers.ModelSerializer):
     sender = SimplePlayerSerializer(read_only=True)
     class Meta:
         model = Message
-        fields = ['id', 'body', 'time_sent', 'sender']
+        fields = ['id', 'body', 'time_sent', 'sender', 'after_outdated']
 
 
 class MatchupSerializer(serializers.ModelSerializer):

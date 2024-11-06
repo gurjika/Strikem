@@ -293,17 +293,17 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 )
 
 
-                await self.channel_layer.group_send(
-                    f'user_{username}',
-                    {
-                        'type': 'chat_message',
-                        'message': message,
-                        'username': username,
-                        'time_sent': formatted_datetime,
-                        'matchup_id': matchup_id,
-                        'sub_protocol': 'last_message_outdated',
-                    }
-                )
+                # await self.channel_layer.group_send(
+                #     f'user_{username}',
+                #     {
+                #         'type': 'chat_message',
+                #         'message': message,
+                #         'username': username,
+                #         'time_sent': formatted_datetime,
+                #         'matchup_id': matchup_id,
+                #         'sub_protocol': 'last_message_outdated',
+                #     }
+                # )
             else:
                 await self.channel_layer.group_send(
                     f'user_{self.opponent_username}',
@@ -315,15 +315,15 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                     }
                 )
                    
-                await self.channel_layer.group_send(
-                    f'user_{username}',
-                    {
-                        'type': 'chat_message',
-                        'message': message,
-                        'matchup_id': matchup_id,
-                        'username': username,
-                    }
-                )
+                # await self.channel_layer.group_send(
+                #     f'user_{username}',
+                #     {
+                #         'type': 'chat_message',
+                #         'message': message,
+                #         'matchup_id': matchup_id,
+                #         'username': username,
+                #     }
+                # )
 
     async def matchmake(self, text_data=None, bytes_data=None):
 

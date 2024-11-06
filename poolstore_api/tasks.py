@@ -29,7 +29,8 @@ def start_game_session(reservation_id):
     event = {
         'type': 'update_table',
         'table_id': reservation.table.table_id,
-        'protocol': 'now_busy'
+        'protocol': 'now_busy',
+        'game_session_id': game_session.id
     }
 
     channel_layer = get_channel_layer()

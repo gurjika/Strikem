@@ -152,6 +152,8 @@ matchSocket.onmessage = function (e) {
                 </a>
             </div>
         `
+
+        
         document.querySelector('.matchup-div').innerHTML = htmlMatchup;
         }
         
