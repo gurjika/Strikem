@@ -45,7 +45,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         text_data_json = json.loads(text_data)
-
+        print(text_data_json)
         print(text_data_json.get('action'))
         print(text_data_json.get('protocol'))
 
