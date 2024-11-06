@@ -137,11 +137,11 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
     @action(detail=True, methods=['GET'])
     def chat(self, request, pk):
         if self.request.method == 'GET':
-            messages = Message.objects.filter(matchup_id=pk)
-            page = self.paginate_queryset(messages)
-            if page is not None:
-                serializer = MessageSerializer(page, many=True)
-                return self.get_paginated_response(serializer.data)
+            messages = Message.objects.filter(matchup_id=pk).select_related('sender__user')
+            # page = self.paginate_queryset(messages)
+            # if page is not None:
+            #     serializer = MessageSerializer(page, many=True)
+            #     return self.get_paginated_response(serializer.data)
             
             serializer = MessageSerializer(messages, many=True)
             return Response(serializer.data)
