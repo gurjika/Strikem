@@ -5,7 +5,15 @@ from django.contrib.auth.admin import UserAdmin
 
 
 class CustomUserAdmin(UserAdmin):
-    pass
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "usable_password", "password1", "password2", 'is_staff'),
+            },
+        ),
+    )
 
 
 
