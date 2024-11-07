@@ -17,6 +17,7 @@ from .tasks import finish_game_session
 from rest_framework import status
 from .utils import get_nearby_poolhouses
 from celery.result import AsyncResult
+from django.db.models import OuterRef, Prefetch
 
 
 
@@ -127,21 +128,36 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Matchup.objects.filter(Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player))
+        queryset = Matchup.objects.filter(
+                Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player)
+            ).select_related(
+                'player_accepting__user', 'player_inviting__user'
+            ).prefetch_related(
+                Prefetch('messages', queryset=Message.objects.select_related('sender__user').order_by('-time_sent')[:1], to_attr='ordered_messages')
+            )
         return queryset
+    
 
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+
+
+
+    
+
+
+
+
+
+
     
 
     @action(detail=True, methods=['GET'])
     def chat(self, request, pk):
         if self.request.method == 'GET':
-            messages = Message.objects.filter(matchup_id=pk).select_related('sender__user')
-            # page = self.paginate_queryset(messages)
-            # if page is not None:
-            #     serializer = MessageSerializer(page, many=True)
-            #     return self.get_paginated_response(serializer.data)
+            messages = Message.objects.filter(matchup_id=pk).select_related('sender__user').order_by('time_sent')
+            page = self.paginate_queryset(messages)
+            if page is not None:
+                serializer = MessageSerializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
             
             serializer = MessageSerializer(messages, many=True)
             return Response(serializer.data)
@@ -152,7 +168,7 @@ class MatchMakeViewSet(ListModelMixin, GenericViewSet, RetrieveModelMixin):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Invitation.objects.filter(player_invited=self.request.user.player)
+        return Invitation.objects.filter(player_invited=self.request.user.player).select_related('player_invited__user').select_related('player_inviting__user')
     
 
 class PlayerViewSet(ModelViewSet):
