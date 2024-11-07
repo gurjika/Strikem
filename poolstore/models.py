@@ -109,8 +109,8 @@ class Matchup(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
-    class Meta:
-        unique_together = [['player_accepting', 'player_inviting']]
+    # class Meta:
+    #     unique_together = [['player_accepting', 'player_inviting']]
 
 
 class Reservation(models.Model):
@@ -139,8 +139,8 @@ class Invitation(models.Model):
     player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_invitations')
 
 
-    class Meta:
-        unique_together = [['player_invited', 'player_inviting']]
+    # class Meta:
+    #     unique_together = [['player_invited', 'player_inviting']]
 
 
 class InvitationDenied(models.Model):
