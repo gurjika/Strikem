@@ -144,15 +144,19 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class MatchupSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
+    player_inviting = SimplePlayerSerializer(read_only=True)
+    player_accepting = SimplePlayerSerializer(read_only=True)
     class Meta:
         model = Matchup
         fields = ['id', 'player_inviting', 'player_accepting', 'last_message']
 
 
+
+
     def get_last_message(self, obj):
-        messages = obj.messages
-        return MessageSerializer(messages.last()).data
-    
+        if obj.ordered_messages:
+            return MessageSerializer(obj.ordered_messages[0]).data
+        return None    
 
 class InvitationSerializer(serializers.ModelSerializer):
     player_invited = SimplePlayerSerializer(read_only=True)
