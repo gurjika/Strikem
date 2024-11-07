@@ -359,9 +359,16 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 # except MatchMake.DoesNotExist:
                 #     pass
                 
-                invitations = await database_sync_to_async(Invitation.objects.filter)
-                (Q(player_inviting=response_player, player_invited=inviter_player) |
-                Q(player_inviting=inviter_player, player_invited=response_player))
+                # invitations = await database_sync_to_async(Invitation.objects.filter)(Q(player_inviting=response_player, player_invited=inviter_player) |Q(player_inviting=inviter_player, player_invited=response_player))
+
+                invitations = await database_sync_to_async(
+                    Invitation.objects.filter(
+                        Q(player_inviting=response_player, player_invited=inviter_player) |
+                        Q(player_inviting=inviter_player, player_invited=response_player)
+                    )
+                )
+
+   
                 # create_notification.apply_async((invite_sender_username, 'invitation', ), eta=start_time, task_id=f'custom_task_id_{obj.id}')
                 await database_sync_to_async(invitations.delete)()
 
