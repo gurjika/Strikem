@@ -96,8 +96,6 @@ class GameSession(models.Model):
     status_finished = models.BooleanField(default=False)
 
 class Matchup(models.Model):
-
-
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -107,6 +105,10 @@ class Matchup(models.Model):
     player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_matchup_invitings')
     player_accepting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='accepted_matchups')
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        unique_together = [['player_accepting', 'player_inviting']]
 
 
 class Reservation(models.Model):
@@ -134,6 +136,15 @@ class Invitation(models.Model):
     player_invited = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='received_invitations')
     player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_invitations')
 
+
+    class Meta:
+        unique_together = [['player_invited', 'player_inviting']]
+
+
+class InvitationDenied(models.Model):
+    player_invited = models.ForeignKey(Player, on_delete=models.CASCADE)
+    player_denied = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='denied_invitations')
+    timestamp = models.DateTimeField(auto_now_add=True)
     
 
 

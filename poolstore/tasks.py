@@ -1,7 +1,7 @@
 from celery import shared_task
 from django.contrib.contenttypes.models import ContentType
 
-from poolstore.models import GameSession, Invitation, Message, Notification, Player
+from poolstore.models import GameSession, Invitation, Message, Notification, Player, InvitationDenied
 
 @shared_task
 def create_notification(player, content_type, object_id, body=None):
@@ -27,3 +27,10 @@ def create_notification(player, content_type, object_id, body=None):
             content_type=ContentType.objects.get_for_model(content_type),
             object_id=object_id
         )
+
+
+
+@shared_task
+def delete_denied_invite(id):
+    invitation_denied = InvitationDenied.objects.get(id=id)
+    invitation_denied.delete()

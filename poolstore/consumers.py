@@ -4,10 +4,10 @@ from asgiref.sync import async_to_sync
 from django.template.loader import get_template
 from django.db.models import Q
 from core.models import User
-from .models import Invitation, MatchMake, Matchup, Player, Message
+from .models import Invitation, InvitationDenied, MatchMake, Matchup, Player, Message
 from channels.db import database_sync_to_async
-from datetime import timedelta
-
+from datetime import timedelta, timezone
+from .tasks import delete_denied_invite
 
 from .tasks import create_notification
 
@@ -383,6 +383,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 invitation = await database_sync_to_async(Invitation.objects.get)(player_inviting=inviter_player, player_invited=response_player)
                 await database_sync_to_async(invitation.delete)()
 
+                invitation_denied = InvitationDenied.objects.create(player_invited=response_player, player_denied=player_inviting)
+                delete_denied_invite.apply_async((invitation_denied.id,), eta=timezone.now() + timedelta(minutes=3))
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import GameSession, History, Invitation, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
+from poolstore.models import GameSession, History, Invitation, InvitationDenied, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
 from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
@@ -285,11 +285,17 @@ class FilterPlayersWithRatingViewSet(ListModelMixin, RetrieveModelMixin, Generic
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-
+        current_player = self.request.user.player
+        denied_invitations_id = InvitationDenied.objects.filter(player_denied=current_player).values_list('player_invited', flat=True)
         point_range = 200
-        min_points = self.request.user.player.total_points - point_range
-        max_points = self.request.user.player.total_points + point_range
+        min_points = current_player.total_points - point_range
+        max_points = current_player.total_points + point_range
 
-        nearby_players = Player.objects.filter(total_points__gte=min_points, total_points__lte=max_points, inviting_to_play=True).exclude(id=self.request.user.player.id)
+        nearby_players = Player.objects.filter(total_points__gte=min_points, total_points__lte=max_points, inviting_to_play=True) \
+        .exclude(id__in=denied_invitations_id) \
+        .exclude(
+        Q(sent_matchup_invitings__player_accepting=current_player) |
+        Q(accepted_matchups__player_inviting=current_player)
+        )
 
         return nearby_players
