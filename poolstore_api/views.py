@@ -138,16 +138,6 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
         return queryset
     
 
-
-
-
-    
-
-
-
-
-
-
     
 
     @action(detail=True, methods=['GET'])
@@ -155,6 +145,8 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
         if self.request.method == 'GET':
             messages = Message.objects.filter(matchup_id=pk).select_related('sender__user').order_by('time_sent')
             page = self.paginate_queryset(messages)
+
+
             if page is not None:
                 serializer = MessageSerializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
@@ -279,7 +271,6 @@ class NotificationViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 
 
 class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
-
     serializer_class = PlayerSerializer
     permission_classes = [IsAuthenticated]
 

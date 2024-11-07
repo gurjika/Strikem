@@ -258,7 +258,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         elif message:
             
             matchup_id = text_data_json['matchup_id']
-
+            
             last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
 
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
@@ -335,7 +335,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         
         matchmaker_username = text_data_json.get('matchmaker_username')
         invite_response = text_data_json.get('invite_response')
-       
+        control_user = text_data_json.get('protocol')
+        
         player = await database_sync_to_async(Player.objects.get)(user__username=username)
 
         if invite_response:
@@ -350,13 +351,13 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
 
-                match_make_instance_accepter = await database_sync_to_async(MatchMake.objects.get)(player=response_player)
+                # match_make_instance_accepter = await database_sync_to_async(MatchMake.objects.get)(player=response_player)
                 
-                try:
-                    match_make_instance_inviter = await database_sync_to_async(MatchMake.objects.get)(player=inviter_player)
-                    await database_sync_to_async(match_make_instance_inviter.delete)()
-                except MatchMake.DoesNotExist:
-                    pass
+                # try:
+                #     match_make_instance_inviter = await database_sync_to_async(MatchMake.objects.get)(player=inviter_player)
+                #     await database_sync_to_async(match_make_instance_inviter.delete)()
+                # except MatchMake.DoesNotExist:
+                #     pass
                 
                 invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=response_player)
                 # create_notification.apply_async((invite_sender_username, 'invitation', ), eta=start_time, task_id=f'custom_task_id_{obj.id}')
@@ -367,7 +368,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 inviter_player.inviting_to_play = False
                 await database_sync_to_async(inviter_player.save)()
 
-                await database_sync_to_async(match_make_instance_accepter.delete)()
+                # await database_sync_to_async(match_make_instance_accepter.delete)()
                 
 
                 mathup_object = await database_sync_to_async(Matchup.objects.create)(player_accepting=response_player, player_inviting=inviter_player)
@@ -401,6 +402,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'sub_protocol': 'accepter'
                     }
                 )
+
             # SENDING NOTIFICATION ONLY TO THE DENIED PLAYER
             elif invite_response == 'deny':
 
@@ -421,7 +423,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 )
             
             
-
         elif matchmaker_username:
             player_inviting = player
             player_invited = await database_sync_to_async(Player.objects.get)(user__username=matchmaker_username)
@@ -443,46 +444,47 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             
             
 
-        elif not player.inviting_to_play:
+        if control_user:
+            if not player.inviting_to_play:
 
 
-            player.inviting_to_play = True
-            await database_sync_to_async(player.save)()
+                player.inviting_to_play = True
+                # await database_sync_to_async(player.save)()
 
-            await database_sync_to_async(MatchMake.objects.create)(player=player)
-
-
-            await self.channel_layer.group_send(
-                self.GROUP_NAME,
-                {
-                    'type': 'control_user',
-                    'username': username,
-                    'protocol': 'add'
-                }
-            )
-
-        elif player.inviting_to_play:
-
-            player.inviting_to_play = False
-            await database_sync_to_async(player.save)()
-
-            match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=player)
-
-            await database_sync_to_async(match_make_instance.delete)()
-
-            player_invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=player)
-
-            await database_sync_to_async(player_invitations.delete)()
+                # await database_sync_to_async(MatchMake.objects.create)(player=player)
 
 
-            await self.channel_layer.group_send(
-                self.GROUP_NAME,
-                {
-                    'type': 'control_user',
-                    'username': username,
-                    'protocol': 'delete'
-                }
-            ) 
+                await self.channel_layer.group_send(
+                    self.GROUP_NAME,
+                    {
+                        'type': 'control_user',
+                        'username': username,
+                        'protocol': 'add'
+                    }
+                )
+
+            elif player.inviting_to_play:
+
+                player.inviting_to_play = False
+                await database_sync_to_async(player.save)()
+
+                # match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=player)
+
+                # await database_sync_to_async(match_make_instance.delete)()
+
+                player_invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=player)
+
+                await database_sync_to_async(player_invitations.delete)()
+
+
+                await self.channel_layer.group_send(
+                    self.GROUP_NAME,
+                    {
+                        'type': 'control_user',
+                        'username': username,
+                        'protocol': 'delete'
+                    }
+                ) 
 
 
 
