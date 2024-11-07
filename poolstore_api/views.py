@@ -286,7 +286,8 @@ class FilterPlayersWithRatingViewSet(ListModelMixin, RetrieveModelMixin, Generic
 
     def get_queryset(self):
         current_player = self.request.user.player
-        denied_invitations_id = InvitationDenied.objects.filter(player_denied=current_player).values_list('player_invited', flat=True)
+        denied_invitations_id = current_player.denied_invitations.values_list('player_invited', flat=True)
+        invited_player_ids = current_player.sent_invitations.values_list('player_invited', flat=True)
         point_range = 200
         min_points = current_player.total_points - point_range
         max_points = current_player.total_points + point_range
@@ -296,6 +297,9 @@ class FilterPlayersWithRatingViewSet(ListModelMixin, RetrieveModelMixin, Generic
         .exclude(
         Q(sent_matchup_invitings__player_accepting=current_player) |
         Q(accepted_matchups__player_inviting=current_player)
-        )
+        ) \
+        .exclude(id__in=invited_player_ids) \
+        .select_related('user')
 
         return nearby_players
+    

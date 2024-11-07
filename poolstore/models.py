@@ -44,6 +44,11 @@ class Player(models.Model):
                 profile_image.save(self.profile_image.path)
 
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['total_points', 'inviting_to_play']),
+        ]
+
 class PoolHouse(models.Model):
     title = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
