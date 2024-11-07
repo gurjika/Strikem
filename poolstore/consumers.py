@@ -8,7 +8,7 @@ from .models import Invitation, InvitationDenied, MatchMake, Matchup, Player, Me
 from channels.db import database_sync_to_async
 from datetime import timedelta, timezone
 from .tasks import delete_denied_invite
-
+from poolstore_api.tasks import invitation_cleanup
 from .tasks import create_notification
 
 
@@ -361,16 +361,14 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 
                 # invitations = await database_sync_to_async(Invitation.objects.filter)(Q(player_inviting=response_player, player_invited=inviter_player) |Q(player_inviting=inviter_player, player_invited=response_player))
 
-                invitations = await database_sync_to_async(
-                    Invitation.objects.filter(
-                        Q(player_inviting=response_player, player_invited=inviter_player) |
-                        Q(player_inviting=inviter_player, player_invited=response_player)
-                    )
-                )
 
+
+
+
+                invitation_cleanup.apply_async((response_player.id, inviter_player.id))
    
                 # create_notification.apply_async((invite_sender_username, 'invitation', ), eta=start_time, task_id=f'custom_task_id_{obj.id}')
-                await database_sync_to_async(invitations.delete)()
+                
 
                 response_player.inviting_to_play = False
                 await database_sync_to_async(response_player.save)()

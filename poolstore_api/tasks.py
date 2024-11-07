@@ -1,10 +1,11 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
-from poolstore.models import GameSession, PlayerGameSession, PoolTable, Reservation
+from poolstore.models import GameSession, Invitation, Player, PlayerGameSession, PoolTable, Reservation
 from asgiref.sync import async_to_sync
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from poolstore.tasks import create_notification
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -92,6 +93,20 @@ def send_email_before_res(user_id):
         recipient_list=[user.email],
         fail_silently=False ## TESTING
     )
+
+
+
+@shared_task
+def invitation_cleanup(player_1, player_2):
+    player_1 = Player.objects.get(id=player_1)
+    player_2 = Player.objects.get(id=player_2)
+
+    invitations = Invitation.objects.filter(
+        Q(player_inviting=player_2, player_invited=player_1) |
+        Q(player_inviting=player_1, player_invited=player_2)
+        )
+
+    invitations.delete()
 
 
 
