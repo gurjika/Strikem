@@ -288,7 +288,7 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
         .exclude(
         Q(sent_matchup_invitings__player_accepting=current_player) |
         Q(accepted_matchups__player_inviting=current_player)
-        )
+        ).select_related('user')
 
         return nearby_players
     
