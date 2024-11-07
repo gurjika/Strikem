@@ -6,7 +6,8 @@ from django.db.models import Q
 from core.models import User
 from .models import Invitation, InvitationDenied, MatchMake, Matchup, Player, Message
 from channels.db import database_sync_to_async
-from datetime import timedelta, timezone
+from datetime import timedelta
+import datetime
 from .tasks import delete_denied_invite
 from poolstore_api.tasks import invitation_cleanup
 from .tasks import create_notification
@@ -420,7 +421,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
                 invitation_denied = await database_sync_to_async(InvitationDenied.objects.create)(player_invited=response_player, player_denied=inviter_player)
                 
-                delete_denied_invite.apply_async((invitation_denied.id,), eta=timezone.now() + timedelta(minutes=3))
+                delete_denied_invite.apply_async((invitation_denied.id,), eta=datetime.datetime.now() + timedelta(minutes=3))
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
