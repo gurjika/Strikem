@@ -424,8 +424,10 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 print(current_utc)
                 invitation_denied = await database_sync_to_async(InvitationDenied.objects.create)(player_invited=response_player, player_denied=inviter_player)
                 
+
+                ## TODO SEND PCITURE WITH I`NVITATION
                 
-                delete_denied_invite.apply_async((invitation_denied.id,), eta=current_utc + timedelta(minutes=3))
+                delete_denied_invite.apply_async((invitation_denied.id,), eta=current_utc + timedelta(seconds=3))
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
@@ -464,7 +466,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
                 player.inviting_to_play = True
-                # await database_sync_to_async(player.save)()
+                await database_sync_to_async(player.save)()
 
                 # await database_sync_to_async(MatchMake.objects.create)(player=player)
 
