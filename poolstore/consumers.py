@@ -459,6 +459,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                     'type': 'display_invite',
                     'invite_sender_username': username,
                     'invitationId': invitation_instance.id,
+                    'inviter_profile_image': player_inviting.profile_image
                 }
             )
 
