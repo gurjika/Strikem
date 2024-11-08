@@ -6,19 +6,19 @@ from asgiref.sync import async_to_sync
 from .models import Matchup, Player, PoolHouseStaff
 
 
-@receiver(post_save, sender=Matchup)
-def remove_player_from_matchmake_list_on_accept(sender, instance, created, **kwargs):
-    if created:
-        channel_layer = get_channel_layer()
-        group_name = 'matchmake'
+# @receiver(post_save, sender=Matchup)
+# def remove_player_from_matchmake_list_on_accept(sender, instance, created, **kwargs):
+#     if created:
+#         channel_layer = get_channel_layer()
+#         group_name = 'matchmake'
         
-        event = {
-            'type': 'accepting_player_cleanup',
-            'accepter_username': instance.player_accepting.user.username,
-            'inviter_username': instance.player_inviting.user.username,
-        }
+#         event = {
+#             'type': 'accepting_player_cleanup',
+#             'accepter_username': instance.player_accepting.user.username,
+#             'inviter_username': instance.player_inviting.user.username,
+#         }
 
-        async_to_sync(channel_layer.group_send)(group_name, event)
+#         async_to_sync(channel_layer.group_send)(group_name, event)
 
 
 

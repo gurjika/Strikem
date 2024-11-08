@@ -135,10 +135,12 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
     async def display_invite(self, event):
         invite_sender_username = event['invite_sender_username']
+        inviter_profile_image = event.get('inviter_profile_image')
         await self.send(text_data=json.dumps(
             {
                 'inviteSenderUsername': invite_sender_username,
                 'protocol': 'invited',
+                'inviter_profile_image': inviter_profile_image,
             }
         ))
 
@@ -149,7 +151,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         invite_sender_username = event['invite_sender_username']
         sub_protocol = event.get('sub_protocol')
         matchup_id = event.get('matchup_id')
-
+        profile_image_url = event.get('responser_profile_image')
+        invite_sender_profile_pic = event.get('invite_sender_profile_pic') 
         if response == 'accept':
 
 
@@ -160,7 +163,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                     'inviteSenderUsername': invite_sender_username,
                     'protocol': 'handling_invite_response',
                     'sub_protocol': sub_protocol,
-                    'matchup_id': matchup_id
+                    'matchup_id': matchup_id,
+                    'responder_profile_image': profile_image_url,
+                    'invite_sender_profile_pic': invite_sender_profile_pic,
                 }, default=str #FOR UUID SERIALIZATION ISSUES
             ))
 
@@ -169,7 +174,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 {   
                     'invite_response': 'DENIED',
                     'accepterUsername': username,
-                    'protocol': 'handling_invite_response'
+                    'protocol': 'handling_invite_response',
+                    'responder_profile_image': profile_image_url,
                 }
             ))
 
