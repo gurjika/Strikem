@@ -3,6 +3,8 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from poolstore.models import GameSession, History, Invitation, InvitationDenied, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
 from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin, UpdateModelMixin
+from poolstore_api.serializers import CreateHistorySerializer, DetailPlayerSerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -279,7 +281,6 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
     def get_queryset(self):
         current_player = self.request.user.player
         denied_invitations_id = current_player.denied_invitations.values_list('player_invited', flat=True)
-        invited_player_ids = current_player.sent_invitations.values_list('player_invited', flat=True)
         point_range = 200
         min_points = current_player.total_points - point_range
         max_points = current_player.total_points + point_range
@@ -291,7 +292,6 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
         Q(sent_matchup_invitings__player_accepting=current_player) |
         Q(accepted_matchups__player_inviting=current_player)
         ) \
-        .exclude(id__in=invited_player_ids) \
         .select_related('user')
 
         if filter == 'rating':
@@ -302,3 +302,11 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
         
         return nearby_players
     
+class DetailPlayerInfoViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+
+    serializer_class = DetailPlayerSerializer
+    permission_classes = [IsAuthenticated]
+
+
+    def get_queryset(self):
+        return Player.objects.filter(id=self.request.user.player.id).select_related('user').prefetch_related('received_invitations__player_inviting__user')
