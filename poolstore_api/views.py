@@ -302,8 +302,9 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
         
         return nearby_players
     
-class DetailPlayerInfoViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
 
+
+class DetailPlayerInfoViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     serializer_class = DetailPlayerSerializer
     permission_classes = [IsAuthenticated]
 

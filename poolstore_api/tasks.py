@@ -104,7 +104,7 @@ def invitation_cleanup(player_1, player_2):
     invitations = Invitation.objects.filter(
         Q(player_inviting=player_2, player_invited=player_1) |
         Q(player_inviting=player_1, player_invited=player_2)
-        )
+    )
 
     invitations.delete()
 

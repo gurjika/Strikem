@@ -11,7 +11,7 @@ import datetime
 from .tasks import delete_denied_invite
 from poolstore_api.tasks import invitation_cleanup
 from .tasks import create_notification
-
+from datetime import datetime, timezone
 
 
 
@@ -418,10 +418,14 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 create_notification.apply_async((invite_sender_username, '', None, f'{username} denied your invite'))
 
                 await database_sync_to_async(invitation.delete)()
+                
 
+                current_utc = datetime.now(timezone.utc)
+                print(current_utc)
                 invitation_denied = await database_sync_to_async(InvitationDenied.objects.create)(player_invited=response_player, player_denied=inviter_player)
                 
-                delete_denied_invite.apply_async((invitation_denied.id,), eta=datetime.datetime.now() + timedelta(minutes=3))
+                
+                delete_denied_invite.apply_async((invitation_denied.id,), current_utc + timedelta(minutes=3))
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
