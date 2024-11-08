@@ -314,3 +314,41 @@ class NotificationSerializer(serializers.ModelSerializer):
             elif isinstance(obj.content_object, Invitation):
                 return InvitationSerializer(obj.content_object).data
         return None
+    
+class InvitationSerializer(serializers.ModelSerializer):
+    player_invited = SimplePlayerSerializer(read_only=True)
+    player_inviting = SimplePlayerSerializer(read_only=True)
+    class Meta:
+        model = Invitation
+        fields = ['id', 'player_invited', 'player_inviting']
+
+
+
+class SentInvitationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Invitation
+        fields = ['id', 'player_invited']
+
+
+
+
+class ReceivedInvitationSerializer(serializers.ModelSerializer):
+    player_inviting = SimplePlayerSerializer(read_only=True)
+    class Meta:
+        model = Invitation
+        fields = ['id', 'player_inviting']
+
+
+
+
+class DetailPlayerSerializer(serializers.ModelSerializer):
+    user = SimpleUserSerializer(read_only=True)
+    inviting_to_play = serializers.BooleanField(read_only=True)
+    total_points = serializers.IntegerField(read_only=True)
+    received_invitations = ReceivedInvitationSerializer(many=True, read_only=True)
+    sent_invitations = SentInvitationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Player
+        fields = ['id', 'inviting_to_play', 'profile_image', 'user', 'total_points', 'received_invitations', 'sent_invitations']
