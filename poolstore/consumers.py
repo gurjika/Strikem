@@ -391,8 +391,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'type': 'handle_invite_response',
                         'invite_response': invite_response,
                         'invite_sender_username': invite_sender_username,
-                        'invite_sender_profile_pic': inviter_player.profile_image,
-                        'responder_profile_image': response_player.profile_image,
+                        'invite_sender_profile_pic': inviter_player.profile_image.url,
+                        'responder_profile_image': response_player.profile_image.url,
                         'username': username,
                         'matchup_id': str(mathup_object.id)
                     }
@@ -407,8 +407,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'type': 'handle_invite_response',
                         'invite_response': invite_response,
                         'invite_sender_username': invite_sender_username,
-                        'invite_sender_profile_pic': inviter_player.profile_image,
-                        'responder_profile_image': response_player.profile_image,
+                        'invite_sender_profile_pic': inviter_player.profile_image.url,
+                        'responder_profile_image': response_player.profile_image.url,
                         'username': username,
                         'matchup_id': str(mathup_object.id),
                         'sub_protocol': 'accepter'
@@ -439,7 +439,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'type': 'handle_invite_response',
                         'invite_response': invite_response,
                         'invite_sender_username': invite_sender_username,
-                        'responder_profile_image': response_player.profile_image,
+                        'responder_profile_image': response_player.profile_image.url,
                         'username': username,
                     }
                 )
@@ -459,7 +459,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                     'type': 'display_invite',
                     'invite_sender_username': username,
                     'invitationId': invitation_instance.id,
-                    'inviter_profile_image': player_inviting.profile_image
+                    'inviter_profile_image': player_inviting.profile_image.url
                 }
             )
 
