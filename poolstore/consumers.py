@@ -391,6 +391,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'type': 'handle_invite_response',
                         'invite_response': invite_response,
                         'invite_sender_username': invite_sender_username,
+                        'invite_sender_profile_pic': inviter_player.profile_image,
+                        'responder_profile_image': response_player.profile_image,
                         'username': username,
                         'matchup_id': str(mathup_object.id)
                     }
@@ -405,6 +407,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'type': 'handle_invite_response',
                         'invite_response': invite_response,
                         'invite_sender_username': invite_sender_username,
+                        'invite_sender_profile_pic': inviter_player.profile_image,
+                        'responder_profile_image': response_player.profile_image,
                         'username': username,
                         'matchup_id': str(mathup_object.id),
                         'sub_protocol': 'accepter'
@@ -435,6 +439,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'type': 'handle_invite_response',
                         'invite_response': invite_response,
                         'invite_sender_username': invite_sender_username,
+                        'responder_profile_image': response_player.profile_image,
                         'username': username,
                     }
                 )
