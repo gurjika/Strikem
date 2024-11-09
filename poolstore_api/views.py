@@ -193,19 +193,15 @@ class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMix
 class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
-        queryset = History.objects.filter(Q(winner_player=self.request.user.player) | Q(loser_player=self.request.user.player)) \
+        queryset = History.objects.filter(Q(winner_player=self.kwargs['player_pk']) | Q(loser_player=self.kwargs['player_pk'])) \
         .select_related('winner_player__user').select_related('loser_player__user').select_related('poolhouse')
         return queryset
     
-
-    
-
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ListHistorySerializer
         return CreateHistorySerializer
     
-
     def get_serializer_context(self):
         return {'player_id': self.request.user.player.id}
     
