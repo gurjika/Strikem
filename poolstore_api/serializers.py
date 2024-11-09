@@ -356,3 +356,9 @@ class DetailPlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ['id', 'inviting_to_play', 'profile_image', 'user', 'total_points', 'received_invitations', 'sent_invitations']
+
+class PlayerLocationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Player
+        fields = ['id', 'lat', 'lng']
