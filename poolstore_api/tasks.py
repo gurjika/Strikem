@@ -14,10 +14,21 @@ User = get_user_model()
 def start_game_session(reservation_id):
     reservation = Reservation.objects.get(id=reservation_id)
     game_session = GameSession.objects.create(pooltable=reservation.table)
+    event = {
+        'type': 'update_table',
+        'table_id': reservation.table.table_id,
+        'protocol': 'now_busy',
+        'game_session_id': game_session.id,
+        'player_one_username': reservation.player_reserving.user.username,
+        'player_one_profile_picture': reservation.player_reserving.profile_image.url,
+         
+    }
 
     if reservation.other_player:
         PlayerGameSession.objects.create(game_session=game_session, player=reservation.other_player)
-    
+        event['player_two_username'] = reservation.other_player.user.username
+        event['player_two_profile_picture'] = reservation.other_player.user.username
+
     PlayerGameSession.objects.create(game_session=game_session, player=reservation.player_reserving)
     
     finish_game_session.apply_async((
@@ -27,12 +38,6 @@ def start_game_session(reservation_id):
     )
     
 
-    event = {
-        'type': 'update_table',
-        'table_id': reservation.table.table_id,
-        'protocol': 'now_busy',
-        'game_session_id': game_session.id
-    }
 
     channel_layer = get_channel_layer()
     game_session.pooltable.free = False

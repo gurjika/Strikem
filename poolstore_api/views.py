@@ -265,6 +265,8 @@ class NotificationViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = MessagePageNumberPagination
+
 
     def get_queryset(self):
         return Notification.objects.filter(player=self.request.user.player)
@@ -276,6 +278,7 @@ class NotificationViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     serializer_class = PlayerSerializer
     permission_classes = [IsAuthenticated]
+
 
 
 
