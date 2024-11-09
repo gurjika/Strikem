@@ -300,6 +300,7 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
         .select_related('user')
 
         if filter == 'rating':
+            print('here')
             nearby_players.filter(total_points__gte=min_points, total_points__lte=max_points)
 
         nearby_players.filter(inviting_to_play=True)
