@@ -67,3 +67,5 @@ class IsPlayerReservingUserOrReadOnly(BasePermission):
             return True
         
         return obj.player_reserving.user == request.user
+    
+
