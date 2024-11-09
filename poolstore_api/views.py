@@ -18,6 +18,7 @@ from rest_framework import status
 from .utils import get_nearby_poolhouses
 from celery.result import AsyncResult
 from django.db.models import OuterRef, Prefetch
+from rest_framework.views import APIView
 
 
 
@@ -301,11 +302,19 @@ class FilterPlayersWithRatingViewSet(ListModelMixin, RetrieveModelMixin, Generic
 
         return nearby_players
     
-class DetailPlayerInfoViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+class DetailPlayerInfoView(APIView):
 
-    serializer_class = DetailPlayerSerializer
+    # serializer_class = DetailPlayerSerializer
     permission_classes = [IsAuthenticated]
 
 
-    def get_queryset(self):
-        return Player.objects.filter(id=self.request.user.player.id).select_related('user').prefetch_related('received_invitations__player_inviting__user')
+    def get(self, request):
+        queryset = Player.objects.filter(id=request.user.player.id).select_related('user').prefetch_related('received_invitations__player_inviting__user').first()
+        serializer = DetailPlayerSerializer(queryset)
+        return Response(serializer.data)
+
+
+
+
+
+
