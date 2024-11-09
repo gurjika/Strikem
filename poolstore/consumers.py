@@ -153,6 +153,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         matchup_id = event.get('matchup_id')
         profile_image_url = event.get('responser_profile_image')
         invite_sender_profile_pic = event.get('invite_sender_profile_pic') 
+        print(profile_image_url)
+
+
         if response == 'accept':
 
 

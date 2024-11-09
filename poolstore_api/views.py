@@ -198,6 +198,8 @@ class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Gener
         return queryset
     
 
+    
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ListHistorySerializer
