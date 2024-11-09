@@ -161,7 +161,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         strikem_site = 'https://strikem.site'
 
         profile_image_url = strikem_site + str(profile_image_url)
-        invite_sender_profile_pic = strikem_site + str(profile_image_url)
+        invite_sender_profile_pic = strikem_site + str(invite_sender_profile_pic)
         if response == 'accept':
 
 
