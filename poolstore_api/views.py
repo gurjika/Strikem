@@ -299,7 +299,7 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
         ) \
         .select_related('user')
 
-
+        # TODO ADD CACHING
         if filter == 'rating':
 
             nearby_players = nearby_players.filter(total_points__gte=min_points, total_points__lte=max_points)
@@ -309,7 +309,7 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
         if filter_location: 
             nearby_players = get_nearby_players(current_player.lat, current_player.lng, nearby_players.filter(lat__isnull=False, lng__isnull=False))
 
-        return nearby_players
+        return nearby_players.order_by('-total_points')
 
 
 class DetailPlayerInfoView(APIView):
