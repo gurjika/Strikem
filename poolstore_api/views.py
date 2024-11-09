@@ -304,12 +304,12 @@ class MatchMakingPlayerViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
 
             nearby_players = nearby_players.filter(total_points__gte=min_points, total_points__lte=max_points)
 
-        nearby_players = nearby_players.filter(inviting_to_play=True)
+        nearby_players = nearby_players.filter(inviting_to_play=True).order_by('-total_points')
 
         if filter_location: 
             nearby_players = get_nearby_players(current_player.lat, current_player.lng, nearby_players.filter(lat__isnull=False, lng__isnull=False))
 
-        return nearby_players.order_by('-total_points')
+        return nearby_players
 
 
 class DetailPlayerInfoView(APIView):
