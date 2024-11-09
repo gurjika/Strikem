@@ -319,6 +319,14 @@ class NotificationSerializer(serializers.ModelSerializer):
                 return InvitationSerializer(obj.content_object).data
         return None
     
+
+    def update(self, instance, validated_data):
+        
+        instance.read = True
+        instance.save()
+        return instance
+
+
 class InvitationSerializer(serializers.ModelSerializer):
     player_invited = SimplePlayerSerializer(read_only=True)
     player_inviting = SimplePlayerSerializer(read_only=True)
