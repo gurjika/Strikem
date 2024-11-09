@@ -24,7 +24,8 @@ class Player(models.Model):
     inviting_to_play = models.BooleanField(default=False)
     profile_image = models.ImageField(default='default.jpg', upload_to='profile-pics')
     total_points = models.PositiveIntegerField(default=1000)
-    
+    lat = models.FloatField(null=True)
+    lng = models.FloatField(null=True)
     
     def get_opponents(self):
         invited = Player.objects.select_related('user').filter(sent_matchup_invitings__player_accepting=self)

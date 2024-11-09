@@ -29,3 +29,26 @@ def check_overlapping_reservations(data, start_time, end_time):
             return False
         
     return True
+
+
+
+def get_nearby_players(lat, long, players):
+    GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+    venue_locations = '|'.join([f"{player.lat},{player.lng}" for player in players])
+
+    url = (
+        f"https://maps.googleapis.com/maps/api/distancematrix/json?"
+        f"origins={lat},{long}&destinations={venue_locations}&key={GOOGLE_MAPS_API_KEY}"
+    )
+    
+    response = requests.get(url)
+    data = response.json()
+
+    nearby_players = []
+    for i, venue in enumerate(players):
+        distance_in_meters = data['rows'][0]['elements'][i]['distance']['value']
+        if distance_in_meters <= 4000:
+            nearby_players.append(venue)
+
+
+    return nearby_players

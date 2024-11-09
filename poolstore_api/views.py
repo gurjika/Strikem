@@ -15,11 +15,11 @@ from django.views.decorators.cache import cache_page
 from django.db.models import Avg, Count
 from .tasks import finish_game_session
 from rest_framework import status
-from .utils import get_nearby_poolhouses
+from .utils import get_nearby_poolhouses, get_nearby_players
 from celery.result import AsyncResult
 from django.db.models import OuterRef, Prefetch
 from rest_framework.views import APIView
-
+from rest_framework.generics import UpdateAPIView
 
 
 
@@ -291,7 +291,8 @@ class FilterPlayersWithRatingViewSet(ListModelMixin, RetrieveModelMixin, Generic
         point_range = 200
         min_points = current_player.total_points - point_range
         max_points = current_player.total_points + point_range
-
+        
+        filter_location = self.request.query_params.get('filter_location')
         nearby_players = Player.objects.filter(total_points__gte=min_points, total_points__lte=max_points, inviting_to_play=True) \
         .exclude(id__in=denied_invitations_id) \
         .exclude(
@@ -300,21 +301,28 @@ class FilterPlayersWithRatingViewSet(ListModelMixin, RetrieveModelMixin, Generic
         ) \
         .select_related('user')
 
+
+        if filter_location: 
+            nearby_players = get_nearby_players(current_player.lat, current_player.lng, nearby_players.filter(lat__isnull=False, lng__isnull=False))
+
         return nearby_players
     
 class DetailPlayerInfoView(APIView):
 
     # serializer_class = DetailPlayerSerializer
     permission_classes = [IsAuthenticated]
-
-
+    
     def get(self, request):
         queryset = Player.objects.filter(id=request.user.player.id).select_related('user').prefetch_related('received_invitations__player_inviting__user').first()
         serializer = DetailPlayerSerializer(queryset)
         return Response(serializer.data)
 
 
+class PlayerLocationView(UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PlayerSerializer
 
-
+    def get_queryset(self):
+        return Player.objects.filter(user=self.request.user)
 
 

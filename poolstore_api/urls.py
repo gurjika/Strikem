@@ -38,7 +38,8 @@ poolhouse_image_router.register(prefix='images', viewset=views.PoolHouseImageVie
 urlpatterns = router.urls + tables_router.urls + ratings_router.urls + game_session_router.urls + reservations_router.urls + poolhouse_image_router.urls
 
 urlpatterns += [ 
-    path('player-details/', view=views.DetailPlayerInfoView.as_view(), name='player-detail')
+    path('player-details/', view=views.DetailPlayerInfoView.as_view(), name='player-detail'),
+    path('player-location/', view=views.PlayerLocationView.as_view(), name='player-location')
 ]
 
 
