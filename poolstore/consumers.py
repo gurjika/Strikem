@@ -137,9 +137,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         invite_sender_username = event['invite_sender_username']
         inviter_profile_image = event.get('inviter_profile_image')
 
-        strikem_site = 'https://strikem.site'
 
-        inviter_profile_image = strikem_site + str(inviter_profile_image)
         await self.send(text_data=json.dumps(
             {
                 'inviteSenderUsername': invite_sender_username,
@@ -158,10 +156,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         profile_image_url = event.get('responder_profile_image')
         invite_sender_profile_pic = event.get('invite_sender_profile_pic') 
 
-        strikem_site = 'https://strikem.site'
 
-        profile_image_url = strikem_site + str(profile_image_url)
-        invite_sender_profile_pic = strikem_site + str(invite_sender_profile_pic)
         if response == 'accept':
 
 
