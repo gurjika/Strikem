@@ -22,7 +22,7 @@ class Player(models.Model):
     opponents_met = models.PositiveIntegerField()
     games_won = models.PositiveIntegerField()
     inviting_to_play = models.BooleanField(default=False)
-    profile_image = models.ImageField(default='default.jpg', upload_to='profile-pics')
+    profile_image = models.ImageField(upload_to='profile-pics', default='profile-pics/default.jpg')
     total_points = models.PositiveIntegerField(default=1000)
     lat = models.FloatField(null=True)
     lng = models.FloatField(null=True)
@@ -31,18 +31,29 @@ class Player(models.Model):
         invited = Player.objects.select_related('user').filter(sent_matchup_invitings__player_accepting=self)
         accepted = Player.objects.select_related('user').filter(accepted_matchups__player_inviting=self)
         return (invited | accepted).distinct()
-    
-    
+
     def save(self, *args, **kwargs):
-        super().save()
+        # Check if there is an existing image and if the instance already has a saved image
+        if self.pk:
+            try:
+                old_image = Player.objects.get(pk=self.pk).profile_image
+                if old_image and old_image != self.profile_image:
+                    old_image.delete(save=False)  # Delete old image from S3
+            except Player.DoesNotExist:
+                pass  # If the instance is new and doesn't exist in the DB yet, skip
 
-        if self.profile_image:
-            profile_image = Image.open(self.profile_image.path)
+        super().save(*args, **kwargs)  
+    
+    # def save(self, *args, **kwargs):
+    #     super().save()
 
-            if profile_image.height > 600 or profile_image.width > 600:
-                output_isze = (300, 300)
-                profile_image.thumbnail(output_isze)
-                profile_image.save(self.profile_image.path)
+    #     if self.profile_image:
+    #         profile_image = Image.open(self.profile_image)
+
+    #         if profile_image.height > 600 or profile_image.width > 600:
+    #             output_isze = (300, 300)
+    #             profile_image.thumbnail(output_isze)
+    #             profile_image.save(self.profile_image.path)
 
 
     class Meta:
@@ -77,6 +88,10 @@ class PoolHouseImage(models.Model):
     image = models.ImageField(upload_to='poolhall-pics')
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='pics')
 
+    def delete(self, *args, **kwargs):
+        if self.image:
+            self.image.delete()
+        super().delete(*args, **kwargs)
 
 class MatchMake(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matchmakings')

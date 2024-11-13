@@ -1,4 +1,4 @@
-name: PoolHub CI/CD Pipeline
+name: Strikem CI/CD Pipeline
 
 on:
   push:
@@ -32,6 +32,10 @@ jobs:
               echo "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
               echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
 
+              echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+              echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+              echo "AWS_STORAGE_BUCKET_NAME=${{ secrets.AWS_STORAGE_BUCKET_NAME }}" >> .env
+              echo "AWS_S3_REGION_NAME=${{ secrets.AWS_S3_REGION_NAME }}" >> .env
               
 
               docker compose down
@@ -91,6 +95,11 @@ jobs:
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_REGION_NAME: ${{ secrets.AWS_S3_REGION_NAME }}
+      AWS_STORAGE_BUCKET_NAME: ${{ secrets.AWS_STORAGE_BUCKET_NAME }}
+
       REMOTE_DB_PASSWORD: ${{ secrets.REMOTE_DB_PASSWORD }}
       REMOTE_DB_HOST: ${{ secrets.REMOTE_DB_HOST }}
       REMOTE_DB_NAME: ${{ secrets.REMOTE_DB_NAME }}
@@ -99,7 +108,4 @@ jobs:
 
       EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
       GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
-
-
-
 
