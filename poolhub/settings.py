@@ -306,7 +306,6 @@ CACHES = {
 
 
 
-
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
@@ -321,6 +320,11 @@ AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 
-print(AWS_ACCESS_KEY_ID)
-print(AWS_S3_REGION_NAME)
-print(AWS_STORAGE_BUCKET_NAME)
+
+AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
+
+
+# AWS_CLOUDFRONT_KEY_ID = os.environ.get('AWS_CLOUDFRONT_KEY_ID')
+# AWS_CLOUDFRONT_KEY = os.environ.get('AWS_CLOUDFRONT_KEY').encode('ascii').strip()
+
+# print(AWS_CLOUDFRONT_KEY)
