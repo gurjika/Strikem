@@ -211,9 +211,9 @@ class History(models.Model):
 
 
 class NotificationChoices(models.TextChoices):
-    INVITED = 'PEN', 'Invited'
-    REJECTED = 'APP', 'Rejected'
-    ACCEPTED = 'REJ', 'Accepted'
+    INVITED = 'INV', 'Invited'
+    REJECTED = 'REJ', 'Rejected'
+    ACCEPTED = 'ACP', 'Accepted'
     MESSAGE = 'MSG', 'Message'
 
 class Notification(models.Model):
@@ -226,4 +226,4 @@ class Notification(models.Model):
     type = models.CharField(choices=NotificationChoices.choices, max_length=3)
 
     def __str__(self):
-        return f'Notification for {self.player} - {self.content_object}'
+        return f'Notification for {self.player} - {self.type}'
