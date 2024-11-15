@@ -440,7 +440,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 delete_denied_invite.apply_async((invitation_denied.id,), eta=current_utc + timedelta(seconds=3))
                 create_notification.apply_async((invite_sender_username, username, NotificationChoices.REJECTED, None, None))
 
-                await database_sync_to_async(invitation.delete)()
                 
 
 
