@@ -434,10 +434,21 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
                 await database_sync_to_async(invitation.delete)()
 
-                invitation_denied = InvitationDenied.objects.create(player_invited=response_player, player_denied=inviter_player)
-                delete_denied_invite.apply_async((invitation_denied.id,), eta=timezone.now() + timedelta(minutes=3))
+                invitation_denied = await database_sync_to_async(InvitationDenied.objects.create)(player_invited=response_player, player_denied=inviter_player)
+                current_utc = datetime.now(timezone.utc)
+
+                delete_denied_invite.apply_async((invitation_denied.id,), eta=current_utc + timedelta(seconds=3))
                 create_notification.apply_async((invite_sender_username, username, NotificationChoices.REJECTED, None, None))
 
+                await database_sync_to_async(invitation.delete)()
+                
+
+
+                
+
+
+                ## TODO SEND PCITURE WITH I`NVITATION
+                
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
