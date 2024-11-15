@@ -4,29 +4,18 @@ from django.contrib.contenttypes.models import ContentType
 from poolstore.models import GameSession, Invitation, Message, Notification, Player, InvitationDenied
 
 @shared_task
-def create_notification(player, content_type, object_id, body=None):
+def create_notification(player, sent_by, type, body=None, extra=None):
     player = Player.objects.get(user__username=player)
+    sent_by = Player.objects.get(user__username=sent_by)
 
-    content_type_model = {
-        'message': Message,
-        'invitation': Invitation,
-    }
-
-    content_type = content_type_model.get(content_type)
-
-
-    if body:
-        Notification.objects.create(
+    Notification.objects.create(
         player=player,
         body=body,
+        sent_by=sent_by,
+        extra=extra,
+        type=type,
     )
         
-    else:
-        Notification.objects.create(
-            player=player,
-            content_type=ContentType.objects.get_for_model(content_type),
-            object_id=object_id
-        )
 
 
 

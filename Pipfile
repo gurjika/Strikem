@@ -26,6 +26,8 @@ django-filter = "*"
 drf-yasg = "*"
 django-channels-jwt = "*"
 django-cors-headers = "*"
+django-storages = "*"
+boto3 = "*"
 
 [dev-packages]
 
