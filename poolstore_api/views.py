@@ -267,7 +267,7 @@ class NotificationViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 
 
     def get_queryset(self):
-        return Notification.objects.filter(player=self.request.user.player)
+        return Notification.objects.filter(player=self.request.user.player).order_by('-timestamp')
 
 
     
