@@ -6,7 +6,9 @@ from poolstore.models import GameSession, Invitation, Message, Notification, Pla
 @shared_task
 def create_notification(player, sent_by, type, body=None, extra=None):
     player = Player.objects.get(user__username=player)
-    sent_by = Player.objects.get(user__username=sent_by)
+    
+    if sent_by:
+        sent_by = Player.objects.get(user__username=sent_by)
 
     Notification.objects.create(
         player=player,
