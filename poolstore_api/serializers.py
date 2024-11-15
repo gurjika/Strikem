@@ -301,20 +301,20 @@ class StaffReservationCreateSerializer(serializers.ModelSerializer):
 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    content_object = serializers.SerializerMethodField()
-
+    sent_by = SimplePlayerSerializer(read_only=True)
     class Meta:
         model = Notification
-        fields = ['id', 'player', 'content_type', 'object_id', 'content_object', 'body', 'timestamp', 'read']
+        fields = ['id', 'sent_by' 'player', 'body', 'timestamp', 'read', 'extra', 'type']
 
-    def get_content_object(self, obj):
-        if obj.content_object:
-            if isinstance(obj.content_object, Message):
-                return MessageSerializer(obj.content_object).data
-            elif isinstance(obj.content_object, Invitation):
-                return InvitationSerializer(obj.content_object).data
-        return None
+
+
+    def update(self, instance, validated_data):
+        instance.read = True
+        instance.save()
+        return instance
     
+
+
 class InvitationSerializer(serializers.ModelSerializer):
     player_invited = SimplePlayerSerializer(read_only=True)
     player_inviting = SimplePlayerSerializer(read_only=True)

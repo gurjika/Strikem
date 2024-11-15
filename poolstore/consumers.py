@@ -8,7 +8,7 @@ from .models import Invitation, InvitationDenied, MatchMake, Matchup, Player, Me
 from channels.db import database_sync_to_async
 from datetime import timedelta, timezone
 from .tasks import delete_denied_invite
-
+from .models import NotificationChoices
 from .tasks import create_notification
 
 
@@ -238,7 +238,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
 
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
-            create_notification.apply_async((self.opponent_username, 'message', new_message.id),)
+            create_notification.apply_async((self.opponent_username, username, NotificationChoices.MESSAGE, new_message.body, matchup_id),)
 
             is_outdated = False
 
@@ -354,7 +354,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 
                 # SENDING ACCEPTING NOTIFICATION TO THE SENDER
 
-                create_notification.apply_async((invite_sender_username, '', None, f'{username} accepted your invite'))
+                create_notification.apply_async((invite_sender_username, username, NotificationChoices.ACCEPTED, f'{username} accepted your invite'), None)
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
@@ -389,6 +389,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
                 invitation_denied = InvitationDenied.objects.create(player_invited=response_player, player_denied=player_inviting)
                 delete_denied_invite.apply_async((invitation_denied.id,), eta=timezone.now() + timedelta(minutes=3))
+                create_notification.apply_async((invite_sender_username, username, NotificationChoices.REJECTED, None, None))
+
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
@@ -407,7 +409,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             player_invited = await database_sync_to_async(Player.objects.get)(user__username=matchmaker_username)
 
             invitation_instance = await database_sync_to_async(Invitation.objects.create)(player_inviting=player_inviting, player_invited=player_invited)
-            create_notification.apply_async((matchmaker_username, 'invitation', invitation_instance.id))
+            create_notification.apply_async((matchmaker_username, username, NotificationChoices.INVITED, None, None))
 
 
             await self.channel_layer.group_send(

@@ -206,14 +206,20 @@ class History(models.Model):
 
 
 
+class NotificationChoices(models.TextChoices):
+    INVITED = 'PEN', 'Invited'
+    REJECTED = 'APP', 'Rejected'
+    ACCEPTED = 'REJ', 'Accepted'
+    MESSAGE = 'MSG', 'Message'
+
 class Notification(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='notifications')
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
-    object_id = models.PositiveIntegerField(null=True)
-    content_object = GenericForeignKey('content_type', 'object_id')
+    sent_by = models.ForeignKey(Player, on_delete=models.CASCADE, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
-    body = models.TextField()
+    body = models.TextField(null=True)
+    extra = models.TextField(null=True)
+    type = models.CharField(choices=NotificationChoices.choices, max_length=3)
 
     def __str__(self):
         return f'Notification for {self.player} - {self.content_object}'
