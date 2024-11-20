@@ -7,3 +7,4 @@ db.sqlite3
 /data
 poolstore/migrations/0001_initial.py
 poolstore/migrations/0002_alter_notification_sent_by.py
+celerybeat-schedule
