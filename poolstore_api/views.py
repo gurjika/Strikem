@@ -330,7 +330,7 @@ class PlayerLocationView(UpdateAPIView):
         return Player.objects.filter(user=self.request.user)
 
 
-class ReadAllNotificationView(UpdateAPIView):
+class ReadAllNotificationView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
