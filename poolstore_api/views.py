@@ -338,7 +338,7 @@ class ReadAllNotificationView(UpdateAPIView):
         return Notification.objects.filter(player__user=self.request.user, read=False)
 
     def update(self, request, *args, **kwargs):
-        updated_count = Notification.objects.filter(player=self.request.user.player, read=False).update(read=True)
+        updated_count = self.get_queryset().update(read=True)
         return Response({'updated_count': updated_count})
 
 
