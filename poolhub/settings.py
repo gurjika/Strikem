@@ -14,6 +14,7 @@ from datetime import timedelta
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -349,4 +350,12 @@ AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
 # AWS_CLOUDFRONT_KEY = os.environ.get('AWS_CLOUDFRONT_KEY').encode('ascii').strip()
 
 # print(AWS_CLOUDFRONT_KEY)
+
+
+CELERY_BEAT_SCHEDULE = {
+    'delete_outdated_notifications': {
+        'task': 'poolstore.tasks.delete_outdated_notifications',
+        'schedule': crontab(hour=0, minute=0)
+    }
+}
 
