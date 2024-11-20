@@ -319,6 +319,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     
 
 
+
 class InvitationSerializer(serializers.ModelSerializer):
     player_invited = SimplePlayerSerializer(read_only=True)
     player_inviting = SimplePlayerSerializer(read_only=True)
