@@ -66,15 +66,15 @@ services:
       
       
 
-  # celery-beat:
-  #   build: .
-  #   command: celery -A poolhub beat --loglevel=info
-  #   volumes:
-  #     - .:/app
-  #   depends_on:
+  celery-beat:
+    build: .
+    command: celery -A poolhub beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
       
-  #     redis:
-  #       condition: service_healthy
+      redis:
+        condition: service_healthy
 
 
 
