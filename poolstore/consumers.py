@@ -4,14 +4,13 @@ from asgiref.sync import async_to_sync
 from django.template.loader import get_template
 from django.db.models import Q
 from core.models import User
-from .models import Invitation, InvitationDenied, MatchMake, Matchup, Player, Message
+from .models import Invitation, InvitationDenied, MatchMake, Matchup, Notification, Player, Message
 from channels.db import database_sync_to_async
 from datetime import timedelta
 import datetime
 from .tasks import delete_denied_invite
 from poolstore_api.tasks import invitation_cleanup 
 from .models import NotificationChoices
-from .tasks import create_notification
 from datetime import datetime, timezone
 
 
@@ -270,11 +269,10 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         elif message:
             
             matchup_id = text_data_json['matchup_id']
-            
             last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
 
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
-            create_notification.apply_async((self.opponent_username, username, NotificationChoices.MESSAGE, new_message.body, matchup_id),)
+            self.create_notification((self.opponent_username, username, NotificationChoices.MESSAGE, new_message.body, matchup_id),)
 
             is_outdated = False
 
@@ -394,7 +392,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 
                 # SENDING ACCEPTING NOTIFICATION TO THE SENDER
 
-                create_notification.apply_async((invite_sender_username, username, NotificationChoices.ACCEPTED, f'{username} accepted your invite'), None)
+                self.create_notification((invite_sender_username, username, NotificationChoices.ACCEPTED, f'{username} accepted your invite'), None)
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
@@ -430,7 +428,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             elif invite_response == 'deny':
 
                 invitation = await database_sync_to_async(Invitation.objects.get)(player_inviting=inviter_player, player_invited=response_player)
-                create_notification.apply_async((invite_sender_username, '', None, f'{username} denied your invite'))
 
                 await database_sync_to_async(invitation.delete)()
 
@@ -438,13 +435,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 current_utc = datetime.now(timezone.utc)
 
                 delete_denied_invite.apply_async((invitation_denied.id,), eta=current_utc + timedelta(seconds=3))
-                create_notification.apply_async((invite_sender_username, username, NotificationChoices.REJECTED, None, None))
+                self.create_notification((invite_sender_username, username, NotificationChoices.REJECTED, None, None))
 
                 
-
-
-                
-
 
                 ## TODO SEND PCITURE WITH I`NVITATION
                 
@@ -466,7 +459,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             player_invited = await database_sync_to_async(Player.objects.get)(user__username=matchmaker_username)
 
             invitation_instance = await database_sync_to_async(Invitation.objects.create)(player_inviting=player_inviting, player_invited=player_invited)
-            create_notification.apply_async((matchmaker_username, username, NotificationChoices.INVITED, None, None))
+            self.create_notification((matchmaker_username, username, NotificationChoices.INVITED, None, None))
 
 
             await self.channel_layer.group_send(
@@ -546,6 +539,21 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 'protocol': protocol
             }
         ))
+
+    def create_notification(player, sent_by, type, body=None, extra=None):
+        player = Player.objects.get(user__username=player)
+        
+        if sent_by:
+            sent_by = Player.objects.get(user__username=sent_by)
+
+        Notification.objects.create(
+            player=player,
+            body=body,
+            sent_by=sent_by,
+            extra=extra,
+            type=type,
+        )
+            
 
 
 
