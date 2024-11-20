@@ -332,7 +332,6 @@ class PlayerLocationView(UpdateAPIView):
 
 class ReadAllNotificationView(UpdateAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = NotificationSerializer
 
     def get_queryset(self):
         return Notification.objects.filter(player__user=self.request.user, read=False)
