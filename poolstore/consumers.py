@@ -19,7 +19,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.poolhouse_room_name = 'none'
         self.matchmake_room_name = 'matchmake'
-
+        self.current = ''
         self.user = self.scope['user']
         self.room_name_for_specific_user = f"user_{self.user.username}"
 
@@ -52,6 +52,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
         if text_data_json.get('action') == 'matchup':
             print('test poolhouse in matchup', self.poolhouse_room_name)
+            self.current = 'matchup'
             if text_data_json.get('protocol') == 'initial':
 
                 
@@ -73,6 +74,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         elif text_data_json.get('action') == self.matchmake_room_name:
+            self.current = self.matchmake_room_name
             if text_data_json.get('protocol') == 'initial':
                 
 
@@ -95,7 +97,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         elif text_data_json.get('action') == 'poolhouse':
             poolhouse_name = text_data_json.get('poolhouseName')
             self.poolhouse_room_name = f'poolhouse_{poolhouse_name}'
-
+            self.current = self.poolhouse_room_name
 
             await self.channel_layer.group_discard(
                 self.matchmake_room_name,
@@ -111,7 +113,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         elif text_data_json.get('action') == 'base':
-            
+            self.current = 'base'
             await self.channel_layer.group_discard(
                 self.matchmake_room_name,
                 self.channel_name
@@ -272,7 +274,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
 
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
-            self.create_notification((self.opponent_username, username, NotificationChoices.MESSAGE, new_message.body, matchup_id),)
+            await self.create_notification(player=self.opponent_username, sent_by=username, type=NotificationChoices.MESSAGE, body=new_message.body, extra=matchup_id)
 
             is_outdated = False
 
@@ -392,7 +394,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 
                 # SENDING ACCEPTING NOTIFICATION TO THE SENDER
 
-                self.create_notification((invite_sender_username, username, NotificationChoices.ACCEPTED, f'{username} accepted your invite'), None)
+                await self.create_notification(player=invite_sender_username, sent_by=username, type=NotificationChoices.ACCEPTED, body=f'{username} accepted your invite', extra=None)
 
                 await self.channel_layer.group_send(
                     f'user_{invite_sender_username}',
@@ -435,7 +437,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 current_utc = datetime.now(timezone.utc)
 
                 delete_denied_invite.apply_async((invitation_denied.id,), eta=current_utc + timedelta(seconds=3))
-                self.create_notification((invite_sender_username, username, NotificationChoices.REJECTED, None, None))
+                await self.create_notification(player=invite_sender_username, sent_by=username, type=NotificationChoices.REJECTED, body=None, extra=None)
 
                 
 
@@ -459,7 +461,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             player_invited = await database_sync_to_async(Player.objects.get)(user__username=matchmaker_username)
 
             invitation_instance = await database_sync_to_async(Invitation.objects.create)(player_inviting=player_inviting, player_invited=player_invited)
-            self.create_notification((matchmaker_username, username, NotificationChoices.INVITED, None, None))
+            await self.create_notification(player=matchmaker_username, sent_by=username, type=NotificationChoices.INVITED, body=None, extra=None)
 
 
             await self.channel_layer.group_send(
@@ -540,21 +542,25 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             }
         ))
 
-    def create_notification(player, sent_by, type, body=None, extra=None):
-        player = Player.objects.get(user__username=player)
+    async def create_notification(self, player, sent_by, type, body=None, extra=None):
+        player = await database_sync_to_async(Player.objects.get)(user__username=player)
         
         if sent_by:
-            sent_by = Player.objects.get(user__username=sent_by)
+            sent_by = await database_sync_to_async(Player.objects.get)(user__username=sent_by)
 
-        Notification.objects.create(
+        await database_sync_to_async (Notification.objects.create)(
             player=player,
             body=body,
             sent_by=sent_by,
             extra=extra,
             type=type,
         )
+        
+        # if type == 'MSG':
+        #     last_message = Notification.objects.filter(player=player, type='MSG').order_by('-timestamp').first()
             
-
+        #     if last_message:
+        #         last_message.delete()
 
 
 
@@ -739,6 +745,5 @@ class GameSessionConsumer(BaseNotificationConsumer):
 
 
   
-
 
 
