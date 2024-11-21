@@ -17,6 +17,9 @@ from django.views.decorators.cache import cache_page
 from django.db.models import Avg, Count
 from .tasks import finish_game_session
 from rest_framework import status
+from django.shortcuts import get_object_or_404
+from django.core.cache import cache
+
 from .utils import get_nearby_poolhouses, get_nearby_players
 from celery.result import AsyncResult
 from django.db.models import OuterRef, Prefetch
@@ -340,4 +343,15 @@ class ReadAllNotificationView(APIView):
         updated_count = self.get_queryset().update(read=True)
         return Response({'updated_count': updated_count})
 
+
+
+class ReadMatchupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        matchup = get_object_or_404(Matchup, id=self.kwargs['pk'])
+        matchup.read = True
+        matchup.save()
+        cache.delete(f'matchup_{self.request.user.username}')
+        return Response({f'{matchup.id}': 'READ'})
 

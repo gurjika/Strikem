@@ -12,6 +12,8 @@ from .tasks import delete_denied_invite
 from poolstore_api.tasks import invitation_cleanup 
 from .models import NotificationChoices
 from datetime import datetime, timezone
+from django.core.cache import cache
+
 
 
 
@@ -50,9 +52,18 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         print(text_data_json.get('action'))
         print(text_data_json.get('protocol'))
 
-        if text_data_json.get('action') == 'matchup':
+
+        action = text_data_json.get('action')
+
+        
+
+        if action == 'matchup':
             print('test poolhouse in matchup', self.poolhouse_room_name)
             self.current = 'matchup'
+            matchup_id = text_data_json.get('matchup_id')
+            if matchup_id:
+                cache.set(f'matchup_{self.user.username}', f'{matchup_id}', timeout=600)
+
             if text_data_json.get('protocol') == 'initial':
 
                 
@@ -73,8 +84,13 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 await self.matchup(text_data_json)
 
 
-        elif text_data_json.get('action') == self.matchmake_room_name:
+        elif action == 'change_matchup':
+            cache.set(f'matchup_{self.user.username}', f'{text_data_json.get('matchup_id')}', timeout=600)
+
+
+        elif action == self.matchmake_room_name:
             self.current = self.matchmake_room_name
+            cache.delete(f'matchup_{self.user.username}')
             if text_data_json.get('protocol') == 'initial':
                 
 
@@ -94,7 +110,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 await self.matchmake(text_data_json)
 
 
-        elif text_data_json.get('action') == 'poolhouse':
+        elif action == 'poolhouse':
+            cache.delete(f'matchup_{self.user.username}')
+
             poolhouse_name = text_data_json.get('poolhouseName')
             self.poolhouse_room_name = f'poolhouse_{poolhouse_name}'
             self.current = self.poolhouse_room_name
@@ -112,7 +130,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             print('poolhouse', self.poolhouse_room_name)
 
 
-        elif text_data_json.get('action') == 'base':
+        elif action == 'base':
+            cache.delete(f'matchup_{self.user.username}')
+
             self.current = 'base'
             await self.channel_layer.group_discard(
                 self.matchmake_room_name,
@@ -271,10 +291,20 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         elif message:
             
             matchup_id = text_data_json['matchup_id']
-            last_message = await database_sync_to_async(Message.objects.select_related('sender').filter(matchup_id=matchup_id).last)()
 
+
+            last_message = await database_sync_to_async(Message.objects.filter(matchup=matchup).last)()
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
-            await self.create_notification(player=self.opponent_username, sent_by=username, type=NotificationChoices.MESSAGE, body=new_message.body, extra=matchup_id)
+
+            if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
+                matchup_read = cache.get(f'{matchup.id}_read')
+                print('cache did not work 1')
+                if not matchup_read:
+                    matchup = Matchup.objects.get(id=matchup_id)
+                    matchup.read = False
+                    print('cache did not work 2')
+                    matchup.save()
+                    cache.set(f'{matchup.id}_reading', 'read', timeout=300)
 
             is_outdated = False
 
@@ -305,17 +335,17 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 )
 
 
-                # await self.channel_layer.group_send(
-                #     f'user_{username}',
-                #     {
-                #         'type': 'chat_message',
-                #         'message': message,
-                #         'username': username,
-                #         'time_sent': formatted_datetime,
-                #         'matchup_id': matchup_id,
-                #         'sub_protocol': 'last_message_outdated',
-                #     }
-                # )
+                await self.channel_layer.group_send(
+                    f'user_{username}',
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'username': username,
+                        'time_sent': formatted_datetime,
+                        'matchup_id': matchup_id,
+                        'sub_protocol': 'last_message_outdated',
+                    }
+                )
             else:
                 await self.channel_layer.group_send(
                     f'user_{self.opponent_username}',

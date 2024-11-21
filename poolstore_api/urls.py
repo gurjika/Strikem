@@ -40,7 +40,8 @@ urlpatterns = router.urls + tables_router.urls + ratings_router.urls + game_sess
 urlpatterns += [ 
     path('player-details/', view=views.DetailPlayerInfoView.as_view(), name='player-detail'),
     path('player-location/', view=views.PlayerLocationView.as_view(), name='player-location'),
-    path('mark-all-read/', view=views.ReadAllNotificationView.as_view(), name='mark-all-read')
+    path('mark-all-read/', view=views.ReadAllNotificationView.as_view(), name='mark-all-read'),
+    path('read-matchup/', view=views.ReadMatchupView.as_view(), name='read-matchup')
 ]
 
 

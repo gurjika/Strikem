@@ -130,7 +130,7 @@ class Matchup(models.Model):
     player_inviting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='sent_matchup_invitings')
     player_accepting = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='accepted_matchups')
     timestamp = models.DateTimeField(auto_now_add=True)
-
+    read = models.BooleanField(default=True)
 
     class Meta:
         unique_together = [['player_accepting', 'player_inviting']]
@@ -214,7 +214,6 @@ class NotificationChoices(models.TextChoices):
     INVITED = 'INV', 'Invited'
     REJECTED = 'REJ', 'Rejected'
     ACCEPTED = 'ACP', 'Accepted'
-    MESSAGE = 'MSG', 'Message'
 
 class Notification(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='notifications')
