@@ -295,7 +295,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             matchup_id = text_data_json['matchup_id']
 
 
-            last_message = await database_sync_to_async(Message.objects.filter(matchup=matchup).last)()
+            last_message = await database_sync_to_async(Message.objects.filter(matchup_id=matchup_id).last)()
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
 
             if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
