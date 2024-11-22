@@ -85,7 +85,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         elif action == 'change_matchup':
-            cache.set(f'matchup_{self.user.username}', f'{text_data_json.get('matchup_id')}', timeout=600)
+            matchup_id = text_data_json.get('matchup_id')
+
+            cache.set(f'matchup_{self.user.username}', f'{matchup_id}', timeout=600)
 
 
         elif action == self.matchmake_room_name:
