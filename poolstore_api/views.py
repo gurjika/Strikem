@@ -11,7 +11,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
 from django.db.models import Q
-from .pagination import MessagePageNumberPagination
+from .pagination import MessagePageNumberPagination, NotificationPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.db.models import Avg, Count
@@ -266,7 +266,7 @@ class NotificationViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
-    pagination_class = MessagePageNumberPagination
+    pagination_class = NotificationPagination
 
 
     def get_queryset(self):
