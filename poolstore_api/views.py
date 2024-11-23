@@ -356,3 +356,14 @@ class ReadMatchupView(APIView):
         cache.delete(f'{matchup.id}_reading')
         return Response({f'{matchup.id}': 'READ'})
 
+
+class UnreadMatchupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        unread_matchups_count = Matchup.objects.filter(
+                Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player)
+            ).filter(read=False).count()
+        
+
+        return Response({'unread': unread_matchups_count})

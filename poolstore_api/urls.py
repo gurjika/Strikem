@@ -41,7 +41,8 @@ urlpatterns += [
     path('player-details/', view=views.DetailPlayerInfoView.as_view(), name='player-detail'),
     path('player-location/', view=views.PlayerLocationView.as_view(), name='player-location'),
     path('mark-all-read/', view=views.ReadAllNotificationView.as_view(), name='mark-all-read'),
-    path('read-matchup/<uuid:matchup_id>/', view=views.ReadMatchupView.as_view(), name='read-matchup')
+    path('read-matchup/<uuid:matchup_id>/', view=views.ReadMatchupView.as_view(), name='read-matchup'),
+    path('unread-matchups/', view=views.UnreadMatchupView.as_view(), name='unread-matchups'),
 ]
 
 
