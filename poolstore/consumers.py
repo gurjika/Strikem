@@ -302,7 +302,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 matchup_read = cache.get(f'{matchup_id}_reading')
                 print('cache did not work 1')
                 if not matchup_read:
-                    matchup = Matchup.objects.get(id=matchup_id)
+                    matchup = await database_sync_to_async(Matchup.objects.get)(id=matchup_id)
                     matchup.read = False
                     print('cache did not work 2')
                     matchup.save()
