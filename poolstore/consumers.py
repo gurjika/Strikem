@@ -60,9 +60,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         if action == 'matchup':
             print('test poolhouse in matchup', self.poolhouse_room_name)
             self.current = 'matchup'
-            matchup_id = text_data_json.get('matchup_id')
-            if matchup_id:
-                cache.set(f'matchup_{self.user.username}', f'{matchup_id}', timeout=600)
+
 
             if text_data_json.get('protocol') == 'initial':
 
@@ -86,7 +84,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
         elif action == 'change_matchup':
             matchup_id = text_data_json.get('matchup_id')
-
             cache.set(f'matchup_{self.user.username}', f'{matchup_id}', timeout=600)
 
 
@@ -297,6 +294,10 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             
             last_message = await database_sync_to_async(Message.objects.filter(matchup_id=matchup_id).last)()
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
+            
+            print(cache.get(f'matchup_{self.opponent_username}'))
+            print(matchup_id)
+            print(matchup_id == cache.get(f'matchup_{self.opponent_username}'))
 
             if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
                 matchup_read = cache.get(f'{matchup_id}_reading')
