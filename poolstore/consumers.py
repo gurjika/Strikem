@@ -305,7 +305,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                     matchup = await database_sync_to_async(Matchup.objects.get)(id=matchup_id)
                     matchup.read = False
                     print('cache did not work 2')
-                    matchup.save()
+                    await database_sync_to_async(matchup.save)()
                     cache.set(f'{matchup.id}_reading', 'read', timeout=300)
 
             is_outdated = False
