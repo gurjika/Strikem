@@ -294,7 +294,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             
             last_message = await database_sync_to_async(Message.objects.filter(matchup_id=matchup_id).last)()
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
-            
+
             print(cache.get(f'matchup_{self.opponent_username}'))
             print(matchup_id)
             print(matchup_id == cache.get(f'matchup_{self.opponent_username}'))
@@ -319,11 +319,11 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             except AttributeError:
                 pass
 
+            formatted_datetime = new_message.time_sent.strftime('%b %#d, %I:%M %p')
             if is_outdated or last_message is None:
 
                 new_message.after_outdated = True
                 await database_sync_to_async(new_message.save)()
-                formatted_datetime = new_message.time_sent.strftime('%b %#d, %I:%M %p')
 
                 await self.channel_layer.group_send(
                     f'user_{self.opponent_username}',
@@ -360,7 +360,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'matchup_id': matchup_id,
                         'username': username,
                         'sender_player_id': player.id,
-
+                        'time_sent': formatted_datetime,
                     }
                 )
                    
