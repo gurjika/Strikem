@@ -149,7 +149,7 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
     @action(detail=True, methods=['GET'])
     def chat(self, request, pk):
         if self.request.method == 'GET':
-            messages = Message.objects.filter(matchup_id=pk).select_related('sender__user').order_by('time_sent')
+            messages = Message.objects.filter(matchup_id=pk).select_related('sender__user').order_by('-time_sent')
             page = self.paginate_queryset(messages)
 
 
