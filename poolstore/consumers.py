@@ -294,7 +294,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             
             matchup_id = text_data_json['matchup_id']
 
-            sender_player_id = self.scope['user'].player.id
+            
             last_message = await database_sync_to_async(Message.objects.filter(matchup_id=matchup_id).last)()
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
 
@@ -330,7 +330,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'type': 'chat_message',
                         'message': message,
                         'username': username,
-                        'sender_player_id': sender_player_id,
+                        'sender_player_id': player.id,
                         'time_sent': formatted_datetime,
                         'matchup_id': matchup_id,
                         'sub_protocol': 'last_message_outdated',
@@ -344,7 +344,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'type': 'chat_message',
                         'message': message,
                         'username': username,
-                        'sender_player_id': sender_player_id,
+                        'sender_player_id': player.id,
                         'time_sent': formatted_datetime,
                         'matchup_id': matchup_id,
                         'sub_protocol': 'last_message_outdated',
@@ -358,7 +358,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'message': message,
                         'matchup_id': matchup_id,
                         'username': username,
-                        'sender_player_id': sender_player_id,
+                        'sender_player_id': player.id,
 
                     }
                 )
