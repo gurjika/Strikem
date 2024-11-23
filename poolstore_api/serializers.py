@@ -6,6 +6,8 @@ from .tasks import send_email_before_res, start_game_session
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from .utils import check_overlapping_reservations
+
+
 now = timezone.now()
 
 User = get_user_model()
