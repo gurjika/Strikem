@@ -349,9 +349,10 @@ class ReadMatchupView(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request, *args, **kwargs):
-        matchup = get_object_or_404(Matchup, id=self.kwargs['pk'])
+        matchup = get_object_or_404(Matchup, id=self.kwargs['matchup_id'])
         matchup.read = True
         matchup.save()
         cache.delete(f'matchup_{self.request.user.username}')
+        cache.delete(f'{matchup.id}_reading')
         return Response({f'{matchup.id}': 'READ'})
 
