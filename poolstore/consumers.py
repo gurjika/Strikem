@@ -299,7 +299,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
 
             if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
-                matchup_read = cache.get(f'{matchup.id}_read')
+                matchup_read = cache.get(f'{matchup_id}_read')
                 print('cache did not work 1')
                 if not matchup_read:
                     matchup = Matchup.objects.get(id=matchup_id)
