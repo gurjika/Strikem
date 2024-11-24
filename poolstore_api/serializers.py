@@ -152,9 +152,10 @@ class MatchupSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
     player_inviting = SimplePlayerSerializer(read_only=True)
     player_accepting = SimplePlayerSerializer(read_only=True)
+    read = serializers.BooleanField(read_only=True)
     class Meta:
         model = Matchup
-        fields = ['id', 'player_inviting', 'player_accepting', 'last_message']
+        fields = ['id', 'player_inviting', 'player_accepting', 'last_message', 'read']
 
 
 
