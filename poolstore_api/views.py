@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
-from django.db.models import Q
+from django.db.models import Q, Max
 from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -128,6 +128,19 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
     pagination_class = MessagePageNumberPagination
     permission_classes = [IsAuthenticated]
 
+
+    ## RAW SQL CODE WOULD BE BETTER HERE SINCE ALL MESSAGES ARE FETCHED    
+
+
+    # SELECT m.*,
+    #        MAX(msg.id) AS last_message_id,  -- Get the latest message id
+    #        MAX(msg.time_sent) AS last_message_time
+    # FROM poolstore_matchup m
+    # LEFT JOIN poolstore_message msg ON m.id = msg.matchup_id
+    # WHERE m.player_accepting_id = 11 OR m.player_inviting_id = 11
+    # GROUP BY m.id
+    # ORDER BY last_message_time DESC
+
     def get_queryset(self):
         queryset = Matchup.objects.filter(
                 Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player)
@@ -135,7 +148,7 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
                 'player_accepting__user', 'player_inviting__user'
             ).prefetch_related(
                 Prefetch('messages', queryset=Message.objects.select_related('sender__user').order_by('-time_sent')[:1], to_attr='ordered_messages')
-            )
+            ).annotate(last_message_time=Max('messages__time_sent')).order_by('-last_message_time')
         return queryset
     
 
