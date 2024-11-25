@@ -185,6 +185,16 @@ class Message(models.Model):
     
 
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['time_sent']),
+        ]
+
+    
+
+    
+
+
 class PoolHouseRating(models.Model):
     rate = models.PositiveSmallIntegerField()
     review = models.TextField()
