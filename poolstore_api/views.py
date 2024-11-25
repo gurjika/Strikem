@@ -153,7 +153,7 @@ class MatchupViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, Gene
                 'player_accepting__user', 'player_inviting__user'
             ).prefetch_related(
                 Prefetch('messages', queryset=Message.objects.select_related('sender__user').order_by('-time_sent')[:1], to_attr='ordered_messages')
-            ).annotate(last_message_time=Max('messages__time_sent')).order_by('-timestamp', '-last_message_time')
+            ).annotate(last_message_time=Max('messages__time_sent')).order_by('-last_message_time')
         return queryset
     
     # Order first by matchup '-timestamp',
