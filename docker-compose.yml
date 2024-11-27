@@ -32,7 +32,7 @@ services:
   django:
 
     build: .
-    command: ["gunicorn", "poolhub.wsgi:application", "-b", "0.0.0.0:8000", '--reload']
+    command: ["gunicorn", "poolhub.wsgi:application", "-b", "0.0.0.0:8000", '--reload', '--log-level=debug']
     # ./wait-for-it.sh", "mysql:3306", "--",
 
     # ports:
