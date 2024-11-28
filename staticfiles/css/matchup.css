@@ -1,8 +1,0 @@
-.message-header {
-    cursor: pointer;
-    transition: opacity 0.15s;
-}
-
-.message-header:hover {
-    opacity: 0.8;
-}
