@@ -41,6 +41,8 @@ jobs:
               docker compose down
               git pull origin daphne_deploy
               docker compose up --build --detach
+              docker compose run django python manage.py collectstatic --no-input
+
   # build:
   #   runs-on: ubuntu-latest
 
