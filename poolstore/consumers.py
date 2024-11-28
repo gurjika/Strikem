@@ -211,6 +211,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         sub_protocol = event.get('sub_protocol')
         time_sent = event.get('time_sent')
         matchup_id = event['matchup_id']
+        sender_player_id = event['sender_player_id']
         
         await self.send(text_data=json.dumps(
             {
@@ -219,7 +220,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 'username': username,
                 'protocol': 'handleMessage',
                 'sub_protocol': sub_protocol,
-                'time_sent': time_sent
+                'time_sent': time_sent,
+                'sender_player_id': sender_player_id,
         }, default=str))
 
 
