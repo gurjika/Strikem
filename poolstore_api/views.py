@@ -8,7 +8,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyMod
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
 from django.db.models import Q, Max
 from .pagination import MessagePageNumberPagination, NotificationPagination
@@ -195,7 +195,7 @@ class PlayerViewSet(ModelViewSet):
 
 class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet, CreateModelMixin):
     serializer_class = PoolHouseRatingSerializer
-    permission_classes = [IsRaterOrReadOnly]
+    permission_classes = [IsRaterOrReadOnly, IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
