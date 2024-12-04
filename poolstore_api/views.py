@@ -116,8 +116,6 @@ class ReservationViewSet(ListModelMixin, RetrieveModelMixin,DestroyModelMixin, G
 
 
     def destroy(self, request, *args, **kwargs):
-        
-
         reservation = self.get_object()
         result = AsyncResult(f'custom_task_id_{reservation.id}')
         result.revoke()
@@ -203,7 +201,12 @@ class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMix
         return PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
     
     def get_serializer_context(self):
-        return {'player': self.request.user.player, 'poolhouse_pk': self.kwargs['poolhouse_pk']}
+        context = {}
+        if self.request.user.is_authenticated:
+            context['player'] = self.request.user.player
+
+        context['poolhouse_pk'] = self.kwargs['poolhouse_pk']
+        return context
     
 
 class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
