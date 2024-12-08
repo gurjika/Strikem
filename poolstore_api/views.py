@@ -8,7 +8,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyMod
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
 from django.db.models import Q, Max
 from .pagination import MessagePageNumberPagination, NotificationPagination
@@ -116,8 +116,6 @@ class ReservationViewSet(ListModelMixin, RetrieveModelMixin,DestroyModelMixin, G
 
 
     def destroy(self, request, *args, **kwargs):
-        
-
         reservation = self.get_object()
         result = AsyncResult(f'custom_task_id_{reservation.id}')
         result.revoke()
@@ -197,13 +195,18 @@ class PlayerViewSet(ModelViewSet):
 
 class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet, CreateModelMixin):
     serializer_class = PoolHouseRatingSerializer
-    permission_classes = [IsRaterOrReadOnly]
+    permission_classes = [IsRaterOrReadOnly, IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
     
     def get_serializer_context(self):
-        return {'player': self.request.user.player, 'poolhouse_pk': self.kwargs['poolhouse_pk']}
+        context = {}
+        if self.request.user.is_authenticated:
+            context['player'] = self.request.user.player
+
+        context['poolhouse_pk'] = self.kwargs['poolhouse_pk']
+        return context
     
 
 class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
