@@ -19,7 +19,7 @@ Strikem is a real-time platform for billiards enthusiasts, offering features lik
 - Gunicorn: Handles WSGI requests for HTTP traffic.
 - Daphne: Handles ASGI requests for WebSocket traffic.
 - Docker and Docker Compose: Orchestrates **separate containers for ASGI and WSGI apps**, databases, caching, and static file handling.
-- DigitalOcean: Cloud platform for hosting PoolHub’s containers.
+- DigitalOcean: Cloud platform for hosting Strikem’s containers.
 
 ## Key Features
 
@@ -32,7 +32,7 @@ Strikem is a real-time platform for billiards enthusiasts, offering features lik
 
 ## MVP
 
-Check out the **Frontend MVP** of the platform [here](https://strikem.vercel.app/home). 
+- Check out the **Frontend MVP** of the platform [here](https://strikem.vercel.app/home). 
 
 ## Built in Collaboration With
 
@@ -45,12 +45,12 @@ To run this project locally:
 
 1. Clone the repository (development branch):
     ```sh
-    git clone -b dev https://github.com/gurjika/PoolHub.git
+    git clone -b dev https://github.com/gurjika/strikem.git
     ```
 
 2. Change into the project directory:
     ```sh
-    cd poolhub
+    cd strikem
     ```
 
 3. Create a `.env` file and specify the required environment variables:
