@@ -342,6 +342,42 @@ class DetailPlayerInfoView(APIView):
         return Response(serializer.data)
 
 
+
+class ReadAllNotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(player__user=self.request.user, read=False)
+
+    def put(self, request, *args, **kwargs):
+        updated_count = self.get_queryset().update(read=True)
+        return Response({'updated_count': updated_count})
+
+
+
+class ReadMatchupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        matchup = get_object_or_404(Matchup, id=self.kwargs['matchup_id'])
+        matchup.read = True
+        matchup.save()
+        cache.delete(f'matchup_{self.request.user.username}')
+        cache.delete(f'{matchup.id}_reading')
+        return Response({f'{matchup.id}': 'READ'})
+
+
+class UnreadMatchupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        unread_matchups_count = Matchup.objects.filter(
+                Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player)
+            ).filter(read=False).count()
+        
+
+        return Response({'unread': unread_matchups_count})
+
 class PlayerLocationView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PlayerLocationSerializer
