@@ -4,6 +4,7 @@ from poolstore.models import GameSession, History, Invitation, InvitationDenied,
 from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin, UpdateModelMixin
 from poolstore_api.serializers import CreateHistorySerializer, DetailPlayerSerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
+from poolstore_api.serializers import CreateHistorySerializer, DetailPlayerSerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerLocationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -341,45 +342,14 @@ class DetailPlayerInfoView(APIView):
         return Response(serializer.data)
 
 
-class PlayerLocationView(UpdateAPIView):
+class PlayerLocationView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = PlayerSerializer
+    serializer_class = PlayerLocationSerializer
 
-    def get_queryset(self):
-        return Player.objects.filter(user=self.request.user)
+    def put(self, request):
+        player = Player.objects.get(user=self.request.user)
+        serializer = PlayerLocationSerializer(player, request.data)
+        serializer.is_valid()
+        serializer.save()
+        return Response(serializer.data)
 
-
-class ReadAllNotificationView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return Notification.objects.filter(player__user=self.request.user, read=False)
-
-    def put(self, request, *args, **kwargs):
-        updated_count = self.get_queryset().update(read=True)
-        return Response({'updated_count': updated_count})
-
-
-
-class ReadMatchupView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def put(self, request, *args, **kwargs):
-        matchup = get_object_or_404(Matchup, id=self.kwargs['matchup_id'])
-        matchup.read = True
-        matchup.save()
-        cache.delete(f'matchup_{self.request.user.username}')
-        cache.delete(f'{matchup.id}_reading')
-        return Response({f'{matchup.id}': 'READ'})
-
-
-class UnreadMatchupView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
-        unread_matchups_count = Matchup.objects.filter(
-                Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player)
-            ).filter(read=False).count()
-        
-
-        return Response({'unread': unread_matchups_count})
