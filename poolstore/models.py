@@ -67,6 +67,8 @@ class PoolHouse(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
+    open_time = models.TimeField()
+    close_time = models.TimeField()
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -99,6 +101,8 @@ class PoolTable(models.Model):
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='tables')
     table_id = models.IntegerField(null=True)
     free = models.BooleanField(default=True)
+    top = models.FloatField(default=0.0)
+    left = models.FloatField(default=0.0)
 
     def __str__(self) -> str:
         return f'{self.poolhouse.title} - {self.table_id}'
