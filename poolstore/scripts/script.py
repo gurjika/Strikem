@@ -7,7 +7,13 @@ from poolstore.models import PoolHouse, Reservation
 
 
 def run():
-    PoolHouse.objects.create(title='MetroPool', address='Vera Park')
+
+    pool = PoolHouse.objects.get(id=7)
+    pool.close_time = time(hour=0, minute=0, second=0)
+    pool.open_time = time(hour=12, minute=0, second=0)
+    pool.save()
+
+
 
 
     # date = '2024-6-19'
