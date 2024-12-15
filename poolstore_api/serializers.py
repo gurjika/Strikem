@@ -304,7 +304,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     sent_by = SimplePlayerSerializer(read_only=True)
     class Meta:
         model = Notification
-        fields = ['id', 'sent_by' 'player', 'body', 'timestamp', 'read', 'extra', 'type']
+        fields = ['id', 'sent_by', 'player', 'body', 'timestamp', 'read', 'extra', 'type']
 
 
 

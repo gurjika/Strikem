@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from poolstore.models import GameSession, History, Invitation, InvitationDenied, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
-from poolstore_api.serializers import CreateHistorySerializer, DetailPlayerSerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
+from poolstore_api.serializers import CreateHistorySerializer, DetailPlayerSerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerLocationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -329,11 +329,14 @@ class DetailPlayerInfoView(APIView):
         return Response(serializer.data)
 
 
-class PlayerLocationView(UpdateAPIView):
+class PlayerLocationView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = PlayerSerializer
+    serializer_class = PlayerLocationSerializer
 
-    def get_queryset(self):
-        return Player.objects.filter(user=self.request.user)
-
+    def put(self, request):
+        player = Player.objects.get(user=self.request.user)
+        serializer = PlayerLocationSerializer(player, request.data)
+        serializer.is_valid()
+        serializer.save()
+        return Response(serializer.data)
 
