@@ -108,7 +108,7 @@ class TableViewSet(ModelViewSet):
                 else:
                     end_datetime = timezone.make_aware(datetime.combine(date_object, close_time))
 
-                reservations = Reservation.objects.filter(table_id=pk,  start_time__range=[start_datetime, end_datetime])
+                reservations = Reservation.objects.filter(table_id=pk,  start_time__range=[start_datetime, end_datetime]).order_by('-start_time')
                 serializer = ReservationSerializer(reservations, many=True)
                 return Response(serializer.data)
             return Response({})
