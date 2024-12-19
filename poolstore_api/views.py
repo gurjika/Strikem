@@ -12,7 +12,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyMod
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
 from django.db.models import Q, Max
 from .pagination import MessagePageNumberPagination, NotificationPagination
@@ -81,6 +81,9 @@ class TableViewSet(ModelViewSet):
         if self.action == 'reserve':
             if self.request.method == 'POST':
                 permission_classes = [IsAuthenticated]  # Only authenticated users can reserve
+            
+            elif self.request.method == 'GET':
+                permission_classes = [AllowAny]
 
         else:
 
