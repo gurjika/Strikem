@@ -1,4 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
+from django.utils import timezone
+
+from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from poolstore.models import GameSession, History, Invitation, InvitationDenied, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
 from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
@@ -9,7 +12,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyMod
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
 from django.db.models import Q, Max
 from .pagination import MessagePageNumberPagination, NotificationPagination
@@ -76,11 +79,14 @@ class TableViewSet(ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'reserve':
-            if self.request.method == 'POST' or self.request.method == 'GET':
+            if self.request.method == 'POST':
                 permission_classes = [IsAuthenticated]  # Only authenticated users can reserve
+            
+            elif self.request.method == 'GET':
+                permission_classes = [AllowAny]
 
         else:
-            
+
             permission_classes = self.permission_classes
         return [permission() for permission in permission_classes]
 
@@ -91,8 +97,21 @@ class TableViewSet(ModelViewSet):
             
             filter_date = request.query_params.get('date')
             if filter_date:
-                date_object = datetime.strptime(filter_date, "%Y-%m-%d")
-                reservations = Reservation.objects.filter(table_id=pk,  start_time__range=[date_object, date_object + timedelta(days=1, hours=3)])
+                date_object = datetime.strptime(filter_date, "%Y-%m-%d").date()
+
+
+
+                poolhall = get_object_or_404(PoolHouse, id=poolhouse_pk)
+                close_time = poolhall.close_time
+
+                start_datetime = timezone.make_aware(datetime.combine(date_object, time(0, 0)))
+
+                if close_time < time(12, 0):  # If close_time is before noon, assume it's past midnight
+                    end_datetime = timezone.make_aware(datetime.combine(date_object + timedelta(days=1), close_time))
+                else:
+                    end_datetime = timezone.make_aware(datetime.combine(date_object, close_time))
+
+                reservations = Reservation.objects.filter(table_id=pk,  start_time__range=[start_datetime, end_datetime]).order_by('start_time')
                 serializer = ReservationSerializer(reservations, many=True)
                 return Response(serializer.data)
             return Response({})
