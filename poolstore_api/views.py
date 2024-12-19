@@ -79,11 +79,11 @@ class TableViewSet(ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'reserve':
-            if self.request.method == 'POST' or self.request.method == 'GET':
+            if self.request.method == 'POST':
                 permission_classes = [IsAuthenticated]  # Only authenticated users can reserve
 
         else:
-            
+
             permission_classes = self.permission_classes
         return [permission() for permission in permission_classes]
 
