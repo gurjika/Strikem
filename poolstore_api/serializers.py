@@ -48,7 +48,7 @@ class SimplePlayerSerializer(serializers.ModelSerializer):
 
 class ReservationSerializer(serializers.ModelSerializer):
     player_reserving = SimplePlayerSerializer(read_only=True)
-    other_player = serializers.PrimaryKeyRelatedField(queryset=Player.objects.all(), write_only=True)
+    other_player = serializers.PrimaryKeyRelatedField(queryset=Player.objects.all(), write_only=True, required=False)
     other_player_details = SimplePlayerSerializer(source='other_player', read_only=True)
     finished_reservation = serializers.BooleanField(read_only=True)
 
@@ -57,7 +57,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         fields = ['id', 'start_time', 'player_reserving', 'duration', 'other_player', 'other_player_details', 'finished_reservation']
 
     def validate(self, data):
-        if self.context['player'] == data['other_player']:
+        if data.get('other_player') and self.context['player'] == data['other_player']:
             raise serializers.ValidationError('Same Player Error')
         return data
     
@@ -70,7 +70,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         start_time = validated_data['start_time']
         existing_reservations = Reservation.objects.filter(table_id=table_id, start_time__range=[start_time - timedelta(hours=3), start_time + timedelta(hours=3)], finished_reservation=False)
         if not check_overlapping_reservations(existing_reservations, start_time=start_time, end_time=real_end_datetime):
-                raise serializers.ValidationError('nu kvetav dzma')
+            raise serializers.ValidationError('nu kvetav dzma')
     
 
         send_email_before_res.apply_async((player_reserving.user.id,), eta=start_time - timedelta(minutes=20))
