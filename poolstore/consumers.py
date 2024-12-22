@@ -617,18 +617,30 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         ))
     
     async def update_table(self, event):
-
-
-        changed_table_local_id = event['table_id']
         protocol = event['protocol']
+        data = {
+            'changed_table_local_id': event['local_table_id'],
+            'changed_table_id': event['table_id'],
+            'game_session_id': event['game_session_id'],
+            'protocol': protocol
+        }
 
-        await self.send(text_data=json.dumps(
-            {
-                'changed_table_local_id': changed_table_local_id,
-                'protocol': protocol
+        if protocol == 'now_busy':
+
+            busy_data = {
+                'player_reserving_username': event['player_reserving_username'],
+                'player_reserving_profile_picture': event['player_reserving_profile_picture'],
+                'player_reserving_id': event['player_reserving_id'],
+                'other_player_username': event.get('other_player_username'),
+                'other_player_profile': event.get('other_player_profile'),
+                'other_player_id': event.get('other_player_id')
             }
-        ))
+            data.update(busy_data)
+
+        await self.send(text_data=json.dumps(data))
         
+
+            
 
 
 

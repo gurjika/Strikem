@@ -15,18 +15,35 @@ def start_game_session(reservation_id):
     game_session = GameSession.objects.create(pooltable=reservation.table)
     event = {
         'type': 'update_table',
-        'table_id': reservation.table.table_id,
+        'local_table_id': reservation.table.table_id,
+        'table_id': reservation.table.id,
         'protocol': 'now_busy',
         'game_session_id': game_session.id,
-        'player_one_username': reservation.player_reserving.user.username,
-        'player_one_profile_picture': reservation.player_reserving.profile_image.url,
-         
+        'player_reserving_username': reservation.player_reserving.user.username,
+        'player_reserving_profile_picture': reservation.player_reserving.profile_image.url,
+        'player_reserving_id': reservation.player_reserving.id,
     }
+
+
+    # event = {
+    #     'type': 'update_table',
+    #     'local_table_id': reservation.table.table_id,
+    #     'table_id': reservation.table.id,
+    #     'player_reserving_username': reservation.player_reserving.user.username,
+    #     'player_reserving_profile': reservation.player_reserving.profile_image.url,
+    #     'player_reserving_id': reservation.player_reserving.id,
+    #     'other_player_username': reservation.other_player.user.username,
+    #     'other_player_profile': reservation.other_player.profile_image.url,
+    #     'other_player_id': reservation.other_player.id,
+    #     'game_session_id': game_session.id,
+    #     'protocol': 'now_free'
+    # }
 
     if reservation.other_player:
         PlayerGameSession.objects.create(game_session=game_session, player=reservation.other_player)
-        event['player_two_username'] = reservation.other_player.user.username
-        event['player_two_profile_picture'] = reservation.other_player.user.username
+        event['other_player_username'] = reservation.other_player.user.username
+        event['other_player_profile'] = reservation.other_player.profile_image.url
+        event['other_player_id'] = reservation.other_player.id
 
     PlayerGameSession.objects.create(game_session=game_session, player=reservation.player_reserving)
     
