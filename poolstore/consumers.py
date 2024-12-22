@@ -249,7 +249,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
         await self.send(json.dumps(
             {
-                'protocol': 'finish session'
+                'protocol': 'finish session',
+                'game_session_id': event['game_session_id']
+
             }
         ))
 
