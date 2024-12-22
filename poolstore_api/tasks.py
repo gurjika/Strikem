@@ -84,9 +84,11 @@ def finish_game_session(game_session_id, reservation_id, protocol):
             'game_session_id': str(game_session.id),
         }
 
-    for player in game_session.players.all():
-        async_to_sync(channel_layer.group_send)(f'user_{player.user.username}', event)
+    # for player in game_session.players.all():
+    #     async_to_sync(channel_layer.group_send)(f'user_{player.user.username}', event)
 
+    async_to_sync(channel_layer.group_send)(f'user_{reservation.player_reserving.user.username}', event)
+    
     event = {
         'type': 'update_table',
         'local_table_id': reservation.table.table_id,
