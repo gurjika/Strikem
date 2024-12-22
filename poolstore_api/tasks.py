@@ -22,6 +22,8 @@ def start_game_session(reservation_id):
         'player_reserving_username': reservation.player_reserving.user.username,
         'player_reserving_profile_picture': reservation.player_reserving.profile_image.url,
         'player_reserving_id': reservation.player_reserving.id,
+        'start_time': reservation.start_time,
+        'duration': reservation.duration,
     }
 
 

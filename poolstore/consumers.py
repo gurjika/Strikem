@@ -624,7 +624,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             'changed_table_local_id': event['local_table_id'],
             'changed_table_id': event['table_id'],
             'game_session_id': event['game_session_id'],
-            'protocol': protocol
+            'protocol': protocol,
+            'start_time': event['start_time'],
+            'duration': event['duration']
         }
 
         if protocol == 'now_busy':
