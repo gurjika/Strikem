@@ -18,7 +18,7 @@ def start_game_session(reservation_id):
         'local_table_id': reservation.table.table_id,
         'table_id': reservation.table.id,
         'protocol': 'now_busy',
-        'game_session_id': game_session.id,
+        'game_session_id': str(game_session.id),
         'player_reserving_username': reservation.player_reserving.user.username,
         'player_reserving_profile_picture': reservation.player_reserving.profile_image.url,
         'player_reserving_id': reservation.player_reserving.id,
@@ -74,10 +74,12 @@ def finish_game_session(game_session_id, reservation_id, protocol):
     if protocol == 'Finished':
         event = {
             'type': 'finish_game_session',
+            'game_session_id': str(game_session.id),
         }
     else:
         event = {
-            'type': 'abort_game_session'
+            'type': 'abort_game_session',
+            'game_session_id': str(game_session.id),
         }
 
     for player in game_session.players.all():
@@ -85,7 +87,9 @@ def finish_game_session(game_session_id, reservation_id, protocol):
 
     event = {
         'type': 'update_table',
-        'table_id': reservation.table.table_id,
+        'local_table_id': reservation.table.table_id,
+        'table_id': reservation.table.id,
+        'game_session_id': str(game_session.id),
         'protocol': 'now_free'
     }
 
