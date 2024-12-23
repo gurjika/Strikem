@@ -1,10 +1,12 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
-from poolstore.models import GameSession, Invitation, Player, PlayerGameSession, PoolTable, Reservation
+from poolstore.models import GameSession, Invitation, Notification, Player, PlayerGameSession, PoolTable, Reservation, NotificationChoices
 from asgiref.sync import async_to_sync
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+
+
 
 User = get_user_model()
 
@@ -78,6 +80,14 @@ def finish_game_session(game_session_id, reservation_id, protocol):
             'type': 'finish_game_session',
             'game_session_id': str(game_session.id),
         }
+
+        Notification.objects.create(
+            player=reservation.player_reserving,
+            sent_by=None,
+            body=None,
+            extra=str(game_session.id),
+            type=NotificationChoices.GAME_SESSION_END
+        )
     else:
         event = {
             'type': 'abort_game_session',
@@ -88,7 +98,7 @@ def finish_game_session(game_session_id, reservation_id, protocol):
     #     async_to_sync(channel_layer.group_send)(f'user_{player.user.username}', event)
 
     async_to_sync(channel_layer.group_send)(f'user_{reservation.player_reserving.user.username}', event)
-    
+
     event = {
         'type': 'update_table',
         'local_table_id': reservation.table.table_id,
