@@ -620,6 +620,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
     
     async def update_table(self, event):
         protocol = event['protocol']
+
+        print(event)
         data = {
             'changed_table_local_id': event['local_table_id'],
             'changed_table_id': event['table_id'],
