@@ -5,6 +5,7 @@ from asgiref.sync import async_to_sync
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.utils.timezone import localtime
 
 
 
@@ -15,7 +16,9 @@ User = get_user_model()
 def start_game_session(reservation_id):
     reservation = Reservation.objects.get(id=reservation_id)
     game_session = GameSession.objects.create(pooltable=reservation.table)
-    print(reservation.start_time)
+
+    start_time_formatted = localtime(reservation.start_time).isoformat()
+    
     event = {
         'type': 'update_table',
         'local_table_id': reservation.table.table_id,
@@ -25,11 +28,10 @@ def start_game_session(reservation_id):
         'player_reserving_username': reservation.player_reserving.user.username,
         'player_reserving_profile_picture': reservation.player_reserving.profile_image.url,
         'player_reserving_id': reservation.player_reserving.id,
-        'start_time': reservation.start_time,
+        'start_time': start_time_formatted,
         'duration': reservation.duration,
     }
 
-    print(event)
 
     # event = {
     #     'type': 'update_table',
@@ -44,7 +46,7 @@ def start_game_session(reservation_id):
     #     'game_session_id': game_session.id,
     #     'protocol': 'now_free'
     # }
-    print(event)
+
     if reservation.other_player:
         PlayerGameSession.objects.create(game_session=game_session, player=reservation.other_player)
         event['other_player_username'] = reservation.other_player.user.username
@@ -65,7 +67,7 @@ def start_game_session(reservation_id):
     game_session.pooltable.free = False
     game_session.pooltable.save()
     game_session.save()
-    print(event)
+
     async_to_sync(channel_layer.group_send)(f'poolhouse_{reservation.table.poolhouse.slug}', event)
 
 
