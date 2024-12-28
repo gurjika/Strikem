@@ -627,8 +627,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             'changed_table_id': event['table_id'],
             'game_session_id': event['game_session_id'],
             'protocol': protocol,
-            'start_time': event['start_time'],
-            'duration': event['duration']
         }
 
         if protocol == 'now_busy':
@@ -639,7 +637,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 'player_reserving_id': event['player_reserving_id'],
                 'other_player_username': event.get('other_player_username'),
                 'other_player_profile': event.get('other_player_profile'),
-                'other_player_id': event.get('other_player_id')
+                'other_player_id': event.get('other_player_id'),
+                'start_time': event['start_time'],
+                'duration': event['duration']
             }
             data.update(busy_data)
 
