@@ -17,17 +17,19 @@ services:
 
   redis:
     image: redis
-    # ports:
-    #   - "6379:6379"
-
     expose:
       - "6379"
-
+    volumes:
+      - redis-data:/data  # Mount a volume to persist data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 1s
       retries: 5
+    command: ["redis-server", "--appendonly", "yes"]  # Enable AOF persistence
+
+ 
+
 
   django:
 
@@ -167,3 +169,4 @@ volumes:
   # poolhubdata:
   certbot-etc:
   certbot-var:
+  redis-data:
