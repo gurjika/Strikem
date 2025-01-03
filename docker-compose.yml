@@ -162,19 +162,7 @@ services:
     restart: always
 
 
-  flower:
-    build: .
-    command: celery -A poolhub flower
 
-    ports:
-      - "5555:5555" 
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/1
-    depends_on:
-      redis:
-        condition: service_healthy
-      celery:
-        condition: service_started
 
 
 
