@@ -412,7 +412,7 @@ class PlayerLocationView(APIView):
 class GameSessionInfoView(APIView):
     permission_classes = [IsAuthenticated]
     
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         gamesession = get_object_or_404(GameSession, id=self.kwargs['game_session_id'])
         serializer = GameSessionSerializer(gamesession)
         return Response(serializer.data)
