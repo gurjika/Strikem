@@ -165,6 +165,8 @@ services:
   flower:
     image: .
     command: celery -A poolhub flower
+    volumes:
+      - .:/app
     ports:
       - "5555:5555" 
     environment:
