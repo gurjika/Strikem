@@ -19,7 +19,8 @@ services:
     image: redis
     # ports:
     #   - "6379:6379"
-
+    volumes:
+      - redis-data:/data
     expose:
       - "6379"
 
@@ -28,6 +29,8 @@ services:
       interval: 10s
       timeout: 1s
       retries: 5
+    command: ["redis-server", "--appendonly", "yes"]  # Enable AOF persistence
+
 
   django:
 
@@ -78,3 +81,24 @@ services:
 
 
 
+  flower:
+    build: .
+    command: celery -A poolhub flower
+
+    ports:
+      - "5555:5555" 
+    environment:
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - DEBUG=1
+      - CELERY_BROKER_URL=redis://redis:6379/1
+    depends_on:
+      - celery
+      - redis
+
+    volumes:
+    - flower-logs:/flower/logs 
+
+
+volumes:
+  redis-data:
+  flower-logs:
