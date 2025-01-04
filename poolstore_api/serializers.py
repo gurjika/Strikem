@@ -89,10 +89,15 @@ class PoolTableSerializer(serializers.ModelSerializer):
 
     def get_current_session(self, obj):
         ## SHOW ONGOING RESERVATION IF THE ACTIVE SESSION EXISTS
+          ## SHOW ONGOING RESERVATION IF THE ACTIVE SESSION EXISTS
         if not obj.free:
-            for session in obj.game_sessions.all():
-                if not session.status_finished:
-                    return ReservationSerializer(obj.reservations.filter(end_time__gte=now).first()).data
+        # Use a prefetch to get all game_sessions at once
+            active_session = obj.game_sessions.filter(status_finished=False).first()
+            if active_session:
+                # Get the relevant reservation if available
+                reservation = obj.reservations.filter(end_time__gte=now).first()
+                if reservation:
+                    return ReservationSerializer(reservation).data
         return None
     
 
@@ -130,9 +135,12 @@ class PoolHouseSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'address', 'tables', 'avg_rating', 'latitude', 'longitude', 'pics', 'table_count', 'open_time', 'close_time']
 
 class SimplePoolHouseSerializer(serializers.ModelSerializer):
+    pics = PoolHouseImageSerializer(read_only=True, many=True)
+    avg_rating = serializers.FloatField(read_only=True)
+
     class Meta:
         model = PoolHouse
-        fields = ['id', 'title', 'address']
+        fields = ['id', 'title', 'address', 'avg_rating', 'close_time', 'open_time', 'pics']
 
 
 class MessageSerializer(serializers.ModelSerializer):

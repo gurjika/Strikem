@@ -32,11 +32,15 @@ class PoolHouseViewSet(ModelViewSet):
     queryset = PoolHouse.objects.annotate(
         avg_rating=Avg('ratings__rate'),
         table_count=Count('tables', distinct=True)
-    ).prefetch_related('pics').prefetch_related('tables')
+    ).prefetch_related('pics').prefetch_related('tables__game_sessions').prefetch_related('tables__reservations__player_reserving__user').prefetch_related('tables__reservations__other_player__user')
 
     serializer_class = PoolHouseSerializer
     permission_classes = [IsAdminOrReadOnly]
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return SimplePoolHouseSerializer
+        return self.serializer_class
 
     # @method_decorator(cache_page(60 * 5))
     def list(self, request, *args, **kwargs):

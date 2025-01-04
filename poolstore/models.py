@@ -147,6 +147,7 @@ class Reservation(models.Model):
     real_end_datetime = models.DateTimeField()
     finished_reservation = models.BooleanField(default=False)
     notified = models.BooleanField(default=False)
+    in_process = models.BooleanField(default=False)
 
 
     def __str__(self) -> str:
@@ -223,10 +224,10 @@ class History(models.Model):
 
 
 class NotificationChoices(models.TextChoices):
-    INVITED = 'PEN', 'Invited'
-    REJECTED = 'APP', 'Rejected'
-    ACCEPTED = 'REJ', 'Accepted'
-    MESSAGE = 'MSG', 'Message'
+    INVITED = 'INV', 'Invited'
+    REJECTED = 'REJ', 'Rejected'
+    ACCEPTED = 'ACP', 'Accepted'
+    GAME_SESSION_END = 'GSE', 'Game Session End'
 
 class Notification(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='notifications')
