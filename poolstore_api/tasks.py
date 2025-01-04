@@ -1,9 +1,11 @@
+from datetime import timedelta
 from celery import shared_task
 from channels.layers import get_channel_layer
 from poolstore.models import GameSession, PlayerGameSession, PoolTable, Reservation
 from asgiref.sync import async_to_sync
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
+from django.utils.timezone import now
 
 
 User = get_user_model()
@@ -80,16 +82,44 @@ def finish_game_session(game_session_id, reservation_id, protocol):
     
 
 @shared_task
-def send_email_before_res(user_id):
-    user = User.objects.get(id=user_id)
-
-    send_mail(
-        subject='Poolhub Reservation',
-        message='5 minutes before reservation',
-        from_email='luka.gurjidze04@gmail.com',
-        recipient_list=[user.email],
-        fail_silently=False ## TESTING
+def send_email_before_res():
+    upcoming_reservations = Reservation.objects.filter(
+        start_time__lte=now() + timedelta(minutes=5), finished_reservation=False, notified=False
     )
+
+    for reservation in upcoming_reservations:
+        user = reservation.player_reserving.user
+        reservation.notified = True
+        reservation.save()
+        send_mail(
+            subject='Poolhub Reservation Reminder',
+            message=f'5 minutes before reservation {reservation.id}',
+            from_email='luka.gurjidze04@gmail.com',
+            recipient_list=[user.email],
+            fail_silently=False  
+        )
+
+
+
+@shared_task
+def start_game():
+    upcoming_reservations = Reservation.objects.filter(
+        start_time__lte=now() + timedelta(minutes=5), finished_reservation=False, notified=False
+    )
+    
+    for reservation in upcoming_reservations:
+        user = reservation.player_reserving.user
+        reservation.notified = True
+        reservation.save()
+        send_mail(
+            subject='Poolhub Reservation Reminder',
+            message=f'5 minutes before reservation {reservation.id}',
+            from_email='luka.gurjidze04@gmail.com',
+            recipient_list=[user.email],
+            fail_silently=False  
+        )
+
+
 
 
 

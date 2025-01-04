@@ -146,6 +146,7 @@ class Reservation(models.Model):
     end_time = models.DateTimeField()
     real_end_datetime = models.DateTimeField()
     finished_reservation = models.BooleanField(default=False)
+    notified = models.BooleanField(default=False)
 
 
     def __str__(self) -> str:
