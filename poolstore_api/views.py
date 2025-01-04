@@ -1,6 +1,5 @@
 from datetime import datetime, time, timedelta
 from django.utils import timezone
-
 from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from poolstore.models import GameSession, History, Invitation, InvitationDenied, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
@@ -29,13 +28,24 @@ from rest_framework.generics import UpdateAPIView
 
 
 class PoolHouseViewSet(ModelViewSet):
-    queryset = PoolHouse.objects.annotate(
-        avg_rating=Avg('ratings__rate'),
-        table_count=Count('tables', distinct=True)
-    ).prefetch_related('pics').prefetch_related('tables__game_sessions').prefetch_related('tables__reservations__player_reserving__user').prefetch_related('tables__reservations__other_player__user')
-
     serializer_class = PoolHouseSerializer
     permission_classes = [IsAdminOrReadOnly]
+    def get_queryset(self):
+        queryset = PoolHouse.objects.annotate(
+            avg_rating=Avg('ratings__rate'),
+            table_count=Count('tables', distinct=True)
+        ).prefetch_related(
+            'pics',
+        )
+
+        return queryset
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        current_reservations = Reservation.objects.filter(in_process=True, table__poolhouse__id=self.kwargs['pk']).prefetch_related('player_reserving__user').prefetch_related('other_player__user')
+        queryset = queryset.prefetch_related(Prefetch('tables__reservations', queryset=current_reservations, to_attr='current_reservations'))
+        return get_object_or_404(queryset, id=self.kwargs['pk'])
+
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -51,8 +61,8 @@ class FilterPoolHouseViewSet(ListModelMixin, GenericViewSet):
     queryset = PoolHouse.objects.annotate(
         avg_rating=Avg('ratings__rate'),
         table_count=Count('tables', distinct=True)
-    ).prefetch_related('pics').prefetch_related('tables')
-    serializer_class = PoolHouseSerializer
+    ).prefetch_related('pics')
+    serializer_class = SimplePoolHouseSerializer
 
 
     # @method_decorator(cache_page(60 * 5))
