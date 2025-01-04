@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9ac35db056228d266e7f43fcb1a9d77531528d7484a730945bcd17a3b5f87e1f"
+            "sha256": "c4b6050a989550e259ca0590f74587a81358c82e4bd687f9fab34252a1f125e5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -66,20 +66,20 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:ba391982f6cada136c5bba99e85d7fe1bc4e157c53a22a78e4aca35d1b39152e",
-                "sha256:eecef248f8743ab30036cd9c916808a0892fc9036e1a35434d8222060c08bbd2"
+                "sha256:786930d5f1cd13d03db59ff2abbb2b7ffc173fd66646d5d8bee07f316a5f16ca",
+                "sha256:f7851cb320dcb2a53fc73b4075187ec9b05d51291539601fa238623fdc0e8cd3"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==1.35.91"
+            "version": "==1.35.92"
         },
         "botocore": {
             "hashes": [
-                "sha256:7b0b9c5954701fff4d2c516918f45641b04ff4ca92bbd9f5b37c0b80f8c14220",
-                "sha256:93de9d0f52f7e36a2c190d55520d3b2654f32c5a628fdd484bffa00bc7865e1d"
+                "sha256:caa7d5d857fed5b3d694b89c45f82b9f938f840e90a4eb7bf50aa65da2ba8f82",
+                "sha256:f94ae1e056a675bd67c8af98a6858d06e3927d974d6c712ed6e27bb1d11bee1d"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==1.35.91"
+            "version": "==1.35.92"
         },
         "celery": {
             "hashes": [
@@ -336,6 +336,13 @@
             "markers": "python_version >= '3.8'",
             "version": "==23.10.4"
         },
+        "cron-descriptor": {
+            "hashes": [
+                "sha256:736b3ae9d1a99bc3dbfc5b55b5e6e7c12031e7ba5de716625772f8b02dcd6013",
+                "sha256:f51ce4ffc1d1f2816939add8524f206c376a42c87a5fca3091ce26725b3b1bca"
+            ],
+            "version": "==1.4.5"
+        },
         "cryptography": {
             "hashes": [
                 "sha256:1923cb251c04be85eec9fda837661c67c1049063305d6be5721643c22dd4e2b7",
@@ -401,6 +408,15 @@
             "markers": "python_version >= '3.8'",
             "version": "==65.3.1"
         },
+        "django-celery-beat": {
+            "hashes": [
+                "sha256:8482034925e09b698c05ad61c36ed2a8dbc436724a3fe119215193a4ca6dc967",
+                "sha256:851c680d8fbf608ca5fecd5836622beea89fa017bc2b3f94a5b8c648c32d84b1"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==2.7.0"
+        },
         "django-channels-jwt": {
             "hashes": [
                 "sha256:2f924633c900e1fced52312f53e3cfd5a578a0876a102cbf0131fb0f80ffdd6c",
@@ -463,6 +479,14 @@
             "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==1.14.4"
+        },
+        "django-timezone-field": {
+            "hashes": [
+                "sha256:3232e7ecde66ba4464abb6f9e6b8cc739b914efb9b29dc2cf2eee451f7cc2acb",
+                "sha256:aa6f4965838484317b7f08d22c0d91a53d64e7bbbd34264468ae83d4023898a7"
+            ],
+            "markers": "python_version >= '3.8' and python_version < '4.0'",
+            "version": "==7.0"
         },
         "djangorestframework": {
             "hashes": [
@@ -859,6 +883,13 @@
             ],
             "version": "==24.3.0"
         },
+        "python-crontab": {
+            "hashes": [
+                "sha256:40067d1dd39ade3460b2ad8557c7651514cd3851deffff61c5c60e1227c5c36b",
+                "sha256:82cb9b6a312d41ff66fd3caf3eed7115c28c195bfb50711bc2b4b9592feb9fe5"
+            ],
+            "version": "==3.2.0"
+        },
         "python-dateutil": {
             "hashes": [
                 "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3",
@@ -1062,7 +1093,7 @@
                 "sha256:7d85cc416e9382e69095b7bdf4afd9e3880418a2413feec7069d533d6b4e31cc",
                 "sha256:a48093786cdcde33cad18c2555e8532f34422074448fbc874186f0abd79565cd"
             ],
-            "markers": "sys_platform == 'win32'",
+            "markers": "python_version >= '2'",
             "version": "==2024.2"
         },
         "uritemplate": {

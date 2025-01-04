@@ -1,3 +1,4 @@
+from datetime import timedelta
 from celery import shared_task
 from channels.layers import get_channel_layer
 from poolstore.models import GameSession, Invitation, Notification, Player, PlayerGameSession, PoolTable, Reservation, NotificationChoices
@@ -6,6 +7,8 @@ from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils.timezone import localtime
+from django.utils.timezone import now
+
 
 
 
@@ -125,17 +128,33 @@ def finish_game_session(game_session_id, reservation_id, protocol):
 
     
 
-@shared_task
-def send_email_before_res(user_id, res_id):
-    user = User.objects.get(id=user_id)
+# @shared_task
+# def send_email_before_res(user_id, res_id):
+#     user = User.objects.get(id=user_id)
 
-    send_mail(
-        subject='Poolhub Reservation',
-        message=f'5 minutes before reservation {res_id}',
-        from_email='luka.gurjidze04@gmail.com',
-        recipient_list=[user.email],
-        fail_silently=False ## TESTING
+#     send_mail(
+#         subject='Poolhub Reservation',
+#         message=f'5 minutes before reservation {res_id}',
+#         from_email='luka.gurjidze04@gmail.com',
+#         recipient_list=[user.email],
+#         fail_silently=False ## TESTING
+#     )
+
+
+@shared_task
+def send_email_before_res():
+    upcoming_reservations = Reservation.objects.filter(
+        start_time__lte=now() + timedelta(minutes=5),
     )
+    for reservation in upcoming_reservations:
+        user = reservation.player_reserving.user
+        send_mail(
+            subject='Poolhub Reservation Reminder',
+            message=f'5 minutes before reservation {reservation.id}',
+            from_email='luka.gurjidze04@gmail.com',
+            recipient_list=[user.email],
+            fail_silently=False  
+        )
 
 
 

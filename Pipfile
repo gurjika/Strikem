@@ -28,6 +28,7 @@ django-channels-jwt = "*"
 django-cors-headers = "*"
 django-storages = "*"
 boto3 = "*"
+django-celery-beat = "*"
 
 [dev-packages]
 
