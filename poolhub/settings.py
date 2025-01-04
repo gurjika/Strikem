@@ -353,10 +353,10 @@ AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
 # print(AWS_CLOUDFRONT_KEY)
 
 
-CELERY_BEAT_SCHEDULE = {
-    'delete_outdated_notifications': {
-        'task': 'poolstore.tasks.delete_outdated_notifications',
-        'schedule': crontab(hour=0, minute=0)
-    }
-}
+# CELERY_BEAT_SCHEDULE = {
+#     'delete_outdated_notifications': {
+#         'task': 'poolstore.tasks.delete_outdated_notifications',
+#         'schedule': crontab(hour=0, minute=0)
+#     }
+# }
 
