@@ -144,7 +144,7 @@ def finish_game_session(game_session_id, reservation_id, protocol):
 @shared_task
 def send_email_before_res():
     upcoming_reservations = Reservation.objects.filter(
-        start_time__lte=now() + timedelta(minutes=5),
+        start_time__lte=now() + timedelta(minutes=5), finished_reservation=False,
     )
     for reservation in upcoming_reservations:
         user = reservation.player_reserving.user
