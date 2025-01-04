@@ -83,13 +83,13 @@ services:
 
   celery-beat:
     build: .
-    command: celery -A poolhub beat --loglevel=info
+    command: celery -A poolhub beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=info
     volumes:
       - .:/app
     depends_on:
-      
       redis:
         condition: service_healthy
+
 
 
 
