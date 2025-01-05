@@ -89,11 +89,8 @@ class PoolTableSerializer(serializers.ModelSerializer):
 
     def get_current_session(self, obj):
         ## SHOW ONGOING RESERVATION IF THE ACTIVE SESSION EXISTS
-        current_reservations = getattr(obj, 'current_reservations', [])
-        if current_reservations:
-            for reservation in current_reservations:
-                if reservation.table_id == obj.id:
-                    return ReservationSerializer(reservation).data
+        if hasattr(obj, 'current_reservations') and obj.current_reservations:
+            return ReservationSerializer(obj.current_reservations[0]).data
         return None
     
 
@@ -133,10 +130,13 @@ class PoolHouseSerializer(serializers.ModelSerializer):
 class SimplePoolHouseSerializer(serializers.ModelSerializer):
     pics = PoolHouseImageSerializer(read_only=True, many=True)
     avg_rating = serializers.FloatField(read_only=True)
+    table_count = serializers.IntegerField(read_only=True)
+
+
 
     class Meta:
         model = PoolHouse
-        fields = ['id', 'title', 'address', 'avg_rating', 'close_time', 'open_time', 'pics', 'room_image']
+        fields = ['id', 'title', 'address', 'avg_rating', 'close_time', 'open_time', 'pics', 'room_image', 'table_count']
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -253,8 +253,8 @@ class CreateHistorySerializer(serializers.ModelSerializer):
                 player_loser.save()
                 player_winner.save()
 
+                Notification.objects.get(extra=game_session.id).delete()
                 game_session.delete()
-
                 return History.objects.create(penalty_points=PENALTY_POINTS, points_given=WIN_POINTS, **validated_data)
         except Exception as e:
             raise serializers.ValidationError(f"Error occurred: {str(e)}")

@@ -30,6 +30,7 @@ from rest_framework.generics import UpdateAPIView
 class PoolHouseViewSet(ModelViewSet):
     serializer_class = PoolHouseSerializer
     permission_classes = [IsAdminOrReadOnly]
+
     def get_queryset(self):
         queryset = PoolHouse.objects.annotate(
             avg_rating=Avg('ratings__rate'),
@@ -40,15 +41,15 @@ class PoolHouseViewSet(ModelViewSet):
 
         return queryset
 
-    def get_object(self):
-        queryset = self.get_queryset()
-        current_reservations = Reservation.objects.filter(in_process=True, table__poolhouse__id=self.kwargs['pk']).prefetch_related('player_reserving__user').prefetch_related('other_player__user')
-        queryset = queryset.prefetch_related(Prefetch('tables__reservations', queryset=current_reservations, to_attr='current_reservations'))
-        return get_object_or_404(queryset, id=self.kwargs['pk'])
+    # def get_object(self):
+    #     queryset = self.get_queryset()
+    #     current_reservations = Reservation.objects.filter(in_process=True, table__poolhouse__id=self.kwargs['pk']).prefetch_related('player_reserving__user').prefetch_related('other_player__user')
+    #     queryset = queryset.prefetch_related(Prefetch('tables__reservations', queryset=current_reservations, to_attr='current_reservations'))
+    #     return get_object_or_404(queryset, id=self.kwargs['pk'])
 
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.request.method == 'GET':
             return SimplePoolHouseSerializer
         return self.serializer_class
 
@@ -81,8 +82,9 @@ class TableViewSet(ModelViewSet):
 
     
     def get_queryset(self):
-        return PoolTable.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
-
+        current_reservations = Reservation.objects.filter(in_process=True, table__poolhouse__id=self.kwargs['poolhouse_pk']).prefetch_related('player_reserving__user').prefetch_related('other_player__user')
+        queryset = PoolTable.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).prefetch_related(Prefetch('reservations', queryset=current_reservations, to_attr='current_reservations'))
+        return queryset
 
 
     def get_permissions(self):

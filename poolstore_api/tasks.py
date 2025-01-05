@@ -94,6 +94,7 @@ def finish_game_session():
         game_session.pooltable.free = True
         game_session.status_finished = True
         reservation.finished_reservation = True
+        reservation.in_process = False
         game_session.pooltable.save()
         reservation.save()
         game_session.save()
