@@ -17,6 +17,8 @@ from django.views.decorators.cache import cache_page
 from django.db.models import Avg, Count
 from .tasks import finish_game_session
 from rest_framework import status
+from django.core.cache import cache
+
 from .utils import get_nearby_poolhouses, get_nearby_players
 from celery.result import AsyncResult
 from django.db.models import OuterRef, Prefetch
@@ -350,8 +352,8 @@ class FilterPlayersWithRatingViewSet(ListModelMixin, RetrieveModelMixin, Generic
 
         return nearby_players
     
-class DetailPlayerInfoView(APIView):
 
+class DetailPlayerInfoView(APIView):
     # serializer_class = DetailPlayerSerializer
     permission_classes = [IsAuthenticated]
     
@@ -360,6 +362,42 @@ class DetailPlayerInfoView(APIView):
         serializer = DetailPlayerSerializer(queryset)
         return Response(serializer.data)
 
+
+
+class ReadAllNotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(player__user=self.request.user, read=False)
+
+    def put(self, request, *args, **kwargs):
+        updated_count = self.get_queryset().update(read=True)
+        return Response({'updated_count': updated_count})
+
+
+
+class ReadMatchupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        matchup = get_object_or_404(Matchup, id=self.kwargs['matchup_id'])
+        matchup.read = True
+        matchup.save()
+        cache.delete(f'matchup_{self.request.user.username}')
+        cache.delete(f'{matchup.id}_reading')
+        return Response({f'{matchup.id}': 'READ'})
+
+
+class UnreadMatchupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        unread_matchups_count = Matchup.objects.filter(
+                Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player)
+            ).filter(read=False).count()
+        
+
+        return Response({'unread': unread_matchups_count})
 
 class PlayerLocationView(APIView):
     permission_classes = [IsAuthenticated]
@@ -372,3 +410,17 @@ class PlayerLocationView(APIView):
         serializer.save()
         return Response(serializer.data)
 
+
+
+
+class GameSessionInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, *args, **kwargs):
+        gamesession = get_object_or_404(GameSession.objects.prefetch_related('players__user'), id=self.kwargs['game_session_id'])
+        for player in gamesession.players.all():
+            if player.user != self.request.user:
+                current_player = player
+                break
+        
+        return Response({'game_session': gamesession.id, 'opponent_username': current_player.user.username, 'start_time': gamesession.start_time, 'location': gamesession.pooltable.poolhouse.title})

@@ -120,6 +120,7 @@ class GameSession(models.Model):
     pooltable = models.ForeignKey(PoolTable, on_delete=models.SET_NULL, related_name='game_sessions', null=True)
     players = models.ManyToManyField(Player, through='PlayerGameSession', related_name='game_session')
     status_finished = models.BooleanField(default=False)
+    start_time = models.DateTimeField(auto_now_add=True)
 
 class Matchup(models.Model):
     id = models.UUIDField(
