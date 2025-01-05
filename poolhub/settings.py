@@ -345,7 +345,7 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 
 
 AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
-
+CELERY_RESULT_BACKEND = 'redis://redis:6379/1'
 
 # AWS_CLOUDFRONT_KEY_ID = os.environ.get('AWS_CLOUDFRONT_KEY_ID')
 # AWS_CLOUDFRONT_KEY = os.environ.get('AWS_CLOUDFRONT_KEY').encode('ascii').strip()
