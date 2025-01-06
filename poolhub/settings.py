@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
     "corsheaders",
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -344,7 +345,7 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 
 
 AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
-
+CELERY_RESULT_BACKEND = 'redis://redis:6379/1'
 
 # AWS_CLOUDFRONT_KEY_ID = os.environ.get('AWS_CLOUDFRONT_KEY_ID')
 # AWS_CLOUDFRONT_KEY = os.environ.get('AWS_CLOUDFRONT_KEY').encode('ascii').strip()
@@ -352,10 +353,10 @@ AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
 # print(AWS_CLOUDFRONT_KEY)
 
 
-CELERY_BEAT_SCHEDULE = {
-    'delete_outdated_notifications': {
-        'task': 'poolstore.tasks.delete_outdated_notifications',
-        'schedule': crontab(hour=0, minute=0)
-    }
-}
+# CELERY_BEAT_SCHEDULE = {
+#     'delete_outdated_notifications': {
+#         'task': 'poolstore.tasks.delete_outdated_notifications',
+#         'schedule': crontab(hour=0, minute=0)
+#     }
+# }
 

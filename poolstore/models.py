@@ -1,14 +1,8 @@
-from datetime import datetime, timedelta
 from django.db import models
 from django.conf import settings
-from django.db.models import F
 import uuid 
 from django.utils.text import slugify
-from PIL import Image
-from django.utils import timezone
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.fields import GenericRelation
+
 
 # Create your models here.
 
@@ -122,6 +116,7 @@ class GameSession(models.Model):
     pooltable = models.ForeignKey(PoolTable, on_delete=models.SET_NULL, related_name='game_sessions', null=True)
     players = models.ManyToManyField(Player, through='PlayerGameSession', related_name='game_session')
     status_finished = models.BooleanField(default=False)
+    start_time = models.DateTimeField(auto_now_add=True)
 
 class Matchup(models.Model):
     id = models.UUIDField(
@@ -148,6 +143,8 @@ class Reservation(models.Model):
     end_time = models.DateTimeField()
     real_end_datetime = models.DateTimeField()
     finished_reservation = models.BooleanField(default=False)
+    notified = models.BooleanField(default=False)
+    in_process = models.BooleanField(default=False)
 
 
     def __str__(self) -> str:

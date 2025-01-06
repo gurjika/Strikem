@@ -72,10 +72,10 @@ class ReservationSerializer(serializers.ModelSerializer):
         if not check_overlapping_reservations(existing_reservations, start_time=start_time, end_time=real_end_datetime):
             raise serializers.ValidationError('nu kvetav dzma')
     
-        
-        send_email_before_res.apply_async((player_reserving.user.id,), eta=start_time - timedelta(minutes=20))
+
+        # send_email_before_res.apply_async((player_reserving.user.id,), eta=start_time - timedelta(minutes=20))
         obj = Reservation.objects.create(**validated_data, end_time=end_time, table_id=table_id, player_reserving=player_reserving, real_end_datetime=real_end_datetime)
-        start_game_session.apply_async((obj.id,), eta=start_time, task_id=f'custom_task_id_{obj.id}')
+        # start_game_session.apply_async((obj.id,), eta=start_time, task_id=f'custom_task_id_{obj.id}')
 
 
         return obj
@@ -91,10 +91,8 @@ class PoolTableSerializer(serializers.ModelSerializer):
 
     def get_current_session(self, obj):
         ## SHOW ONGOING RESERVATION IF THE ACTIVE SESSION EXISTS
-        if not obj.free:
-            for session in obj.game_sessions.all():
-                if not session.status_finished:
-                    return ReservationSerializer(obj.reservations.filter(end_time__gte=now).first()).data
+        if hasattr(obj, 'current_reservations') and obj.current_reservations:
+            return ReservationSerializer(obj.current_reservations[0]).data
         return None
     
 
@@ -136,9 +134,15 @@ class PoolHouseSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'address', 'tables', 'avg_rating', 'latitude', 'longitude', 'pics', 'table_count', 'slug', 'room_image', 'open_time', 'close_time']
 
 class SimplePoolHouseSerializer(serializers.ModelSerializer):
+    pics = PoolHouseImageSerializer(read_only=True, many=True)
+    avg_rating = serializers.FloatField(read_only=True)
+    table_count = serializers.IntegerField(read_only=True)
+
+
+
     class Meta:
         model = PoolHouse
-        fields = ['id', 'title', 'address']
+        fields = ['id', 'title', 'address', 'avg_rating', 'close_time', 'open_time', 'pics', 'room_image', 'table_count']
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -256,8 +260,8 @@ class CreateHistorySerializer(serializers.ModelSerializer):
                 player_loser.save()
                 player_winner.save()
 
+                Notification.objects.get(extra=game_session.id).delete()
                 game_session.delete()
-
                 return History.objects.create(penalty_points=PENALTY_POINTS, points_given=WIN_POINTS, **validated_data)
         except Exception as e:
             raise serializers.ValidationError(f"Error occurred: {str(e)}")
