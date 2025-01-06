@@ -9,7 +9,7 @@ from channels.db import database_sync_to_async
 from datetime import timedelta
 import datetime
 from .tasks import delete_denied_invite
-from poolstore_api.tasks import invitation_cleanup 
+from poolstore.tasks import invitation_cleanup 
 from .models import NotificationChoices
 from datetime import datetime, timezone
 from django.core.cache import cache
