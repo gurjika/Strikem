@@ -26,7 +26,6 @@ def finish_game_session():
     print('Finishing game sessions: ', upcoming_reservations)
     for reservation in upcoming_reservations:
         game_session = GameSession.objects.get(pooltable=reservation.table, status_finished=False)
-        reservation = Reservation.objects.get(id=reservation.id)
         channel_layer = get_channel_layer()
         
        
@@ -35,13 +34,17 @@ def finish_game_session():
             'game_session_id': str(game_session.id),
         }
 
-        Notification.objects.create(
+        notification = Notification.objects.create(
             player=reservation.player_reserving,
             sent_by=None,
-            body=f'Your game session with {reservation.other_player.user.username} has ended. You can now rate the game.',
+            body=None,
             extra=str(game_session.id),
             type=NotificationChoices.GAME_SESSION_END
         )
+
+        if reservation.other_player:
+            notification.body = f'Game session with {reservation.other_player.user.username} has ended'
+            notification.save()
 
 
         async_to_sync(channel_layer.group_send)(f'user_{reservation.player_reserving.user.username}', event)
