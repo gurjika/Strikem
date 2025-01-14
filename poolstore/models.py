@@ -225,6 +225,7 @@ class NotificationChoices(models.TextChoices):
     REJECTED = 'REJ', 'Rejected'
     ACCEPTED = 'ACP', 'Accepted'
     GAME_SESSION_END = 'GSE', 'Game Session End'
+    GAME_SESSION_END_ALONE = 'GSEA', 'Game Session End Alone'
 
 class Notification(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='notifications')
@@ -233,7 +234,7 @@ class Notification(models.Model):
     read = models.BooleanField(default=False)
     body = models.TextField(null=True)
     extra = models.TextField(null=True)
-    type = models.CharField(choices=NotificationChoices.choices, max_length=3)
+    type = models.CharField(choices=NotificationChoices.choices, max_length=4)
 
     def __str__(self):
         return f'Notification for {self.player} - {self.type}'
