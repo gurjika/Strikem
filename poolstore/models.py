@@ -234,7 +234,7 @@ class Notification(models.Model):
     read = models.BooleanField(default=False)
     body = models.TextField(null=True)
     extra = models.TextField(null=True)
-    type = models.CharField(choices=NotificationChoices.choices, max_length=3)
+    type = models.CharField(choices=NotificationChoices.choices, max_length=4)
 
     def __str__(self):
         return f'Notification for {self.player} - {self.type}'
