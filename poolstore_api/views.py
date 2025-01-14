@@ -424,9 +424,16 @@ class GameSessionInfoView(APIView):
     
     def get(self, request, *args, **kwargs):
         gamesession = get_object_or_404(GameSession.objects.prefetch_related('players__user'), id=self.kwargs['game_session_id'])
+        opponent_player = None
         for player in gamesession.players.all():
             if player.user != self.request.user:
-                current_player = player
+                opponent_player = player
                 break
+
         
-        return Response({'game_session': gamesession.id, 'opponent_username': current_player.user.username, 'start_time': gamesession.start_time, 'location': gamesession.pooltable.poolhouse.title})
+        response = {'game_session': gamesession.id, 'start_time': gamesession.start_time, 'location': gamesession.pooltable.poolhouse.title}
+
+        if opponent_player:
+            response['opponent_username'] = opponent_player.user.username
+
+        return Response(response)

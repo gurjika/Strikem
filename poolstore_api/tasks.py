@@ -34,14 +34,15 @@ def finish_game_session():
             'game_session_id': str(game_session.id),
         }
 
+
         notification = Notification.objects.create(
             player=reservation.player_reserving,
             sent_by=None,
-            body=None,
+            body='Your game session has ended',
             extra=str(game_session.id),
             type=NotificationChoices.GAME_SESSION_END
         )
-
+        
         if reservation.other_player:
             notification.body = f'Game session with {reservation.other_player.user.username} has ended'
             notification.save()
