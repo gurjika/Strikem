@@ -343,18 +343,18 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 )
 
 
-                await self.channel_layer.group_send(
-                    f'user_{username}',
-                    {
-                        'type': 'chat_message',
-                        'message': message,
-                        'username': username,
-                        'sender_player_id': player.id,
-                        'time_sent': formatted_datetime,
-                        'matchup_id': matchup_id,
-                        'sub_protocol': 'last_message_outdated',
-                    }
-                )
+                # await self.channel_layer.group_send(
+                #     f'user_{username}',
+                #     {
+                #         'type': 'chat_message',
+                #         'message': message,
+                #         'username': username,
+                #         'sender_player_id': player.id,
+                #         'time_sent': formatted_datetime,
+                #         'matchup_id': matchup_id,
+                #         'sub_protocol': 'last_message_outdated',
+                #     }
+                # )
             else:
                 await self.channel_layer.group_send(
                     f'user_{self.opponent_username}',
