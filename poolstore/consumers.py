@@ -300,6 +300,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             last_message = await database_sync_to_async(Message.objects.filter(matchup_id=matchup_id).last)()
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
 
+            print(f'on message opponent is {self.opponent_username}')
             print('get opponent state on message: ', cache.get(f'matchup_{self.opponent_username}'))
             print('matchup_id on message: ', matchup_id)
             print(matchup_id == cache.get(f'matchup_{self.opponent_username}'))
