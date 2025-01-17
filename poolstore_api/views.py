@@ -394,10 +394,23 @@ class ReadMatchupView(APIView):
         return Response({f'{matchup.id}': 'READ'})
 
 
+class UnreadNotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        
+        unread_notifications_count = Notification.objects.filter(
+            player__user=self.request.user
+            ).filter(read=False).count()
+        
+
+        return Response({'unread': unread_notifications_count})
+
 class UnreadMatchupView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
+
         unread_matchups_count = Matchup.objects.filter(
                 Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player)
             ).filter(read=False).count()
