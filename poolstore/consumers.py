@@ -79,6 +79,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         elif action == 'change_matchup':
+            self.opponent_username = text_data_json.get('opponent_username')
             matchup_id = text_data_json.get('matchup_id')
             cache.set(f'matchup_{self.user.username}', f'{matchup_id}', timeout=600)
             print(f'getting value with username key {self.user.username} ', cache.get(f"matchup_{self.user.username}"))
