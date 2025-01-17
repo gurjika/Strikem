@@ -84,6 +84,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             matchup_id = text_data_json.get('matchup_id')
             cache.set(f'matchup_{self.user.username}', f'{matchup_id}', timeout=600)
             print(f'getting value with username key {self.user.username} ', cache.get(f"matchup_{self.user.username}"))
+            print(f'get opponent state on change_matchup: ', cache.get(f"matchup_{self.opponent_username}"))
 
 
         elif action == self.matchmake_room_name:

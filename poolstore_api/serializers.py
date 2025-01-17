@@ -142,7 +142,7 @@ class SimplePoolHouseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PoolHouse
-        fields = ['id', 'title', 'address', 'avg_rating', 'close_time', 'open_time', 'pics', 'room_image', 'table_count', 'latitude', 'longitude']
+        fields = ['id', 'title', 'address', 'avg_rating', 'close_time', 'open_time', 'pics', 'room_image', 'table_count', 'latitude', 'longitude', 'slug']
 
 
 class MessageSerializer(serializers.ModelSerializer):
