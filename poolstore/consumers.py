@@ -48,17 +48,15 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         text_data_json = json.loads(text_data)
-        print(text_data_json)
-        print(text_data_json.get('action'))
-        print(text_data_json.get('protocol'))
-
+        print('action: ', text_data_json.get('action'))
+        print('protocol: ', text_data_json.get('protocol'))
+        print('payload: ', text_data_json)
 
         action = text_data_json.get('action')
 
         
 
         if action == 'matchup':
-            print('test poolhouse in matchup', self.poolhouse_room_name)
             self.current = 'matchup'
 
 
@@ -75,16 +73,15 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                     self.channel_name,
                 )
 
-                print('1: matchup',self.poolhouse_room_name)
             else:
 
-                print('2: matchup',self.poolhouse_room_name)
                 await self.matchup(text_data_json)
 
 
         elif action == 'change_matchup':
             matchup_id = text_data_json.get('matchup_id')
             cache.set(f'matchup_{self.user.username}', f'{matchup_id}', timeout=600)
+            print(f'getting value with username key {self.user.username} ', cache.get(f"matchup_{self.user.username}"))
 
 
         elif action == self.matchmake_room_name:
@@ -301,8 +298,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             last_message = await database_sync_to_async(Message.objects.filter(matchup_id=matchup_id).last)()
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
 
-            print(cache.get(f'matchup_{self.opponent_username}'))
-            print(matchup_id)
+            print('get opponent state on message: ', cache.get(f'matchup_{self.opponent_username}'))
+            print('matchup_id on message: ', matchup_id)
             print(matchup_id == cache.get(f'matchup_{self.opponent_username}'))
 
             is_outdated = False
