@@ -303,16 +303,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             print(matchup_id)
             print(matchup_id == cache.get(f'matchup_{self.opponent_username}'))
 
-            if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
-                matchup_read = cache.get(f'{matchup_id}_reading')
-                print('cache did not work 1')
-                if not matchup_read:
-                    matchup = await database_sync_to_async(Matchup.objects.get)(id=matchup_id)
-                    matchup.read = False
-                    print('cache did not work 2')
-                    await database_sync_to_async(matchup.save)()
-                    cache.set(f'{matchup.id}_reading', 'read', timeout=300)
-
             is_outdated = False
 
             try:
@@ -324,22 +314,38 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 pass
 
             formatted_datetime = new_message.time_sent.strftime('%b %#d, %I:%M %p')
-            if is_outdated or last_message is None:
 
+            message_json = {
+                'type': 'chat_message',
+                'message': message,
+                'username': username,
+                'sender_player_id': player.id,
+                'time_sent': formatted_datetime,
+                'matchup_id': matchup_id,
+                'update_message_count': False
+            }
+
+
+            if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
+                matchup_read = cache.get(f'{matchup_id}_reading')
+                print('cache did not work 1')
+                if not matchup_read:
+                    matchup = await database_sync_to_async(Matchup.objects.get)(id=matchup_id)
+                    matchup.read = False
+                    message_json['update_message_count'] = True
+                    print('cache did not work 2')
+                    await database_sync_to_async(matchup.save)()
+                    cache.set(f'{matchup.id}_reading', 'read', timeout=300)
+
+
+            if is_outdated or last_message is None:
+                message_json['sub_protocol'] = 'last_message_outdated'
                 new_message.after_outdated = True
                 await database_sync_to_async(new_message.save)()
 
                 await self.channel_layer.group_send(
                     f'user_{self.opponent_username}',
-                    {
-                        'type': 'chat_message',
-                        'message': message,
-                        'username': username,
-                        'sender_player_id': player.id,
-                        'time_sent': formatted_datetime,
-                        'matchup_id': matchup_id,
-                        'sub_protocol': 'last_message_outdated',
-                    }
+                    message_json
                 )
 
 
@@ -358,14 +364,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             else:
                 await self.channel_layer.group_send(
                     f'user_{self.opponent_username}',
-                    {
-                        'type': 'chat_message',
-                        'message': message,
-                        'matchup_id': matchup_id,
-                        'username': username,
-                        'sender_player_id': player.id,
-                        'time_sent': formatted_datetime,
-                    }
+                    message_json
                 )
                    
                 # await self.channel_layer.group_send(
