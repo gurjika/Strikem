@@ -329,13 +329,18 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             }
 
 
+            if not last_message or last_message.sender != player:
+                message_json['update_message_count'] = True
+                print('message count updated')
+
+
+
             if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
                 matchup_read = cache.get(f'{matchup_id}_reading')
                 print('cache did not work 1')
                 if not matchup_read:
                     matchup = await database_sync_to_async(Matchup.objects.get)(id=matchup_id)
                     matchup.read = False
-                    message_json['update_message_count'] = True
                     print('cache did not work 2')
                     await database_sync_to_async(matchup.save)()
                     cache.set(f'{matchup.id}_reading', 'read', timeout=300)
