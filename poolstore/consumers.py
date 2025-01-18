@@ -25,7 +25,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         self.user = self.scope['user']
         self.room_name_for_specific_user = f"user_{self.user.username}"
 
-
         await self.channel_layer.group_add(
             self.room_name_for_specific_user,
             self.channel_name
@@ -79,17 +78,15 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         elif action == 'change_matchup':
-            if text_data_json.get('opponent_username'):
-                self.opponent_username = text_data_json.get('opponent_username')
             matchup_id = text_data_json.get('matchup_id')
-            cache.set(f'matchup_{self.user.username}', f'{matchup_id}', timeout=600)
-            print(f'getting value with username key {self.user.username} ', cache.get(f"matchup_{self.user.username}"))
-            print(f'get opponent state on change_matchup: ', cache.get(f"matchup_{self.opponent_username}"))
+            cache.delete(f'{self.user.username}_{matchup_id}')
+            self.matchup_state = matchup_id
 
 
         elif action == self.matchmake_room_name:
+            self.matchup_state = ''
+
             self.current = self.matchmake_room_name
-            cache.delete(f'matchup_{self.user.username}')
             if text_data_json.get('protocol') == 'initial':
                 
 
@@ -110,7 +107,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         elif action == 'poolhouse':
-            cache.delete(f'matchup_{self.user.username}')
+            self.matchup_state = ''
 
             poolhouse_name = text_data_json.get('poolhouseName')
             self.poolhouse_room_name = f'poolhouse_{poolhouse_name}'
@@ -130,7 +127,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
         elif action == 'base':
-            cache.delete(f'matchup_{self.user.username}')
+            self.matchup_state = ''
 
             self.current = 'base'
             await self.channel_layer.group_discard(
@@ -212,8 +209,17 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         time_sent = event.get('time_sent')
         matchup_id = event['matchup_id']
         sender_player_id = event['sender_player_id']
-        update_message_count = event['update_message_count']
         
+
+        print(f'matchup state for user {self.user.username}', self.matchup_state)
+        print(matchup_id)
+        update_message_count = False
+
+        if self.matchup_state != matchup_id:
+            update_message_count = await self.update_matchup_read(matchup_id)
+
+
+
         await self.send(text_data=json.dumps(
             {
                 'matchup_id': matchup_id,
@@ -224,8 +230,26 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 'time_sent': time_sent,
                 'sender_player_id': sender_player_id,
                 'update_message_count': update_message_count
-        }, default=str))
+         }, default=str))
 
+
+    @database_sync_to_async
+    def update_matchup_read(self, matchup_id):
+        already_notified = cache.get(f'{self.user.username}_{matchup_id}')
+
+        if not already_notified:
+            matchup = Matchup.objects.get(id=matchup_id)
+
+            if matchup.read:
+                matchup.read = False
+                matchup.save()
+
+                cache.set(f'{self.user.username}_{matchup_id}', True, timeout=600)
+                print('cache did not work')
+                return True
+            
+        print('used cache')
+        return False
 
     async def handle_user_state(self, event):
         username = event['username']
@@ -262,38 +286,38 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         self.opponent_username = text_data_json.get('opponent_username')
         username = text_data_json.get('username')
         message = text_data_json.get('message')
-        user_state = text_data_json.get('user_state')
-        protocol = text_data_json.get('protocol')
+        # user_state = text_data_json.get('user_state')
+        # protocol = text_data_json.get('protocol')
 
         player = await database_sync_to_async(Player.objects.get)(user=self.user)
 
-        if protocol == 'acknowledge':
-            active_user_username = text_data_json['active_user']
-            await self.channel_layer.group_send(
-                f'user_{active_user_username}',
-                {
+        # if protocol == 'acknowledge':
+        #     active_user_username = text_data_json['active_user']
+        #     await self.channel_layer.group_send(
+        #         f'user_{active_user_username}',
+        #         {
                     
-                    'type': 'handle_acknowledge',
-                    'active_user': self.user.username
-                },
-            )
+        #             'type': 'handle_acknowledge',
+        #             'active_user': self.user.username
+        #         },
+        #     )
 
-        if user_state:
-            opponents = await database_sync_to_async(list)(player.get_opponents())
+        # if user_state:
+        #     opponents = await database_sync_to_async(list)(player.get_opponents())
                 
-            for opponent in opponents:
-                await self.channel_layer.group_send(
-                    f'user_{opponent.user.username}', 
-                    {
-                        'type': 'handle_user_state',
-                        'username': self.user.username,
-                        'user_state': 'joined'
-                    }
-                )
+        #     for opponent in opponents:
+        #         await self.channel_layer.group_send(
+        #             f'user_{opponent.user.username}', 
+        #             {
+        #                 'type': 'handle_user_state',
+        #                 'username': self.user.username,
+        #                 'user_state': 'joined'
+        #             }
+        #         )
 
 
        
-        elif message:
+        if message:
             
             matchup_id = text_data_json['matchup_id']
 
@@ -328,22 +352,23 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 'update_message_count': False
             }
 
+            # last_message_sender = await database_sync_to_async(lambda: last_message.sender)()
 
-            if not last_message or last_message.sender != player:
-                message_json['update_message_count'] = True
-                print('message count updated')
+            # if not last_message or last_message_sender != player:
+            #     message_json['update_message_count'] = True
+            #     print('message count updated')
 
 
 
-            if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
-                matchup_read = cache.get(f'{matchup_id}_reading')
-                print('cache did not work 1')
-                if not matchup_read:
-                    matchup = await database_sync_to_async(Matchup.objects.get)(id=matchup_id)
-                    matchup.read = False
-                    print('cache did not work 2')
-                    await database_sync_to_async(matchup.save)()
-                    cache.set(f'{matchup.id}_reading', 'read', timeout=300)
+            # if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
+            #     matchup_read = cache.get(f'{matchup_id}_reading')
+            #     print('cache did not work 1')
+            #     if not matchup_read:
+            #         matchup = await database_sync_to_async(Matchup.objects.get)(id=matchup_id)
+            #         matchup.read = False
+            #         print('cache did not work 2')
+            #         await database_sync_to_async(matchup.save)()
+            #         cache.set(f'{matchup.id}_reading', 'read', timeout=300)
 
 
             if is_outdated or last_message is None:
