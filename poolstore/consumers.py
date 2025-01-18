@@ -326,9 +326,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             new_message = await database_sync_to_async(Message.objects.create)(matchup_id=matchup_id, body=message, sender=player)
 
             print(f'on message opponent is {self.opponent_username}')
-            print('get opponent state on message: ', cache.get(f'matchup_{self.opponent_username}'))
             print('matchup_id on message: ', matchup_id)
-            print(matchup_id == cache.get(f'matchup_{self.opponent_username}'))
 
             is_outdated = False
 
@@ -352,23 +350,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 'update_message_count': False
             }
 
-            # last_message_sender = await database_sync_to_async(lambda: last_message.sender)()
 
-            # if not last_message or last_message_sender != player:
-            #     message_json['update_message_count'] = True
-            #     print('message count updated')
-
-
-
-            # if not matchup_id == cache.get(f'matchup_{self.opponent_username}'):
-            #     matchup_read = cache.get(f'{matchup_id}_reading')
-            #     print('cache did not work 1')
-            #     if not matchup_read:
-            #         matchup = await database_sync_to_async(Matchup.objects.get)(id=matchup_id)
-            #         matchup.read = False
-            #         print('cache did not work 2')
-            #         await database_sync_to_async(matchup.save)()
-            #         cache.set(f'{matchup.id}_reading', 'read', timeout=300)
 
 
             if is_outdated or last_message is None:
@@ -382,33 +364,13 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 )
 
 
-                # await self.channel_layer.group_send(
-                #     f'user_{username}',
-                #     {
-                #         'type': 'chat_message',
-                #         'message': message,
-                #         'username': username,
-                #         'sender_player_id': player.id,
-                #         'time_sent': formatted_datetime,
-                #         'matchup_id': matchup_id,
-                #         'sub_protocol': 'last_message_outdated',
-                #     }
-                # )
+
             else:
                 await self.channel_layer.group_send(
                     f'user_{self.opponent_username}',
                     message_json
                 )
-                   
-                # await self.channel_layer.group_send(
-                #     f'user_{username}',
-                #     {
-                #         'type': 'chat_message',
-                #         'message': message,
-                #         'matchup_id': matchup_id,
-                #         'username': username,
-                #     }
-                # )
+
 
     async def matchmake(self, text_data=None, bytes_data=None):
 
