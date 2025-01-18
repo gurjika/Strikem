@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
-from django.db.models import Q, Max
+from django.db.models import Q, Max, Subquery, OuterRef
 from .pagination import MessagePageNumberPagination, NotificationPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -394,16 +394,36 @@ class ReadMatchupView(APIView):
         return Response({f'{matchup.id}': 'READ'})
 
 
+class UnreadNotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        
+        unread_notifications_count = Notification.objects.filter(
+            player__user=self.request.user
+            ).filter(read=False).count()
+        
+
+        return Response({'unread': unread_notifications_count})
+
+
 class UnreadMatchupView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        unread_matchups_count = Matchup.objects.filter(
-                Q(player_accepting=self.request.user.player) | Q(player_inviting=self.request.user.player)
-            ).filter(read=False).count()
+
+        latest_message_subquery = Message.objects.filter(matchup=OuterRef('pk')) \
+        .order_by('-time_sent').values('sender')[:1]
+
+        unread_matchups = Matchup.objects.filter( \
+            (Q(player_accepting=11) | Q(player_inviting=11))
+        ).filter(read=False).annotate(last_message_sender=Subquery(latest_message_subquery))
+
+        unread_matchups_count = unread_matchups.exclude(last_message_sender=11).count()
         
 
         return Response({'unread': unread_matchups_count})
+    
 
 class PlayerLocationView(APIView):
     permission_classes = [IsAuthenticated]
