@@ -20,7 +20,7 @@ class CustomActivationEmail(ActivationEmail):
 
         context['protocol'] = protocol
         context['domain'] = domain  
-        context['url'] = f'{domain}/users/activate/{uid}/{token}/'
+        context['url'] = f'{protocol}://{domain}/users/activate/{uid}/{token}/'
 
 
         subject = "Activate your Strikem Account"
