@@ -13,14 +13,15 @@ class CustomActivationEmail(ActivationEmail):
 
         
         protocol = 'https' if self.request.is_secure() else 'http'
-        domain = context.get('domain') 
+        # domain = context.get('domain') 
         uid = context.get('uid')
         token = context.get('token')
 
+        domain = 'strikem.vercel.app'
 
         context['protocol'] = protocol
         context['domain'] = domain  
-        context['url'] = f'{protocol}://{domain}/users/activate/{uid}/{token}/'
+        context['url'] = f'{protocol}://{domain}/activate/{uid}/{token}/'
 
 
         subject = "Activate your Strikem Account"
