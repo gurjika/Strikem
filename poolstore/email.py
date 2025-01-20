@@ -12,14 +12,14 @@ class CustomActivationEmail(ActivationEmail):
         context = self.get_context_data()
 
         
-        protocol = 'http'
+        protocol = 'https' if self.request.is_secure() else 'http'
         domain = context.get('domain') 
         uid = context.get('uid')
         token = context.get('token')
-      
+
 
         context['domain'] = domain  
-        context['url'] = f'users/activate/{uid}/{token}/'
+        context['url'] = f'{protocol}://{domain}/users/activate/{uid}/{token}/'
         context['protocol'] = protocol
 
 
