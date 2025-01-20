@@ -249,11 +249,11 @@ DJOSER = {
         'current_user': 'core.serializers.UserSerializer'
     },
 
-    # 'ACTIVATION_URL': 'activate/{uid}/{token}/',
-    # 'SEND_ACTIVATION_EMAIL': True,
-    # 'EMAIL': {
-    #     'activation': 'poolstore.email.CustomActivationEmail',
-    # }
+    'ACTIVATION_URL': 'activate/{uid}/{token}/',
+    'SEND_ACTIVATION_EMAIL': True,
+    'EMAIL': {
+        'activation': 'poolstore.email.CustomActivationEmail',
+    }
 
     
 }

@@ -51,7 +51,7 @@ def profile(request, username):
 
 
 class ActivateUserEmail(APIView):
-    def get (self, request, uid, token):
+    def get(self, request, uid, token):
         protocol = 'https://' if request.is_secure() else 'http://'
         web_url = protocol + request.get_host()
         post_url = web_url + "/auth/users/activation/"

@@ -23,7 +23,7 @@ class CustomActivationEmail(ActivationEmail):
         context['protocol'] = protocol
 
 
-        subject = "Activate your PoolHub Account"
+        subject = "Activate your Strikem Account"
         html_content = render_to_string('email/activation.html', context)
 
         email_message = EmailMultiAlternatives(
