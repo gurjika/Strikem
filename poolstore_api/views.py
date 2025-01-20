@@ -411,15 +411,15 @@ class UnreadMatchupView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-
+        current_player = self.request.user.player
         latest_message_subquery = Message.objects.filter(matchup=OuterRef('pk')) \
         .order_by('-time_sent').values('sender')[:1]
 
         unread_matchups = Matchup.objects.filter( \
-            (Q(player_accepting=11) | Q(player_inviting=11))
+            (Q(player_accepting=current_player) | Q(player_inviting=current_player))
         ).filter(read=False).annotate(last_message_sender=Subquery(latest_message_subquery))
 
-        unread_matchups_count = unread_matchups.exclude(last_message_sender=11).count()
+        unread_matchups_count = unread_matchups.exclude(last_message_sender=current_player.id).count()
         
 
         return Response({'unread': unread_matchups_count})
