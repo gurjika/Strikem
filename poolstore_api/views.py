@@ -14,7 +14,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
 from django.db.models import Q, Max, Subquery, OuterRef
-from .pagination import MessagePageNumberPagination, NotificationPagination
+from .pagination import MessagePageNumberPagination, NotificationPagination, RatingPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.db.models import Avg, Count
@@ -224,6 +224,7 @@ class PlayerViewSet(ModelViewSet):
 class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet, CreateModelMixin):
     serializer_class = PoolHouseRatingSerializer
     permission_classes = [IsRaterOrReadOnly, IsAuthenticatedOrReadOnly]
+    pagination_class = RatingPagination
 
     def get_queryset(self):
         return PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])

@@ -10,3 +10,9 @@ class NotificationPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 100
+
+
+class RatingPagination(PageNumberPagination):
+    page_size = 3
+    page_size_query_param = 'page_size'
+    max_page_size = 100
