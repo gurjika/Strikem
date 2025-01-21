@@ -159,7 +159,7 @@ class GoogleLoginApi(APIView):
 
 
         user = User.objects.get_or_create(email=user_email, defaults={
-            'username': f'{user_email.split('@')[0]}{random.randint(1000, 9999)}',
+            'username': f"{user_email.split('@')[0]}{random.randint(1000, 9999)}",
             "first_name": id_token_decoded.get("given_name", ""),
             "last_name": id_token_decoded.get("family_name", ""),
         })
