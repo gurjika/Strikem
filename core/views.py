@@ -1,3 +1,4 @@
+import random
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.views import LoginView
 from .forms import RegisterForm, UserLoginForm
@@ -155,13 +156,21 @@ class GoogleLoginApi(APIView):
         user_info = google_login_flow.get_user_info(google_tokens=google_tokens)
 
         user_email = id_token_decoded["email"]
-        try:
-            user = User.objects.get(email=user_email)
-        except User.DoesNotExist:
-            return Response(
-                {"error": f"User with email {user_email} is not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+
+
+        user = User.objects.get_or_create(email=user_email, defaults={
+            'username': f'{user_email.split('@')[0]}{random.randint(1000, 9999)}',
+            "first_name": id_token_decoded.get("given_name", ""),
+            "last_name": id_token_decoded.get("family_name", ""),
+        })
+
+
+        # try:
+        #     user = User.objects.get(email=user_email)
+        # except User.DoesNotExist:
+        #     user = User.objects.
+        #     username = f"{email_prefix}{random.randint(1000, 9999)}"
+
 
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
