@@ -13,10 +13,10 @@ from poolstore_api.serializers import PlayerSerializer
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from rest_framework import status
-from utils import GoogleRawLoginFlowService
 from django.shortcuts import redirect
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+from .utils import GoogleRawLoginFlowService
 
 
 class MyLoginView(LoginView):
@@ -89,7 +89,7 @@ class CurrentUserView(APIView):
 
 
 
-class GoogleLoginRedirectApi(View):
+class GoogleLoginRedirectApi(APIView):
     def get(self, request, *args, **kwargs):
         google_login_flow = GoogleRawLoginFlowService()
 

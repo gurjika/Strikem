@@ -13,7 +13,6 @@ urlpatterns = [
     path('activate/<str:uid>/<str:token>/', views.ActivateUserEmail.as_view(), name='activate-email'),
     path('current-user/', view=views.CurrentUserView.as_view(), name='current-user'),
     path("auth_for_ws_connection/", AsgiValidateTokenView.as_view()),
-
     path("callback/", views.GoogleLoginApi.as_view(), name="callback-raw"),
     path("redirect/", views.GoogleLoginRedirectApi.as_view(), name="redirect-raw"),
 
