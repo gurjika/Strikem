@@ -155,9 +155,9 @@ class GoogleLoginApi(APIView):
         user_info = google_login_flow.get_user_info(google_tokens=google_tokens)
 
         user_email = id_token_decoded["email"]
-        user = User.objects.filter(email=user_email)
-
-        if user is None:
+        try:
+            user = User.objects.get(email=user_email)
+        except User.DoesNotExist:
             return Response(
                 {"error": f"User with email {user_email} is not found."},
                 status=status.HTTP_404_NOT_FOUND
