@@ -159,7 +159,7 @@ class GoogleLoginApi(APIView):
 
 
         user, created = User.objects.get_or_create(email=user_email, defaults={
-            'username': f"{user_email.split('@')[0]}{random.randint(1000, 9999)}",
+            'username': f"{user_email.split('@')[0][:5]}{random.randint(1000, 9999)}",
             "first_name": id_token_decoded.get("given_name", ""),
             "last_name": id_token_decoded.get("family_name", ""),
         })
@@ -180,6 +180,7 @@ class GoogleLoginApi(APIView):
             "refresh_token": str(refresh),
             "id_token_decoded": id_token_decoded,
             "user_info": user_info,
+            "username": user.username
         }
 
         return Response(result, status=status.HTTP_200_OK)
