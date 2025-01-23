@@ -228,14 +228,14 @@ class GoogleAuthView(APIView):
                             {"error": "A user with this email already exists."},
                             status=status.HTTP_400_BAD_REQUEST,
                         )
-                    elif "core_user_username" in error_message:
+                    elif "core_user.username" in error_message:
                         return Response(
                             {"error": "A user with this username already exists."},
                             status=status.HTTP_400_BAD_REQUEST,
                         )
                     else:
                         return Response(
-                            {"error": "An integrity error occurred."},
+                            {"error": f"An integrity error occurred. {e}"},
                             status=status.HTTP_400_BAD_REQUEST,
                         )
 
