@@ -208,14 +208,14 @@ class GoogleAuthView(APIView):
             # Extract user info
             email = user_info.get("email")
             name = user_info.get("name")
-
+            username = user_info.get('username')
             # You can now handle the user data, e.g., create or fetch a user in your database
             # For example:
             # user, created = User.objects.get_or_create(email=email, defaults={"name": name})
 
 
             user, created = User.objects.get_or_create(email=email, defaults={
-                'username': f"{user_info.split('@')[0][:5]}{random.randint(1000, 9999)}",
+                'username': username,
                 "first_name": user_info.get("given_name", ""),
                 "last_name": user_info.get("family_name", ""),
             })
