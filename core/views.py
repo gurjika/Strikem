@@ -18,7 +18,9 @@ from django.shortcuts import redirect
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import GoogleRawLoginFlowService
-
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from django.conf import settings
 
 class MyLoginView(LoginView):
     template_name='core/login.html'
@@ -98,6 +100,7 @@ class GoogleLoginRedirectApi(APIView):
 
         request.session["google_oauth2_state"] = state
 
+
         return redirect(authorization_url)
 
 
@@ -147,7 +150,7 @@ class GoogleLoginApi(APIView):
             )
         
 
-
+        
         google_login_flow = GoogleRawLoginFlowService()
 
         google_tokens = google_login_flow.get_tokens(code=code)
@@ -184,4 +187,62 @@ class GoogleLoginApi(APIView):
         }
 
         return Response(result, status=status.HTTP_200_OK)
+
+
+
+class GoogleAuthView(APIView):
+    def post(self, request, *args, **kwargs):
+        id_token_received = request.data.get("id_token")
+        if not id_token_received:
+            return Response({"error": "ID token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Verify the token using Google's library
+            # Replace YOUR_CLIENT_ID with the client ID of your Google OAuth app
+            user_info = id_token.verify_oauth2_token(
+                id_token_received,
+                requests.Request(),
+                settings.GOOGLE_OAUTH2_CLIENT_ID_F,
+            )
+
+            # Extract user info
+            email = user_info.get("email")
+            name = user_info.get("name")
+
+            # You can now handle the user data, e.g., create or fetch a user in your database
+            # For example:
+            # user, created = User.objects.get_or_create(email=email, defaults={"name": name})
+
+
+            user, created = User.objects.get_or_create(email=email, defaults={
+                'username': f"{user_info.split('@')[0][:5]}{random.randint(1000, 9999)}",
+                "first_name": user_info.get("given_name", ""),
+                "last_name": user_info.get("family_name", ""),
+            })
+
+
+            # try:
+            #     user = User.objects.get(email=user_email)
+            # except User.DoesNotExist:
+            #     user = User.objects.
+            #     username = f"{email_prefix}{random.randint(1000, 9999)}"
+
+
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+
+
+            return Response(
+                {
+                    "email": email,
+                    "name": name,
+                    'access_token': access_token,
+                    'refresh_token': str(refresh)
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except ValueError as e:
+            # Handle invalid token
+            return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
