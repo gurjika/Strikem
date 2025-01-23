@@ -212,7 +212,7 @@ class GoogleAuthView(APIView):
             here_from = request.data.get('from')
             user = None
             if here_from == 'register':
-                username = user_info.get('username')
+                username = request.data.get('username')
                 try:
                     user = User.objects.create(
                         username=username,
