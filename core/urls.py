@@ -15,6 +15,7 @@ urlpatterns = [
     path("auth_for_ws_connection/", AsgiValidateTokenView.as_view()),
     path("callback/", views.GoogleLoginApi.as_view(), name="callback-raw"),
     path("redirect/", views.GoogleLoginRedirectApi.as_view(), name="redirect-raw"),
+    path('google-auth/', views.GoogleAuthView.as_view(), name='google-auth')
 
 ]
 
