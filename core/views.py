@@ -21,6 +21,7 @@ from .utils import GoogleRawLoginFlowService
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
+from django.db import IntegrityError
 
 class MyLoginView(LoginView):
     template_name='core/login.html'
@@ -214,11 +215,21 @@ class GoogleAuthView(APIView):
             # user, created = User.objects.get_or_create(email=email, defaults={"name": name})
 
 
-            user, created = User.objects.get_or_create(email=email, defaults={
-                'username': username,
-                "first_name": user_info.get("given_name", ""),
-                "last_name": user_info.get("family_name", ""),
-            })
+            try:
+                user, created = User.objects.get_or_create(
+                    email=email,
+                    defaults={
+                        'username': username,
+                        "first_name": user_info.get("given_name", ""),
+                        "last_name": user_info.get("family_name", ""),
+                    },
+                )
+            except IntegrityError:
+                # Handle the case where the username already exists
+                return Response(
+                    {"error": "A user with this username already exists."},
+                    status=400
+                )
 
 
             # try:
