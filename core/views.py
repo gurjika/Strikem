@@ -221,10 +221,23 @@ class GoogleAuthView(APIView):
                         last_name=user_info.get("family_name", ""),
                     )
                 except IntegrityError as e:
-                    return Response(
-                        {"error": f"Error occurerd {e}."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                    error_message = str(e).lower()
+
+                    if "core_user_email" in error_message:
+                        return Response(
+                            {"error": "A user with this email already exists."},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                    elif "core_user_username" in error_message:
+                        return Response(
+                            {"error": "A user with this username already exists."},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                    else:
+                        return Response(
+                            {"error": "An integrity error occurred."},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
 
             else:
                 user = get_object_or_404(User, email=email)
