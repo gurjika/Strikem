@@ -206,7 +206,6 @@ class GoogleAuthView(APIView):
                 settings.GOOGLE_OAUTH2_CLIENT_ID_F,
             )
 
-            # Extract user info
             email = user_info.get("email")
             name = user_info.get("name")
 
@@ -221,9 +220,9 @@ class GoogleAuthView(APIView):
                         first_name=user_info.get("given_name", ""),
                         last_name=user_info.get("family_name", ""),
                     )
-                except IntegrityError:
+                except IntegrityError as e:
                     return Response(
-                        {"error": "A user with this username already exists."},
+                        {"error": f"Error occurerd {e}."},
                         status=status.HTTP_400_BAD_REQUEST
                     )
 
@@ -246,6 +245,5 @@ class GoogleAuthView(APIView):
             )
 
         except ValueError as e:
-            # Handle invalid token
             return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
