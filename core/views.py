@@ -23,6 +23,7 @@ from google.auth.transport import requests
 from django.conf import settings
 from django.db import IntegrityError
 
+
 class MyLoginView(LoginView):
     template_name='core/login.html'
     authentication_form = UserLoginForm
@@ -198,8 +199,7 @@ class GoogleAuthView(APIView):
             return Response({"error": "ID token is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Verify the token using Google's library
-            # Replace YOUR_CLIENT_ID with the client ID of your Google OAuth app
+
             user_info = id_token.verify_oauth2_token(
                 id_token_received,
                 requests.Request(),
@@ -209,9 +209,6 @@ class GoogleAuthView(APIView):
             # Extract user info
             email = user_info.get("email")
             name = user_info.get("name")
-            # You can now handle the user data, e.g., create or fetch a user in your database
-            # For example:
-            # user, created = User.objects.get_or_create(email=email, defaults={"name": name})
 
             here_from = request.data.get('from')
             user = None
@@ -227,32 +224,11 @@ class GoogleAuthView(APIView):
                 except IntegrityError:
                     return Response(
                         {"error": "A user with this username already exists."},
-                    status=400
+                        status=status.HTTP_400_BAD_REQUEST
                     )
-            # try:
-            #     user, created = User.objects.get_or_create(
-            #         email=email,
-            #         defaults={
-            #             'username': username,
-            #             "first_name": user_info.get("given_name", ""),
-            #             "last_name": user_info.get("family_name", ""),
-            #         },
-            #     )
-            # except IntegrityError:
-            #     # Handle the case where the username already exists
-            #     return Response(
-            #         {"error": "A user with this username already exists."},
-            #         status=400
-            #     )
+
             else:
-                user = User.objects.get(email=email)
-
-
-            # try:
-            #     user = User.objects.get(email=user_email)
-            # except User.DoesNotExist:
-            #     user = User.objects.
-            #     username = f"{email_prefix}{random.randint(1000, 9999)}"
+                user = get_object_or_404(User, email=email)
 
 
             refresh = RefreshToken.for_user(user)
