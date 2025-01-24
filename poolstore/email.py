@@ -12,18 +12,19 @@ class CustomActivationEmail(ActivationEmail):
         context = self.get_context_data()
 
         
-        protocol = 'http'
-        domain = context.get('domain') 
+        protocol = 'https' if self.request.is_secure() else 'http'
+        # domain = context.get('domain') 
         uid = context.get('uid')
         token = context.get('token')
-      
 
-        context['domain'] = domain  
-        context['url'] = f'users/activate/{uid}/{token}/'
+        domain = 'strikem.vercel.app'
+
         context['protocol'] = protocol
+        context['domain'] = domain  
+        context['url'] = f'{protocol}://{domain}/activate/{uid}/{token}/'
 
 
-        subject = "Activate your PoolHub Account"
+        subject = "Activate your Strikem Account"
         html_content = render_to_string('email/activation.html', context)
 
         email_message = EmailMultiAlternatives(

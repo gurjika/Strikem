@@ -14,7 +14,6 @@ from datetime import timedelta
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -239,6 +238,7 @@ SIMPLE_JWT = {
 
 
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 
@@ -249,11 +249,11 @@ DJOSER = {
         'current_user': 'core.serializers.UserSerializer'
     },
 
-    # 'ACTIVATION_URL': 'activate/{uid}/{token}/',
-    # 'SEND_ACTIVATION_EMAIL': True,
-    # 'EMAIL': {
-    #     'activation': 'poolstore.email.CustomActivationEmail',
-    # }
+    'ACTIVATION_URL': 'activate/{uid}/{token}/',
+    'SEND_ACTIVATION_EMAIL': True,
+    'EMAIL': {
+        'activation': 'poolstore.email.CustomActivationEmail',
+    }
 
     
 }
@@ -360,3 +360,11 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379/1'
 #     }
 # }
 
+
+GOOGLE_OAUTH2_CLIENT_ID=os.environ.get('GOOGLE_OAUTH2_CLIENT_ID')
+GOOGLE_OAUTH2_CLIENT_SECRET=os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET')
+GOOGLE_OAUTH2_PROJECT_ID=os.environ.get('GOOGLE_OAUTH2_PROJECT_ID')
+GOOGLE_OAUTH2_CLIENT_ID_F=os.environ.get('GOOGLE_OAUTH2_CLIENT_ID_F')
+
+
+BASE_BACKEND_URL = 'https://strikem.site'

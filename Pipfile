@@ -29,6 +29,7 @@ django-cors-headers = "*"
 django-storages = "*"
 boto3 = "*"
 django-celery-beat = "*"
+google-auth = "*"
 
 [dev-packages]
 
