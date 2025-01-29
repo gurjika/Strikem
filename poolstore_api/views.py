@@ -14,7 +14,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
 from django.db.models import Q, Max, Subquery, OuterRef
-from .pagination import MessagePageNumberPagination, NotificationPagination, RatingPagination
+from .pagination import FilterRatingPagination, MessagePageNumberPagination, NotificationPagination, RatingPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.db.models import Avg, Count
@@ -227,7 +227,7 @@ class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMix
     pagination_class = RatingPagination
 
     def get_queryset(self):
-        return PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk'])
+        return PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).select_related('rater')
     
     def get_serializer_context(self):
         context = {}
@@ -458,3 +458,18 @@ class GameSessionInfoView(APIView):
             response['opponent_username'] = opponent_player.user.username
 
         return Response(response)
+    
+class FilterRatingViewSet(ListModelMixin, GenericViewSet):
+    pagination_class = [FilterRatingPagination]
+    def get_queryset(self):
+        queryset = PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).select_related('rater')
+        filter = self.request.query_params.get('filter')
+
+        try:
+            if filter:
+                queryset = queryset.filter(rating=int(filter))
+        except ValueError:
+            pass
+
+
+        return queryset

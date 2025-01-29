@@ -178,10 +178,10 @@ class InvitationSerializer(serializers.ModelSerializer):
 
 class PoolHouseRatingSerializer(serializers.ModelSerializer):
     rater = SimplePlayerSerializer(read_only=True)
-    poolhouse = SimplePoolHouseSerializer(read_only=True)
+    # poolhouse = SimplePoolHouseSerializer(read_only=True)
     class Meta:
         model = PoolHouseRating
-        fields = ['id', 'rate', 'rater', 'poolhouse', 'review']
+        fields = ['id', 'rate', 'rater', 'review']
 
     
     def validate_rate(self, value):

@@ -13,6 +13,7 @@ router.register(prefix='poolhouses-filter', viewset=views.FilterPoolHouseViewSet
 router.register(prefix='reservations', viewset=views.ReservationViewSet, basename='reservation')
 router.register(prefix='notifications', viewset=views.NotificationViewSet, basename='notification')
 router.register(prefix='filter-ratings', viewset=views.MatchMakingPlayerViewSet, basename='filter-rating')
+
 # router.register(prefix='player-details', viewset=views.DetailPlayerInfoViewSet, basename='player-detail')
 
 tables_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
@@ -23,6 +24,9 @@ reservations_router.register(prefix='reservations', viewset=views.PoolHouseReser
 
 ratings_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
 ratings_router.register(prefix='ratings', viewset=views.PoolHouseRatingViewSet, basename='rating')
+
+filter_ratings_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
+ratings_router.register(prefix='filter-ratings', viewset=views.FilterRatingViewSet, basename='filter-rating')
 
 game_session_router = routers.NestedDefaultRouter(parent_router=router, parent_prefix='poolhouses', lookup='poolhouse')
 game_session_router.register(prefix='game-sessions', viewset=views.GameSessionControlViewSet, basename='game-session')
@@ -35,7 +39,10 @@ history_router.register(prefix='history', viewset=views.HistoryViewSet, basename
 
 
 
-urlpatterns = router.urls + tables_router.urls + ratings_router.urls + game_session_router.urls + reservations_router.urls + poolhouse_image_router.urls + history_router.urls
+urlpatterns = router.urls + tables_router.urls + \
+            ratings_router.urls + game_session_router.urls + \
+            reservations_router.urls + poolhouse_image_router.urls + history_router.urls + \
+            filter_ratings_router.urls
 
 urlpatterns += [ 
     path('player-details/', view=views.DetailPlayerInfoView.as_view(), name='player-detail'),

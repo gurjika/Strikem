@@ -2,9 +2,7 @@ from django.db import models
 from django.conf import settings
 import uuid 
 from django.utils.text import slugify
-
-
-# Create your models here.
+from django.core.validators import MaxValueValidator, MinValueValidator 
 
 
 
@@ -196,11 +194,12 @@ class Message(models.Model):
 
 
 class PoolHouseRating(models.Model):
-    rate = models.PositiveSmallIntegerField()
+    rate = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     review = models.TextField()
     rater = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='my_ratings')
     poolhouse = models.ForeignKey(PoolHouse, on_delete=models.CASCADE, related_name='ratings')
     timestamp = models.DateTimeField(auto_now=True)
+
 
 
     class Meta:
