@@ -460,7 +460,9 @@ class GameSessionInfoView(APIView):
         return Response(response)
     
 class FilterRatingViewSet(ListModelMixin, GenericViewSet):
-    pagination_class = [FilterRatingPagination]
+
+    pagination_class = FilterRatingPagination
+
     def get_queryset(self):
         queryset = PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).select_related('rater')
         filter = self.request.query_params.get('filter')
