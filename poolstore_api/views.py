@@ -26,6 +26,7 @@ from .utils import get_nearby_poolhouses, get_nearby_players
 from celery.result import AsyncResult
 from django.db.models import OuterRef, Prefetch
 from rest_framework.views import APIView
+from django.db.models.functions import Round
 
 
 
@@ -37,7 +38,7 @@ class PoolHouseViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = PoolHouse.objects.annotate(
-            avg_rating=Avg('ratings__rate'),
+            avg_rating=Round(Avg('ratings__rate'), 1),
             table_count=Count('tables', distinct=True)
         ).prefetch_related(
             'pics',
@@ -58,7 +59,7 @@ class PoolHouseViewSet(ModelViewSet):
 
 class FilterPoolHouseViewSet(ListModelMixin, GenericViewSet):
     queryset = PoolHouse.objects.annotate(
-        avg_rating=Avg('ratings__rate'),
+        avg_rating=Round(Avg('ratings__rate'), 1),
         table_count=Count('tables', distinct=True)
     ).prefetch_related('pics')
     serializer_class = SimplePoolHouseSerializer
