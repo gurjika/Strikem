@@ -469,7 +469,7 @@ class FilterRatingViewSet(ListModelMixin, GenericViewSet):
 
         try:
             if filter:
-                queryset = queryset.filter(rating=int(filter))
+                queryset = queryset.filter(rate=int(filter))
         except ValueError:
             pass
 
