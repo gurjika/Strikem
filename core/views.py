@@ -94,7 +94,7 @@ class CurrentUserView(APIView):
 
     def get(self, request):
         serializer = PlayerSerializer(request.user.player)
-        password_is_null = not request.user.has_usable_password()
+        password_is_null = not bool(request.user.password)
 
         return Response({
             **serializer.data,

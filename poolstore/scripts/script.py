@@ -5,6 +5,7 @@ from django.utils import timezone
 from datetime import datetime, time, timedelta
 
 import pytz
+from core.models import User
 from poolstore.models import Matchup, Message, PoolHouse, Reservation
 from django.db.models import Exists, OuterRef, Q, Subquery
 
@@ -37,4 +38,9 @@ def run():
 
 
 
-    pass
+    users = User.objects.all()
+
+    for user in users:
+        if user.has_usable_password():
+            j = not bool(user.password)
+            print(j, user.username)
