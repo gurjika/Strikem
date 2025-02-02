@@ -12,6 +12,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse_lazy
 from oauthlib.common import UNICODE_ASCII_CHARACTER_SET
 from django.core.mail import send_mail
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 
@@ -148,3 +149,14 @@ def generate_random_string():
 
 def generate_username(email):
     result = email.split('@')[0][:5] + str(random.randint(1000, 9999))
+
+
+def generate_return_info(user):
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+
+    return {
+        "email": user.email,
+        'access_token': access_token,
+        'refresh_token': str(refresh)
+    }

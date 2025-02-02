@@ -17,7 +17,7 @@ from rest_framework import status
 from django.shortcuts import redirect
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from .utils import GoogleRawLoginFlowService
+from .utils import GoogleRawLoginFlowService, generate_return_info
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
@@ -205,6 +205,7 @@ class GoogleLoginApi(APIView):
 class GoogleAuthView(APIView):
     def post(self, request, *args, **kwargs):
         id_token_received = request.data.get("id_token")
+        came_from = request.data.get('from')
         user_info = None
         if not id_token_received:
             return Response({"error": "ID token is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -223,31 +224,34 @@ class GoogleAuthView(APIView):
         
         email = user_info.get("email")
         name = user_info.get("name")
-        username = generate_username(email)
-        while True:
-            try:
-                user = User.objects.get(username)
-            except User.DoesNotExist:
-                break
-            else:
-                username = generate_username(email)
+        if came_from == 'register':
+            username = generate_username(email)
+            while True:
+                try:
+                    user = User.objects.get(username=username)
+                except User.DoesNotExist:
+                    break
+                else:
+                    username = generate_username(email)
 
-        user, created = User.objects.get_or_create(email=email, defaults={
-            'username': username,
-            "first_name": user_info.get("given_name", ""),
-            "last_name": user_info.get("family_name", ""),
-        })
-
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
+            user, created = User.objects.get_or_create(email=email, defaults={
+                'username': username,
+                "first_name": user_info.get("given_name", ""),
+                "last_name": user_info.get("family_name", ""),
+            })
+            if created:
+                return_info = generate_return_info(user)
+                return Response(
+                    return_info,
+                    status=status.HTTP_200_OK,
+                    )
+            return Response({'Error': 'User with this email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = get_object_or_404(User, email=email)
+        return_info = generate_return_info(user)
 
         return Response(
-            {
-                "email": email,
-                "name": name,
-                'access_token': access_token,
-                'refresh_token': str(refresh)
-            },
+            return_info,
             status=status.HTTP_200_OK,
             )
 
@@ -303,6 +307,7 @@ class VerifyPasswordCode(APIView):
         
         if cache.get(f'{username}_password_code') == code:
             cache.set(f'{username}_password_key', random_uuid, timeout=300)
+            cache.delete(f'{username}_password_code')
             return Response({'key': str(random_uuid)}, status=status.HTTP_200_OK)
         return Response({'Error': 'Code you provided was incorrect or has timed out'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -327,5 +332,6 @@ class SetNullPassword(APIView):
         new_password = request.data.get('password')
         if key and key_received == key:
             self.request.user.set_password(new_password)
+            cache.delete(f'{username}_password_key')
             return Response({'password set': f'password set for user {username}'}, status=status.HTTP_200_OK)
         return Response({'Error': 'Invalid key'}, status=status.HTTP_400_BAD_REQUEST)
