@@ -222,6 +222,7 @@ class NotificationChoices(models.TextChoices):
     ACCEPTED = 'ACP', 'Accepted'
     GAME_SESSION_END = 'GSE', 'Game Session End'
     GAME_SESSION_END_ALONE = 'GSEA', 'Game Session End Alone'
+    SET_PASSWORD = 'SPW', 'Set password'
 
 class Notification(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='notifications')
