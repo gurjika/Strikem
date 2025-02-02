@@ -640,159 +640,21 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(data))
         
 
-            
 
 
 
 
- 
 
 
-class PoolhouseConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        
-        self.room_name = self.scope['url_route']['kwargs']['poolhouse']
-        self.room_group_name = f'poolhouse_{self.room_name}'
 
 
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
 
 
-      
-        await self.accept()
 
 
-    async def disconnect(self, code):
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
 
-    async def receive(self, text_data=None, bytes_data=None):
-        pass
 
 
-
-
-
-
-
-
-
-
-
-class MatchMakeConsumer(BaseNotificationConsumer):
-    async def connect(self):
-        await super().connect()
-        self.GROUP_NAME = 'matchmake'
-
-
-        await self.channel_layer.group_add(
-            self.GROUP_NAME,
-            self.channel_name
-        )
-
-
-
-
-    async def disconnect(self, code):
-        await super().disconnect()
-        await self.channel_layer.group_discard(
-            self.GROUP_NAME,
-            self.channel_name
-        )
-
-
-
-    async def receive(self, text_data=None, bytes_data=None):
-        pass
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-# class MatchupConsumer(BaseNotificationConsumer):
-#     async def connect(self):
-#         await super().connect()
-
-
-#         self.opponent_username = ''
-
-        
-#         await self.accept()
-
-#     async def disconnect(self, code):
-
-#         player = await database_sync_to_async(Player.objects.get)(user=self.user)
-#         opponents = await database_sync_to_async(list)(player.get_opponents())
-                    
-#         # TODO PUT THIS IN CELERY TASK
-#         for opponent in opponents:
-#             await self.channel_layer.group_send(
-#                 f'user_{opponent.user.username}', 
-#                 {
-#                     'type': 'handle_user_state',
-#                     'username': self.user.username,
-#                     'user_state': 'left'
-#                 }
-#             )
-#         await super().disconnect()
-
- 
-    
-
-
-
-
-
-
-
-
-
-
-    
-class GameSessionConsumer(BaseNotificationConsumer):
-    async def connect(self):
-  
-        self.user = self.scope['user']
-        session_id = self.scope['url_route']['kwargs']['session_id']
-        self.GROUP_NAME = f'session_{session_id}'
-
-
-        await self.channel_layer.group_add(
-            self.GROUP_NAME,
-            self.channel_name
-        )
-
-        
-        await self.accept()
-
-    async def disconnect(self, code):
-
-        await self.channel_layer.group_discard(
-            self.GROUP_NAME,
-            self.channel_name
-        )
-        
-    
-    async def receive(self, text_data=None, bytes_data=None):
-        pass
-
-
-    
 
 
   
