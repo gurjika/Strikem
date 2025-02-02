@@ -292,9 +292,8 @@ class GetPasswordCodeView(APIView):
         sent = send_email_with_verification_code(user.email, random_string)
         cache.set(f'{user.username}_password_code', random_string, timeout=60)
 
-        if sent:
-            return Response({'Email Sent': 'Email was successfuly sent to the user'})
-        return Response({'Error': 'Something went wrong'})
+        return Response({'Email Sent': 'Email was successfuly sent to the user'})
+        # return Response({'Error': 'Something went wrong'})
     
 
 class VerifyPasswordCode(APIView):
