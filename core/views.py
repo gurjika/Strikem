@@ -314,3 +314,14 @@ class VerifyPasswordCode(APIView):
         if cache.get(code):
             return Response({'Verified': 'Verification code was correct'}, status=status.HTTP_200_OK)
         return Response({'Error': 'Code you provided was incorrect or has timed out'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CheckUserExists(APIView):
+    def get(self, request):
+        email = request.data.get('email')
+
+        user = get_object_or_404(User, email=email)
+
+        if user:
+            return Response({'Exists': f'User with email {email} exists'}, status=status.HTTP_200_OK)
+        
