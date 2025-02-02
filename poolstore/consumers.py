@@ -4,7 +4,7 @@ from asgiref.sync import async_to_sync
 from django.template.loader import get_template
 from django.db.models import Q
 from core.models import User
-from .models import Invitation, InvitationDenied, MatchMake, Matchup, Notification, Player, Message
+from .models import Invitation, InvitationDenied, Matchup, Notification, Player, Message
 from channels.db import database_sync_to_async
 from datetime import timedelta
 import datetime
