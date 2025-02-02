@@ -25,5 +25,7 @@ def create_player_for_new_user(sender, instance, created, **kwargs):
     if created:
         if not instance.is_staff:
             player = Player.objects.create(user=instance, games_played=0, opponents_met=0, games_won=0)
-            Notification.objects.create(player=player, sent_by=None, body='Please set your account password to fully access its features', type=NotificationChoices.SET_PASSWORD)
+
+            if not instance.has_usable_password():
+                Notification.objects.create(player=player, sent_by=None, body='Please set your account password to fully access its features', type=NotificationChoices.SET_PASSWORD)
 
