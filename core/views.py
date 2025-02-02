@@ -278,15 +278,15 @@ class GetPasswordCodeView(APIView):
         
         random_string = generate_random_string()
 
-        while True:
-            if cache.get(random_string):
-                random_string = generate_random_string()
-                continue
-            else:
-                break
+        # while True:
+        #     if cache.get(random_string):
+        #         random_string = generate_random_string()
+        #         continue
+        #     else:
+        #         break
 
         sent = send_email_with_verification_code(user.email, random_string)
-        cache.set(random_string, True, timeout=60)
+        cache.set(f'{user.username}_password_code', random_string, timeout=60)
 
         if sent:
             return Response({'Email Sent': 'Email was successfuly sent to the user'})
@@ -298,11 +298,11 @@ class VerifyPasswordCode(APIView):
 
     def post(self, request):
         code = request.data.get('code')
-
+        username = self.request.user.username
         random_uuid = uuid.uuid4()
         
-        if cache.get(code):
-            cache.set(f'{self.request.user.username}_password_key', random_uuid, timeout=300)
+        if cache.get(f'{username}_password_code') == code:
+            cache.set(f'{username}_password_key', random_uuid, timeout=300)
             return Response({'key': str(random_uuid)}, status=status.HTTP_200_OK)
         return Response({'Error': 'Code you provided was incorrect or has timed out'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -312,7 +312,6 @@ class CheckUserExists(APIView):
 
     def get(self, request):
         email = request.data.get('email')
-
         user = get_object_or_404(User, email=email)
 
         if user:
