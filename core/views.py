@@ -325,6 +325,7 @@ class SetNullPassword(APIView):
         new_password = request.data.get('password')
         if key and key_received == key:
             self.request.user.set_password(new_password)
+            self.request.user.save()
             cache.delete(f'{username}_password_key')
             return Response({'password set': f'password set for user {username}'}, status=status.HTTP_200_OK)
         return Response({'Error': 'Invalid key'}, status=status.HTTP_400_BAD_REQUEST)
