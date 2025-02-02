@@ -1,4 +1,6 @@
 from random import SystemRandom
+import secrets
+import string
 from typing import Any, Dict
 from urllib.parse import urlencode
 import jwt
@@ -8,6 +10,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse_lazy
 from oauthlib.common import UNICODE_ASCII_CHARACTER_SET
+from django.core.mail import send_mail
 
 
 
@@ -126,3 +129,17 @@ def google_raw_login_get_credentials() -> GoogleRawLoginCredentials:
     credentials = GoogleRawLoginCredentials(client_id=client_id, client_secret=client_secret, project_id=project_id)
 
     return credentials
+
+
+def send_email_with_verification_code(email, code):
+    send_mail(
+        subject='Verification Code for Strikem',
+        message=f'Your password setting verfication code: {code}',
+        from_email='luka.gurjidze04@gmail.com',
+        recipient_list=[email],
+        fail_silently=False  
+    )
+
+def generate_random_string():
+    characters = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(characters.lower()) for _ in range(7))

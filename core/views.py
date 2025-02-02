@@ -21,7 +21,9 @@ from .utils import GoogleRawLoginFlowService
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
+from django.core.cache import cache
 from django.db import IntegrityError
+from utils import generate_random_string, send_email_with_verification_code
 
 
 class MyLoginView(LoginView):
@@ -279,4 +281,36 @@ class DeleteUserView(APIView):
             return Response({'deleted': f"user {username} was deleted"}, status=status.HTTP_204_NO_CONTENT)
         return Response({'incorrect password': 'password you provided was incorrect'}, status=status.HTTP_400_BAD_REQUEST)
     
+
+class GetPasswordCodeView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        user = self.request.user
+
+        if user.has_usable_password():
+            return Response({'error': 'User already has a valid password'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        random_string = generate_random_string()
+
+        while True:
+            if cache.get(random_string) is not None:
+                random_string = generate_random_string()
+                continue
+            else:
+                break
+
+        sent = send_email_with_verification_code(user.email, random_string)
+        cache.set(random_string, True, timeout=60)
+
+        if sent:
+            return Response({'Email Sent': 'Email was successfuly sent to the user'})
+        return Response({'Error': 'Something went wrong'})
     
+
+class VerifyPasswordCode(APIView):
+    def post(self, request):
+        code = request.data.get('code')
+
+        if cache.get(code):
+            return Response({'Verified': 'Verification code was correct'}, status=status.HTTP_200_OK)
+        return Response({'Error': 'Code you provided was incorrect or has timed out'}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,4 +1,6 @@
 
+import secrets
+import string
 from django.utils import timezone
 from datetime import datetime, time, timedelta
 
@@ -20,15 +22,19 @@ def run():
 
     # # Reservation.objects.create(date=date_v, start_time=start_time, duration=30, end_time=end_time, real_end_time=real_end_time, table_id=1, player_id=1)
 
-    latest_message_subquery = Message.objects.filter(matchup=OuterRef('pk')) \
-    .order_by('-time_sent').values('sender')[:1]
+    # latest_message_subquery = Message.objects.filter(matchup=OuterRef('pk')) \
+    # .order_by('-time_sent').values('sender')[:1]
 
-    unread_matchups = Matchup.objects.filter( \
-        (Q(player_accepting=11) | Q(player_inviting=11))
-    ).filter(read=False).annotate(last_message_sender=Subquery(latest_message_subquery))
+    # unread_matchups = Matchup.objects.filter( \
+    #     (Q(player_accepting=11) | Q(player_inviting=11))
+    # ).filter(read=False).annotate(last_message_sender=Subquery(latest_message_subquery))
 
-    unread_matchups = unread_matchups.exclude(last_message_sender=11)
+    # unread_matchups = unread_matchups.exclude(last_message_sender=11)
     
-    print(unread_matchups.query)
+    # print(unread_matchups.query)
 
-    print(unread_matchups)
+    # print(unread_matchups)
+
+
+
+    pass
