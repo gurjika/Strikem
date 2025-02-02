@@ -282,13 +282,6 @@ class GetPasswordCodeView(APIView):
         
         random_string = generate_random_string()
 
-        # while True:
-        #     if cache.get(random_string):
-        #         random_string = generate_random_string()
-        #         continue
-        #     else:
-        #         break
-
         sent = send_email_with_verification_code(user.email, random_string)
         cache.set(f'{user.username}_password_code', random_string, timeout=60)
 
@@ -328,6 +321,7 @@ class SetNullPassword(APIView):
         username = self.request.user.username
         key = cache.get(f'{username}_password_key')
         key_received = request.data.get('key')
+        print(f'key: {key}', "received_key: ", key_received)
         new_password = request.data.get('password')
         if key and key_received == key:
             self.request.user.set_password(new_password)
