@@ -23,7 +23,7 @@ from google.auth.transport import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.db import IntegrityError
-from utils import generate_random_string, send_email_with_verification_code
+from .utils import generate_random_string, send_email_with_verification_code
 
 
 class MyLoginView(LoginView):
