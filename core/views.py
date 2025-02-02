@@ -24,6 +24,9 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import IntegrityError
 from .utils import generate_random_string, send_email_with_verification_code
+import uuid
+
+
 
 
 class MyLoginView(LoginView):
@@ -293,7 +296,7 @@ class GetPasswordCodeView(APIView):
         random_string = generate_random_string()
 
         while True:
-            if cache.get(random_string) is not None:
+            if cache.get(random_string):
                 random_string = generate_random_string()
                 continue
             else:
@@ -308,15 +311,22 @@ class GetPasswordCodeView(APIView):
     
 
 class VerifyPasswordCode(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         code = request.data.get('code')
 
+        random_uuid = uuid.uuid4()
+        
         if cache.get(code):
+            cache.set(f'{self.request.user.username}_password_key', random_uuid, timeout=300)
             return Response({'Verified': 'Verification code was correct'}, status=status.HTTP_200_OK)
         return Response({'Error': 'Code you provided was incorrect or has timed out'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CheckUserExists(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         email = request.data.get('email')
 
@@ -325,3 +335,14 @@ class CheckUserExists(APIView):
         if user:
             return Response({'Exists': f'User with email {email} exists'}, status=status.HTTP_200_OK)
         
+
+class SetNullPassword(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        username = self.request.user.username
+        key = cache.get(f'{username}_password_key')
+        new_password = request.data.get('password')
+        if key:
+            self.request.user.set_password(new_password)
+            return Response({'password set': f'password set for user {username}'}, status=status.HTTP_200_OK)
+        return Response({'Error': 'Invalid key'}, status=status.HTTP_400_BAD_REQUEST)

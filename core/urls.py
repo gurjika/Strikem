@@ -15,8 +15,12 @@ urlpatterns = [
     path("auth_for_ws_connection/", AsgiValidateTokenView.as_view()),
     path("callback/", views.GoogleLoginApi.as_view(), name="callback-raw"),
     path("redirect/", views.GoogleLoginRedirectApi.as_view(), name="redirect-raw"),
-    path('google-auth/', views.GoogleAuthView.as_view(), name='google-auth')
-
+    path('google-auth/', views.GoogleAuthView.as_view(), name='google-auth'),
+    path('delete-user/', views.DeleteUserView.as_view(), name='delete-user'),
+    path('get-code/', views.GetPasswordCodeView.as_view(), name='get-code'),
+    path('verify-code/', views.VerifyPasswordCode.as_view(), name='verify-code'),
+    path('set-g-password/', views.SetNullPassword.as_view(), name='set-g-password'),
+    path('check-email-exists', views.CheckUserExists.as_view(), name='check-email-exists')
 ]
 
 
