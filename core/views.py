@@ -277,7 +277,7 @@ class GetPasswordCodeView(APIView):
     def post(self, request):
         user = self.request.user
 
-        if user.has_usable_password():
+        if bool(user.password):
             return Response({'error': 'User already has a valid password'}, status=status.HTTP_400_BAD_REQUEST)
         
         random_string = generate_random_string()
