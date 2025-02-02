@@ -9,6 +9,7 @@ from core.models import User
 from poolstore.models import Matchup, Message, PoolHouse, Reservation
 from django.db.models import Exists, OuterRef, Q, Subquery
 
+from django.core.cache import cache
 
 def run():
     # PoolHouse.objects.create(title='MetroPool', address='Vera Park')
@@ -37,10 +38,5 @@ def run():
     # print(unread_matchups)
 
 
-
-    users = User.objects.all()
-
-    for user in users:
-        if user.has_usable_password():
-            j = not bool(user.password)
-            print(j, user.username)
+    pass
+    

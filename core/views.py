@@ -298,7 +298,7 @@ class VerifyPasswordCode(APIView):
         random_uuid = uuid.uuid4()
         
         if cache.get(f'{username}_password_code') == code:
-            cache.set(f'{username}_password_key', random_uuid, timeout=300)
+            cache.set(f'{username}_password_key', str(random_uuid), timeout=300)
             cache.delete(f'{username}_password_code')
             return Response({'key': str(random_uuid)}, status=status.HTTP_200_OK)
         return Response({'Error': 'Code you provided was incorrect or has timed out'}, status=status.HTTP_400_BAD_REQUEST)
