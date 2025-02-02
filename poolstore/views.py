@@ -2,7 +2,7 @@ from typing import Any
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
 from django.shortcuts import get_object_or_404, render
-from .models import Invitation, MatchMake, Matchup, Player, PoolHouse, Message, Reservation
+from .models import Invitation, Matchup, Player, PoolHouse, Message, Reservation
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
@@ -29,18 +29,18 @@ def poolhouse(request, poolhouse):
     return render(request, 'poolstore/poolhouse.html', {'poolhouse': poolhouse, 'ph': ph})
 
 
-@login_required
-def matchmakings(request):
-    matches = MatchMake.objects.all()
+# @login_required
+# def matchmakings(request):
+#     matches = MatchMake.objects.all()
 
-    invites = Invitation.objects.filter(player_invited__user=request.user)
+#     invites = Invitation.objects.filter(player_invited__user=request.user)
 
-    context = {
-        'invites': invites,
-        'matches': matches
-    }
+#     context = {
+#         'invites': invites,
+#         'matches': matches
+#     }
     
-    return render(request, 'poolstore/matchmake.html', context)
+#     return render(request, 'poolstore/matchmake.html', context)
 
 
 

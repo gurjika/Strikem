@@ -265,3 +265,18 @@ class GoogleAuthView(APIView):
         except ValueError as e:
             return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class DeleteUserView(APIView):
+    def delete(self, request, pk):
+        password = request.data.get('password')
+        user = get_object_or_404(User, id=pk)
+        checked = user.check_password(password)
+
+        if checked:
+            username = user.username
+            user.delete()
+
+            return Response({'deleted': f"user {username} was deleted"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'incorrect password': 'password you provided was incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    

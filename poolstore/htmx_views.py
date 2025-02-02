@@ -1,7 +1,7 @@
 from datetime import datetime, time, timedelta
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
-from .models import Invitation, MatchMake, Matchup, PoolHouse, Message, Reservation
+from .models import Invitation, Matchup, PoolHouse, Message, Reservation
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models import Prefetch
