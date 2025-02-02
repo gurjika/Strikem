@@ -25,7 +25,9 @@ from django.core.cache import cache
 from django.db import IntegrityError
 from .utils import generate_random_string, send_email_with_verification_code, generate_username
 import uuid
+from django.contrib.auth.password_validation import validate_password
 
+from django.core.exceptions import ValidationError
 
 
 
@@ -318,14 +320,19 @@ class CheckUserExists(APIView):
 class SetNullPassword(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
-        username = self.request.user.username
+        user = self.request.user
+        username = user.username
         key = cache.get(f'{username}_password_key')
         key_received = request.data.get('key')
         print(f'key: {key}', "received_key: ", key_received)
         new_password = request.data.get('password')
         if key and key_received == key:
-            self.request.user.set_password(new_password)
-            self.request.user.save()
+            try:
+                validate_password(new_password)
+                user.set_password(new_password) 
+                user.save()
+            except ValidationError as e:
+                return Response({'Error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
             cache.delete(f'{username}_password_key')
             return Response({'password set': f'password set for user {username}'}, status=status.HTTP_200_OK)
         return Response({'Error': 'Invalid key'}, status=status.HTTP_400_BAD_REQUEST)
