@@ -23,7 +23,7 @@ from google.auth.transport import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.db import IntegrityError
-from .utils import generate_random_string, send_email_with_verification_code
+from .utils import generate_random_string, send_email_with_verification_code, generate_username
 import uuid
 
 
@@ -205,70 +205,53 @@ class GoogleLoginApi(APIView):
 class GoogleAuthView(APIView):
     def post(self, request, *args, **kwargs):
         id_token_received = request.data.get("id_token")
+        user_info = None
         if not id_token_received:
             return Response({"error": "ID token is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
 
         try:
-
             user_info = id_token.verify_oauth2_token(
                 id_token_received,
                 requests.Request(),
                 settings.GOOGLE_OAUTH2_CLIENT_ID_F,
             )
 
-            email = user_info.get("email")
-            name = user_info.get("name")
-
-            here_from = request.data.get('from')
-            user = None
-            if here_from == 'register':
-                username = request.data.get('username')
-                try:
-                    user = User.objects.create(
-                        username=username,
-                        email=email,
-                        first_name=user_info.get("given_name", ""),
-                        last_name=user_info.get("family_name", ""),
-                    )
-                except IntegrityError as e:
-                    error_message = str(e).lower()
-
-                    if "core_user_email" in error_message:
-                        return Response(
-                            {"error": "A user with this email already exists."},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                    elif "core_user.username" in error_message:
-                        return Response(
-                            {"error": "A user with this username already exists."},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                    else:
-                        return Response(
-                            {"error": f"An integrity error occurred. {e}"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-
-            else:
-                user = get_object_or_404(User, email=email)
-
-
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-
-
-            return Response(
-                {
-                    "email": email,
-                    "name": name,
-                    'access_token': access_token,
-                    'refresh_token': str(refresh)
-                },
-                status=status.HTTP_200_OK,
-            )
 
         except ValueError as e:
             return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        email = user_info.get("email")
+        name = user_info.get("name")
+        username = generate_username(email)
+        while True:
+            try:
+                user = User.objects.get(username)
+            except User.DoesNotExist:
+                break
+            else:
+                username = generate_username(email)
+
+        user, created = User.objects.get_or_create(email=email, defaults={
+            'username': username,
+            "first_name": user_info.get("given_name", ""),
+            "last_name": user_info.get("family_name", ""),
+        })
+
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        return Response(
+            {
+                "email": email,
+                "name": name,
+                'access_token': access_token,
+                'refresh_token': str(refresh)
+            },
+            status=status.HTTP_200_OK,
+            )
+
+
 
 
 class DeleteUserView(APIView):
@@ -320,7 +303,7 @@ class VerifyPasswordCode(APIView):
         
         if cache.get(code):
             cache.set(f'{self.request.user.username}_password_key', random_uuid, timeout=300)
-            return Response({'Verified': 'Verification code was correct'}, status=status.HTTP_200_OK)
+            return Response({'key': str(random_uuid)}, status=status.HTTP_200_OK)
         return Response({'Error': 'Code you provided was incorrect or has timed out'}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -341,8 +324,9 @@ class SetNullPassword(APIView):
     def post(self, request):
         username = self.request.user.username
         key = cache.get(f'{username}_password_key')
+        key_received = request.data.get('key')
         new_password = request.data.get('password')
-        if key:
+        if key and key_received == key:
             self.request.user.set_password(new_password)
             return Response({'password set': f'password set for user {username}'}, status=status.HTTP_200_OK)
         return Response({'Error': 'Invalid key'}, status=status.HTTP_400_BAD_REQUEST)

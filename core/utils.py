@@ -1,4 +1,5 @@
 from random import SystemRandom
+import random
 import secrets
 import string
 from typing import Any, Dict
@@ -143,3 +144,7 @@ def send_email_with_verification_code(email, code):
 def generate_random_string():
     characters = string.ascii_letters + string.digits
     return ''.join(secrets.choice(characters.lower()) for _ in range(7))
+
+
+def generate_username(email):
+    result = email.split('@')[0][:5] + str(random.randint(1000, 9999))
