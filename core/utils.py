@@ -150,6 +150,8 @@ def generate_random_string():
 def generate_username(email):
     result = email.split('@')[0][:5] + str(random.randint(1000, 9999))
 
+    return result
+
 
 def generate_return_info(user):
     refresh = RefreshToken.for_user(user)
