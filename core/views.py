@@ -261,9 +261,9 @@ class GoogleAuthView(APIView):
 
 
 class DeleteUserView(APIView):
-    def delete(self, request, pk):
+    def post(self, request):
         password = request.data.get('password')
-        user = get_object_or_404(User, id=pk)
+        user = self.request.user
         checked = user.check_password(password)
 
         if checked:
