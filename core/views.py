@@ -261,6 +261,7 @@ class GoogleAuthView(APIView):
 
 
 class DeleteUserView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         password = request.data.get('password')
         user = self.request.user
