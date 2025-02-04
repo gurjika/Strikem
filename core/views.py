@@ -310,7 +310,7 @@ class VerifyPasswordCode(APIView):
 class CheckUserExists(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def post(self, request):
         email = request.data.get('email')
         user = get_object_or_404(User, email=email)
 
