@@ -3,7 +3,9 @@ from django.conf import settings
 import uuid 
 from django.utils.text import slugify
 from django.core.validators import MaxValueValidator, MinValueValidator 
-
+from io import BytesIO
+from PIL import Image
+from django.core.files.base import ContentFile
 
 
 
@@ -24,28 +26,35 @@ class Player(models.Model):
         accepted = Player.objects.select_related('user').filter(accepted_matchups__player_inviting=self)
         return (invited | accepted).distinct()
 
+
     def save(self, *args, **kwargs):
-        # Check if there is an existing image and if the instance already has a saved image
+        # Check if updating an existing image
         if self.pk:
             try:
                 old_image = Player.objects.get(pk=self.pk).profile_image
                 if old_image and old_image != self.profile_image:
                     old_image.delete(save=False)  # Delete old image from S3
             except Player.DoesNotExist:
-                pass  # If the instance is new and doesn't exist in the DB yet, skip
+                pass  # Ignore if the player does not exist
 
-        super().save(*args, **kwargs)  
-    
-    # def save(self, *args, **kwargs):
-    #     super().save()
+        if self.profile_image:
+            profile_image = Image.open(self.profile_image)
 
-    #     if self.profile_image:
-    #         profile_image = Image.open(self.profile_image)
+            # Ensure correct mode (convert RGBA -> RGB to avoid transparency issues)
+            if profile_image.mode in ("RGBA", "P"):
+                profile_image = profile_image.convert("RGB")
 
-    #         if profile_image.height > 600 or profile_image.width > 600:
-    #             output_isze = (300, 300)
-    #             profile_image.thumbnail(output_isze)
-    #             profile_image.save(self.profile_image.path)
+            if profile_image.height > 400 or profile_image.width > 400:
+                output_size = (400, 400)
+                profile_image.thumbnail(output_size)
+
+                img_io = BytesIO()
+                profile_image.save(img_io, format="JPEG")  # Use "JPEG" or "PNG" explicitly
+
+                self.profile_image = ContentFile(img_io.getvalue(), name=self.profile_image.name)
+
+        super().save(*args, **kwargs)
+
 
 
     class Meta:
