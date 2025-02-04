@@ -9,7 +9,7 @@ from .models import User
 from rest_framework.views import APIView
 import requests
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from poolstore_api.serializers import PlayerSerializer
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
@@ -337,3 +337,59 @@ class SetNullPassword(APIView):
             cache.delete(f'{username}_password_key')
             return Response({'password set': f'password set for user {username}'}, status=status.HTTP_200_OK)
         return Response({'Error': 'Invalid key'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+class SetForgetPassword(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        key = request.data.get('key')
+        new_password = request.data.get('password')
+
+
+        saved_key = cache.get(f'{email}_password_forget_key')
+
+        if saved_key and saved_key == key:
+            user = get_object_or_404(User, email)
+            try:
+                validate_password(new_password)
+                user.set_password(new_password) 
+                user.save()
+            except ValidationError as e:
+                return Response({'Error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+            cache.delete(f'{email}_password_forget_key')
+            return Response({'password set': f'password set for user {user.username}'}, status=status.HTTP_200_OK)
+        return Response({'Error': 'Invalid key'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetPasswordCodeForget(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        random_string = generate_random_string()
+        send_email_with_verification_code(email, random_string)
+        cache.set(f'{email}_password_forget_code', random_string, timeout=60)
+
+        return Response({'Email Sent': 'Email was successfuly sent to the user'})
+    
+
+class VerifyPasswordCodeForget(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        code = request.data.get('code')
+        email = request.data.get('email')
+
+        saved_code = cache.get(f'{email}_password_forget_code')
+
+        if saved_code and saved_code == code:
+            random_uuid = uuid.uuid4()
+            cache.set(f'{email}_password_forget_key', str(random_uuid), timeout=300)
+            cache.delete(f'{email}_password_forget_code')
+            return Response({'key': str(random_uuid)}, status=status.HTTP_200_OK)
+        return Response({'Error': 'Code you provided was incorrect or has timed out'}, status=status.HTTP_400_BAD_REQUEST)
+
+

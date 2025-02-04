@@ -20,7 +20,10 @@ urlpatterns = [
     path('get-code/', views.GetPasswordCodeView.as_view(), name='get-code'),
     path('verify-code/', views.VerifyPasswordCode.as_view(), name='verify-code'),
     path('set-g-password/', views.SetNullPassword.as_view(), name='set-g-password'),
-    path('check-email-exists', views.CheckUserExists.as_view(), name='check-email-exists')
+    path('check-email-exists/', views.CheckUserExists.as_view(), name='check-email-exists'),
+    path('set-forget-password/', views.SetForgetPassword.as_view(), name='set-forget-password'),
+    path('get-code-forget/', views.GetPasswordCodeForget.as_view(), name='get-code-forget'),
+    path('verify-code-forget/', views.VerifyPasswordCodeForget.as_view(), name='verify-code-forget'),
 ]
 
 
