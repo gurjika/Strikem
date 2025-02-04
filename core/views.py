@@ -352,7 +352,7 @@ class SetForgetPassword(APIView):
         saved_key = cache.get(f'{email}_password_forget_key')
 
         if saved_key and saved_key == key:
-            user = get_object_or_404(User, email)
+            user = get_object_or_404(User, email=email)
             try:
                 validate_password(new_password)
                 user.set_password(new_password) 
