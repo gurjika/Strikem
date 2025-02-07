@@ -31,7 +31,6 @@ class Player(models.Model):
     def save(self, *args, **kwargs):
         updating_image = False
         default_image_path = 'profile-pics/default.jpg'
-        print(self.profile_image)
         if self.pk:
             try:
                 old_image = Player.objects.get(pk=self.pk).profile_image
@@ -40,7 +39,6 @@ class Player(models.Model):
             except Player.DoesNotExist:
                 pass
 
-        print(updating_image)
         if updating_image:
             if default_image_path != str(old_image.name):
                 old_image.delete(save=False)
