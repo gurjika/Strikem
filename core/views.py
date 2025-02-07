@@ -368,6 +368,12 @@ class GetPasswordCodeForget(APIView):
 
     def post(self, request):
         email = request.data.get('email')
+
+        try:
+            User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'Error': f'User with email {email} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        
         random_string = generate_random_string()
         send_email_with_verification_code(email, random_string)
         cache.set(f'{email}_password_forget_code', random_string, timeout=60)
