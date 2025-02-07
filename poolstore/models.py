@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.conf import settings
 import uuid 
@@ -47,6 +48,9 @@ class Player(models.Model):
                 old_image.delete(save=False)
 
             if self.profile_image:
+                ext = os.path.splitext(self.profile_image.name)[1]
+                unique_filename = f"{uuid.uuid4().hex}{ext}"
+                self.profile_image.name = unique_filename
                 profile_image = Image.open(self.profile_image)
 
                 # Ensure correct mode (convert RGBA -> RGB to avoid transparency issues)
