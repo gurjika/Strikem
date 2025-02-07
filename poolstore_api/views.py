@@ -27,6 +27,9 @@ from celery.result import AsyncResult
 from django.db.models import OuterRef, Prefetch
 from rest_framework.views import APIView
 from django.db.models.functions import Round
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -220,7 +223,40 @@ class PlayerViewSet(ModelViewSet):
     def get_queryset(self):
         return Player.objects.select_related('user').all()
     
+    def dispatch(self, request, *args, **kwargs):
+        # Log the details of the request
+        self.log_request(request)
 
+        # Call the parent class's dispatch method to continue normal request processing
+        return super().dispatch(request, *args, **kwargs)
+
+    def log_request(self, request):
+        # Log the HTTP method, path, and headers
+        logger.info(f"Request Method: {request.method}")
+        logger.info(f"Request Path: {request.path}")
+        logger.info(f"Request Headers: {request.headers}")
+        
+        # Log request body for POST, PUT, PATCH, DELETE methods
+        if request.body:
+            logger.info(f"Request Body: {request.body.decode('utf-8')}")
+
+        # Optionally log query parameters or user information if needed
+        if request.query_params:
+            logger.info(f"Query Parameters: {request.query_params}")
+        if hasattr(request.user, 'username'):
+            logger.info(f"User: {request.user.username}")
+
+    def perform_create(self, serializer):
+        logger.info(f"Creating new player with data: {serializer.validated_data}")
+        super().perform_create(serializer)
+
+    def perform_update(self, serializer):
+        logger.info(f"Updating player with data: {serializer.validated_data}")
+        super().perform_update(serializer)
+
+    def perform_destroy(self, instance):
+        logger.info(f"Deleting player: {instance}")
+        super().perform_destroy(instance)
 
 class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet, CreateModelMixin):
     serializer_class = PoolHouseRatingSerializer
