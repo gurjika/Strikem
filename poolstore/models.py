@@ -41,8 +41,6 @@ class Player(models.Model):
                 pass
 
         
-        print(str(old_image.name))
-
         if updating_image:
             if default_image_path != str(old_image.name):
                 old_image.delete(save=False)
