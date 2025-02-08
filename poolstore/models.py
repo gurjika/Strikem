@@ -54,7 +54,7 @@ class Player(models.Model):
                     profile_image = profile_image.convert("RGB")
 
                 if profile_image.height > 800 or profile_image.width > 800:
-                    output_size = (600, 600)
+                    output_size = (800, 800)
                     profile_image.thumbnail(output_size)
 
                     img_io = BytesIO()
