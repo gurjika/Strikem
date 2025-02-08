@@ -53,7 +53,7 @@ class Player(models.Model):
                 if profile_image.mode in ("RGBA", "P"):
                     profile_image = profile_image.convert("RGB")
 
-                if profile_image.height > 600 or profile_image.width > 600:
+                if profile_image.height > 800 or profile_image.width > 800:
                     output_size = (600, 600)
                     profile_image.thumbnail(output_size)
 
