@@ -54,13 +54,25 @@ class Player(models.Model):
                     profile_image = profile_image.convert("RGB")
 
                 if profile_image.height > 800 or profile_image.width > 800:
-                    output_size = (800, 800)
-                    profile_image.thumbnail(output_size)
+                    # output_size = (800, 800)
+                    # profile_image.thumbnail(output_size)
 
-                    img_io = BytesIO()
-                    profile_image.save(img_io, format="JPEG")  # Use "JPEG" or "PNG" explicitly
+                    # img_io = BytesIO()
+                    # profile_image.save(img_io, format="JPEG")  # Use "JPEG" or "PNG" explicitly
 
-                    self.profile_image = ContentFile(img_io.getvalue(), name=self.profile_image.name)
+                    # self.profile_image = ContentFile(img_io.getvalue(), name=self.profile_image.name)
+
+                    center_x, center_y = profile_image.width // 2, profile_image.height // 2
+                    left = max(0, center_x - 400)
+                    top = max(0, center_y - 400)
+                    right = min(profile_image.width, center_x + 400)
+                    bottom = min(profile_image.height, center_y + 400)
+
+                    profile_image = profile_image.crop((left, top, right, bottom))
+
+                img_io = BytesIO()
+                profile_image.save(img_io, format="JPEG")  # Use "JPEG" or "PNG" explicitly
+                self.profile_image = ContentFile(img_io.getvalue(), name=self.profile_image.name)
 
         super().save(*args, **kwargs) 
 
