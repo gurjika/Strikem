@@ -2,23 +2,63 @@ from datetime import datetime, time, timedelta
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from poolstore.models import GameSession, History, Invitation, InvitationDenied, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
-from poolstore_api.serializers import CreateHistorySerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer, TopPlayerSerializer, TopTableSerializer
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin, UpdateModelMixin
-from poolstore_api.serializers import CreateHistorySerializer, DetailPlayerSerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
-from poolstore_api.serializers import CreateHistorySerializer, DetailPlayerSerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerLocationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
+from poolstore.models import (
+    GameSession, 
+    History, 
+    Invitation, 
+    Matchup, 
+    Message, 
+    Notification, 
+    Player, 
+    PoolHouse, 
+    PoolHouseImage, 
+    PoolHouseRating, 
+    PoolTable, 
+    Reservation)
+from rest_framework.mixins import (
+    ListModelMixin, 
+    RetrieveModelMixin, 
+    DestroyModelMixin, 
+    CreateModelMixin, 
+    UpdateModelMixin)
+from poolstore_api.serializers import (
+    CreateHistorySerializer, 
+    DetailPlayerSerializer, 
+    GameSessionSerializer, 
+    InvitationSerializer, 
+    ListHistorySerializer, 
+    MatchupSerializer, 
+    MessageSerializer, 
+    NotificationSerializer, 
+    PlayerLocationSerializer, 
+    PlayerSerializer, 
+    PoolHouseImageSerializer, 
+    PoolHouseRatingSerializer, 
+    PoolHouseSerializer, 
+    PoolTableSerializer, 
+    ReservationSerializer, 
+    SimplePoolHouseSerializer, 
+    StaffReservationCreateSerializer, 
+    TopPlayerSerializer,
+    TopTableSerializer)
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
-from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly, IsStaffOrDeniedOwn
+from .permissions import (
+    IsAdminOrReadOnly, 
+    IsCurrentUserOrReadOnly, 
+    IsPlayerReservingUserOrReadOnly, 
+    IsRaterOrReadOnly, 
+    IsStaffOrDenied, 
+    IsStaffOrReadOnly, 
+    IsStaffOrDeniedOwn)
 from django.db.models import Q, Max, Subquery, OuterRef
 from .pagination import FilterRatingPagination, MessagePageNumberPagination, NotificationPagination, RatingPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.db.models import Avg, Count
-from .tasks import finish_game_session
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
