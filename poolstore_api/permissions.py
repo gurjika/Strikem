@@ -59,7 +59,18 @@ class IsStaffOrDenied(BasePermission):
             except PoolHouse.DoesNotExist:
                 return False
         return False
-    
+
+
+class IsStaffOrDeniedOwn(BasePermission):
+    """
+    Custom permission to only allow staff members to access the view.
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        if user.is_staff:
+            return True
+        return False
 
 class IsPlayerReservingUserOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):

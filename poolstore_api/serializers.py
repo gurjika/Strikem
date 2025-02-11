@@ -87,7 +87,7 @@ class PoolTableSerializer(serializers.ModelSerializer):
     free = serializers.BooleanField(read_only=True)
     class Meta:
         model = PoolTable
-        fields = ['id', 'current_session', 'free', 'left', 'top']
+        fields = ['id', 'current_session', 'free', 'left', 'top', 'table_id']
 
     def get_current_session(self, obj):
         ## SHOW ONGOING RESERVATION IF THE ACTIVE SESSION EXISTS
@@ -370,3 +370,19 @@ class PlayerLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ['id', 'lat', 'lng']
+
+
+
+class TopPlayerSerializer(serializers.ModelSerializer):
+    user = SimpleUserSerializer(read_only=True)
+    cnt = serializers.IntegerField(read_only=True)
+    class Meta:
+        model = Player
+        fields = ['id', 'user', 'profile_image', 'total_points', 'cnt']
+
+
+class TopTableSerializer(serializers.ModelSerializer):
+    cnt = serializers.IntegerField(read_only=True)
+    class Meta:
+        model = PoolTable
+        fields = ['id', 'table_id', 'cnt']
