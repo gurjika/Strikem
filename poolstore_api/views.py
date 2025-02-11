@@ -477,3 +477,12 @@ class FilterRatingViewSet(ListModelMixin, GenericViewSet):
 
         queryset = queryset.order_by('-timestamp')
         return queryset
+    
+
+
+class TopPlayingPlayers(ListModelMixin, GenericViewSet):
+    pagination_class = FilterRatingPagination
+    serializer_class = PlayerSerializer
+
+    def get_queryset(self):
+        pass

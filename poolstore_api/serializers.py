@@ -87,7 +87,7 @@ class PoolTableSerializer(serializers.ModelSerializer):
     free = serializers.BooleanField(read_only=True)
     class Meta:
         model = PoolTable
-        fields = ['id', 'current_session', 'free', 'left', 'top']
+        fields = ['id', 'current_session', 'free', 'left', 'top', 'table_id']
 
     def get_current_session(self, obj):
         ## SHOW ONGOING RESERVATION IF THE ACTIVE SESSION EXISTS
