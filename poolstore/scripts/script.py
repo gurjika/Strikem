@@ -6,8 +6,8 @@ from datetime import datetime, time, timedelta
 
 import pytz
 from core.models import User
-from poolstore.models import Matchup, Message, PoolHouse, Reservation
-from django.db.models import Exists, OuterRef, Q, Subquery
+from poolstore.models import Matchup, Message, Player, PoolHouse, Reservation
+from django.db.models import Exists, OuterRef, Q, Subquery, Count
 
 from django.core.cache import cache
 
@@ -36,7 +36,11 @@ def run():
     # print(unread_matchups.query)
 
     # print(unread_matchups)
+    days = 30
+    time_threshold = timezone.now() - timezone.timedelta(days=days)
+    players = Player.objects.annotate(
+        cnt=Count('my_reservations', filter=Q(my_reservations__start_time__gte=time_threshold))
+    ).filter(cnt__gt=0).order_by('-cnt').select_related('user')
 
-
-    pass
-    
+    for player in players:
+        print(player, player.cnt)

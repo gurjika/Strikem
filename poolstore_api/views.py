@@ -485,4 +485,10 @@ class TopPlayingPlayers(ListModelMixin, GenericViewSet):
     serializer_class = PlayerSerializer
 
     def get_queryset(self):
-        pass
+        days = 30
+        time_threshold = timezone.now() - timezone.timedelta(days=days)
+        players = Player.objects.annotate(
+            cnt=Count('my_reservations', filter=Q(my_reservations__start_time__gte=time_threshold))
+        ).filter(cnt__gt=0).order_by('-cnt').select_related('user')
+
+        return players
