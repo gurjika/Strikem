@@ -362,3 +362,19 @@ class PlayerLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ['id', 'lat', 'lng']
+
+
+
+class TopPlayerSerializer(serializers.ModelSerializer):
+    user = SimpleUserSerializer(read_only=True)
+    cnt = serializers.IntegerField(read_only=True)
+    class Meta:
+        model = Player
+        fields = ['id', 'user', 'profile_image', 'total_points', 'cnt']
+
+
+class TopTableSerializer(serializers.ModelSerializer):
+    cnt = serializers.IntegerField(read_only=True)
+    class Meta:
+        model = PoolTable
+        fields = ['id', 'table_id', 'cnt']

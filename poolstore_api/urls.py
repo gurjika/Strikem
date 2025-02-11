@@ -43,7 +43,11 @@ urlpatterns += [
     path('mark-all-read/', view=views.ReadAllNotificationView.as_view(), name='mark-all-read'),
     path('read-matchup/<uuid:matchup_id>/', view=views.ReadMatchupView.as_view(), name='read-matchup'),
     path('unread-matchups/', view=views.UnreadMatchupView.as_view(), name='unread-matchups'),
-    path('game-session/<uuid:game_session_id>/', view=views.GameSessionInfoView.as_view(), name='game-session-info')
+    path('game-session/<uuid:game_session_id>/', view=views.GameSessionInfoView.as_view(), name='game-session-info'),
+    path('top-player/', view=views.TopPlayingPlayers.as_view(), name='top-player'),
+    path('top-table/', view=views.TopReservedTables.as_view(), name='top-table'),
+
+
 ]
 
 

@@ -3,13 +3,13 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from poolstore.models import GameSession, History, Invitation, InvitationDenied, Matchup, Message, Notification, Player, PoolHouse, PoolHouseImage, PoolHouseRating, PoolTable, Reservation
-from poolstore_api.serializers import CreateHistorySerializer, DetailPlayerSerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerLocationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer
+from poolstore_api.serializers import CreateHistorySerializer, DetailPlayerSerializer, GameSessionSerializer, InvitationSerializer, ListHistorySerializer, MatchupSerializer, MessageSerializer, NotificationSerializer, PlayerLocationSerializer, PlayerSerializer, PoolHouseImageSerializer, PoolHouseRatingSerializer, PoolHouseSerializer, PoolTableSerializer, ReservationSerializer, SimplePoolHouseSerializer, StaffReservationCreateSerializer, TopPlayerSerializer, TopTableSerializer
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsCurrentUserOrReadOnly, IsPlayerReservingUserOrReadOnly, IsRaterOrReadOnly, IsStaffOrDenied, IsStaffOrDeniedOwn, IsStaffOrReadOnly
 from django.db.models import Q, Max
 from .pagination import MessagePageNumberPagination
 from django.utils.decorators import method_decorator
@@ -18,7 +18,7 @@ from django.db.models import Avg, Count
 from .tasks import finish_game_session
 from rest_framework import status
 from django.core.cache import cache
-
+from django.db.models import Subquery
 from .utils import get_nearby_poolhouses, get_nearby_players
 from celery.result import AsyncResult
 from django.db.models import OuterRef, Prefetch
@@ -424,3 +424,59 @@ class GameSessionInfoView(APIView):
                 break
         
         return Response({'game_session': gamesession.id, 'opponent_username': current_player.user.username, 'start_time': gamesession.start_time, 'location': gamesession.pooltable.poolhouse.title})
+    
+
+
+
+
+
+class TopPlayingPlayers(APIView):
+    permission_classes = [IsStaffOrDeniedOwn]
+
+    def get(self, request):
+        poolhouse = self.request.user.staff_profile.poolhouse
+        days = request.query_params.get('days', 7)
+
+        try:
+            days = int(days)
+
+        except ValueError:
+            return Response({'Error': 'Invalid filter'}, status=status.HTTP_400_BAD_REQUEST)
+        time_threshold = timezone.now() - timezone.timedelta(days=days)
+        
+        subquery = Reservation.objects.filter(
+            player_reserving=OuterRef('pk'),
+            start_time__gte=time_threshold,
+            table__poolhouse=poolhouse
+        ).values('player_reserving').annotate(cnt=Count('player_reserving')).values('cnt')
+
+        players = Player.objects.annotate(cnt=Subquery(subquery)).filter(cnt__gt=0).order_by('-cnt').select_related('user')
+
+        serializer = TopPlayerSerializer(data=players, many=True)
+        serializer.is_valid()
+        return Response(serializer.data)
+    
+class TopReservedTables(APIView):
+    permission_classes = [IsStaffOrDeniedOwn]
+    def get(self, request):
+        poolhouse = self.request.user.staff_profile.poolhouse
+
+        days = request.query_params.get('days', 1)
+
+        try:
+            days = int(days)
+
+        except ValueError:
+            return Response({'Error': 'Invalid filter'}, status=status.HTTP_400_BAD_REQUEST)
+        time_threshold = timezone.now() - timezone.timedelta(days=days)
+
+        subquery = Reservation.objects.filter(
+            table=OuterRef('pk'),
+            start_time__gte=time_threshold,
+            table__poolhouse=poolhouse
+        ).values('table').annotate(cnt=Count('table')).values('cnt')
+
+        tables = PoolTable.objects.annotate(cnt=Subquery(subquery)).filter(cnt__gt=0).order_by('-cnt')
+        serializer = TopTableSerializer(data=tables, many=True)
+        serializer.is_valid()
+        return Response(serializer.data)
