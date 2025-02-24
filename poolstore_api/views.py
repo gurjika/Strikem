@@ -298,10 +298,10 @@ class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Gener
 
 class GameSessionControlViewSet(ListModelMixin, DestroyModelMixin, GenericViewSet, RetrieveModelMixin):
     serializer_class = GameSessionSerializer
-    authentication_classes = [IsStaffOrDenied]
+    permission_classes = [IsStaffOrDenied]
 
     def get_queryset(self):
-        return GameSession.objects.filter(poolhouse=self.kwargs['poolhouse_pk'])
+        return GameSession.objects.filter(pooltable__poolhouse=self.kwargs['poolhouse_pk'])
     
     def destroy(self, request, *args, **kwargs):
         game_session = self.get_object()
