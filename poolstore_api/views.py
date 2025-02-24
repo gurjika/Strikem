@@ -41,7 +41,6 @@ from poolstore_api.serializers import (
     StaffReservationCreateSerializer, 
     TopPlayerSerializer,
     TopTableSerializer)
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
