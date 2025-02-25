@@ -95,6 +95,6 @@ class TestStart:
 
     @pytest.mark.parametrize('rating', [(1), (2), (3), (4), (5)])
     def test_rating_no_auth_200(self, rating, test_poolhouse):
-        url = reverse('filter-rating', kwargs={'poolhouse_pk': test_poolhouse.id})
+        url = reverse('filter-rating-list', kwargs={'poolhouse_pk': test_poolhouse.id})
         response = self.client.get(f'{url}?filter={rating}')
         assert response.status_code == 200
