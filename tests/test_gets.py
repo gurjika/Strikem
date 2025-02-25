@@ -1,11 +1,11 @@
 from django.urls import reverse
 from rest_framework.test import APIClient
 import pytest
-from poolstore.models import PoolHouse, PoolTable
+from poolstore.models import Matchup, PoolHouse, PoolTable
 from model_bakery import baker
 
 @pytest.mark.django_db
-class TestStart:
+class TestGET:
     def setup_method(self, method):
         self.client = APIClient()
 
@@ -130,3 +130,35 @@ class TestStart:
         self.client.force_authenticate(user=test_user)
         response = self.client.get(url)
         assert response.status_code == 200
+
+    def test_matchup_chat_200(self, test_user, test_user_second):
+        matchup = baker.make(Matchup, player_accepting=test_user_second.player, player_inviting=test_user.player)
+        url = reverse('matchup-chat', kwargs={'pk': str(matchup.id)})
+        self.client.force_authenticate(user=test_user)
+        response = self.client.get(url)
+        assert response.status_code == 200
+
+
+    def test_top_players_staff_200(self, test_staff_user):
+        url = reverse('top-player')
+        self.client.force_authenticate(user=test_staff_user)
+        response = self.client.get(url)
+        assert response.status_code == 200
+
+    def test_top_players_staff_403(self, test_user):
+        url = reverse('top-player')
+        self.client.force_authenticate(user=test_user)
+        response = self.client.get(url)
+        assert response.status_code == 403
+
+    def test_top_players_staff_200(self, test_staff_user):
+        url = reverse('top-table')
+        self.client.force_authenticate(user=test_staff_user)
+        response = self.client.get(url)
+        assert response.status_code == 200
+
+    def test_top_players_staff_403(self, test_user):
+        url = reverse('top-table')
+        self.client.force_authenticate(user=test_user)
+        response = self.client.get(url)
+        assert response.status_code == 403

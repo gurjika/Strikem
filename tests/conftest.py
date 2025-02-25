@@ -24,6 +24,11 @@ def test_user():
 
 
 @pytest.fixture
+def test_user_second():
+    return User.objects.create(username='leboswki', email='rug@g.com')
+
+
+@pytest.fixture
 def test_staff_user(test_poolhouse):
     user = User.objects.create(username='staff', email='staff@s.com', is_staff=True)
     PoolHouseStaff.objects.create(user=user, poolhouse=test_poolhouse)
