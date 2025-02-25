@@ -12,6 +12,7 @@ from django.core.cache import cache
 import logging
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 class BaseNotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -186,10 +187,10 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 matchup.save()
 
                 cache.set(f'{self.user.username}_{matchup_id}', True, timeout=600)
-                print('cache did not work')
+                logger.info('cache did not work')
                 return True
             
-        print('used cache')
+        logger.info('used cache')
         return False
 
     async def handle_user_state(self, event):
