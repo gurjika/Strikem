@@ -269,7 +269,8 @@ class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMix
     pagination_class = RatingPagination
 
     def get_queryset(self):
-        return PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).select_related('rater').order_by('-timestamp')
+        poolhouse = get_object_or_404(PoolHouse, id=self.kwargs['poolhouse_pk'])
+        return PoolHouseRating.objects.filter(poolhouse_id=poolhouse).select_related('rater').order_by('-timestamp')
     
     def get_serializer_context(self):
         context = {}

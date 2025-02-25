@@ -33,6 +33,7 @@ google-auth = "*"
 pipenv = "*"
 pytest = "*"
 pytest-django = "*"
+model-bakery = "*"
 
 [dev-packages]
 

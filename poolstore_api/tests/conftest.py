@@ -1,6 +1,7 @@
 import pytest
 from datetime import time
-from poolstore.models import PoolHouse
+from core.models import User
+from poolstore.models import PoolHouse, PoolHouseStaff
 
 
 @pytest.fixture
@@ -16,3 +17,14 @@ def test_poolhouse():
         open_time=close_time, 
         address='addresss'
     )
+
+@pytest.fixture
+def test_user():
+    return User.objects.create(username='non-staff', email='sad@g.com')
+
+
+@pytest.fixture
+def test_staff_user(test_poolhouse):
+    user = User.objects.create(username='staff', email='staff@s.com', is_staff=True)
+    PoolHouseStaff.objects.create(user=user, poolhouse=test_poolhouse)
+    return user

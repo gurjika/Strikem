@@ -10,7 +10,7 @@ router.register(prefix='poolhouses', viewset=views.PoolHouseViewSet, basename='p
 router.register(prefix='invitations', viewset=views.MatchMakeViewSet, basename='matchmake')
 router.register(prefix='players', viewset=views.PlayerViewSet,basename='player')
 router.register(prefix='poolhouses-filter', viewset=views.FilterPoolHouseViewSet, basename='poolhouse-filter')
-router.register(prefix='reservations', viewset=views.ReservationViewSet, basename='reservation')
+router.register(prefix='reservations', viewset=views.ReservationViewSet, basename='reservation-user')
 router.register(prefix='notifications', viewset=views.NotificationViewSet, basename='notification')
 router.register(prefix='filter-ratings', viewset=views.MatchMakingPlayerViewSet, basename='filter-rating')
 
