@@ -41,7 +41,6 @@ from poolstore_api.serializers import (
     StaffReservationCreateSerializer, 
     TopPlayerSerializer,
     TopTableSerializer)
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, CreateModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -270,6 +269,7 @@ class PoolHouseRatingViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMix
     pagination_class = RatingPagination
 
     def get_queryset(self):
+
         return PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).select_related('rater').order_by('-timestamp')
     
     def get_serializer_context(self):
@@ -299,10 +299,10 @@ class HistoryViewSet(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Gener
 
 class GameSessionControlViewSet(ListModelMixin, DestroyModelMixin, GenericViewSet, RetrieveModelMixin):
     serializer_class = GameSessionSerializer
-    authentication_classes = [IsStaffOrDenied]
+    permission_classes = [IsStaffOrDenied]
 
     def get_queryset(self):
-        return GameSession.objects.filter(poolhouse=self.kwargs['poolhouse_pk'])
+        return GameSession.objects.filter(pooltable__poolhouse=self.kwargs['poolhouse_pk'])
     
     def destroy(self, request, *args, **kwargs):
         game_session = self.get_object()
@@ -507,6 +507,7 @@ class FilterRatingViewSet(ListModelMixin, GenericViewSet):
     pagination_class = FilterRatingPagination
     serializer_class = PoolHouseRatingSerializer
     def get_queryset(self):
+        # poolhouse = get_object_or_404(PoolHouse, id=self.kwargs['poolhouse_pk'])
         queryset = PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).select_related('rater')
         filter = self.request.query_params.get('filter')
 

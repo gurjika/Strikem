@@ -22,7 +22,7 @@ jobs:
            key: ${{ secrets.SSH_PRIVATE_KEY}}
 
            script: |
-              cd PoolHub
+              cd Strikem
               echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
               echo "REMOTE_DB_HOST=${{ secrets.REMOTE_DB_HOST }}" >> .env
               echo "REMOTE_DB_NAME=${{ secrets.REMOTE_DB_NAME }}" >> .env

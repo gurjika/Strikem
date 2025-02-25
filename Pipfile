@@ -30,6 +30,10 @@ django-storages = "*"
 boto3 = "*"
 django-celery-beat = "*"
 google-auth = "*"
+pipenv = "*"
+pytest = "*"
+pytest-django = "*"
+model-bakery = "*"
 
 [dev-packages]
 
