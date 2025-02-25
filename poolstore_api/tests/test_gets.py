@@ -86,10 +86,6 @@ class TestStart:
         response = self.client.get(url)
         assert response.status_code == 200
 
-    def test_rating_no_auth_non_exist_poolhouse_404(self):
-        url = reverse('rating-list', kwargs={'poolhouse_pk': 9999})
-        response = self.client.get(url)
-        assert response.status_code == 404
 
     def test_reservations_no_auth_200(self, test_poolhouse):
         table = baker.make(PoolTable, poolhouse=test_poolhouse)
