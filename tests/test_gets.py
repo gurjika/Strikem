@@ -1,9 +1,7 @@
 from django.urls import reverse
 from rest_framework.test import APIClient
 import pytest
-from core.models import User
 from poolstore.models import PoolHouse, PoolTable
-from poolstore_api.views import PoolHouseViewSet
 from model_bakery import baker
 
 @pytest.mark.django_db
@@ -86,7 +84,6 @@ class TestStart:
         response = self.client.get(url)
         assert response.status_code == 200
 
-
     def test_reservations_no_auth_200(self, test_poolhouse):
         table = baker.make(PoolTable, poolhouse=test_poolhouse)
         url = reverse('table-reserve', kwargs={'poolhouse_pk': test_poolhouse.id, 'pk': table.id})
@@ -97,4 +94,28 @@ class TestStart:
     def test_rating_no_auth_200(self, rating, test_poolhouse):
         url = reverse('filter-rating-list', kwargs={'poolhouse_pk': test_poolhouse.id})
         response = self.client.get(f'{url}?filter={rating}')
+        assert response.status_code == 200
+
+    def test_reservation_staff_200(self, test_staff_user, test_poolhouse):
+        url = reverse('reservation-list', kwargs={'poolhouse_pk': test_poolhouse.id})
+        self.client.force_authenticate(user=test_staff_user)
+        response = self.client.get(url)
+        assert response.status_code == 200
+
+    def test_reservation_other_staff_403(self, test_staff_user):
+        other_poolhouse = baker.make(PoolHouse, slug='other-poolhouse')
+        url = reverse('reservation-list', kwargs={'poolhouse_pk': other_poolhouse.id})
+        self.client.force_authenticate(user=test_staff_user)
+        response = self.client.get(url)
+        assert response.status_code == 403
+
+    def test_reservation_no_auth_401(self):
+        url = reverse('reservation-user-list')
+        response = self.client.get(url)
+        assert response.status_code == 401
+
+    def test_reservation_auth_200(self, test_user):
+        url = reverse('reservation-user-list')
+        self.client.force_authenticate(user=test_user)
+        response = self.client.get(url)
         assert response.status_code == 200
