@@ -96,3 +96,9 @@ class TestStart:
         url = reverse('table-reserve', kwargs={'poolhouse_pk': test_poolhouse.id, 'pk': table.id})
         response = self.client.get(f'{url}?date=2025-02-25')
         assert response.status_code == 200
+
+    @pytest.mark.parametrize('rating', [(1), (2), (3), (4), (5)])
+    def test_rating_no_auth_200(self, rating, test_poolhouse):
+        url = reverse('filter-rating', kwargs={'poolhouse_pk': test_poolhouse.id})
+        response = self.client.get(f'{url}?filter={rating}')
+        assert response.status_code == 200

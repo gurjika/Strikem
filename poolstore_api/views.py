@@ -507,7 +507,8 @@ class FilterRatingViewSet(ListModelMixin, GenericViewSet):
     pagination_class = FilterRatingPagination
     serializer_class = PoolHouseRatingSerializer
     def get_queryset(self):
-        queryset = PoolHouseRating.objects.filter(poolhouse_id=self.kwargs['poolhouse_pk']).select_related('rater')
+        poolhouse = get_object_or_404(PoolHouse, id=self.kwargs['poolhouse_pk'])
+        queryset = PoolHouseRating.objects.filter(poolhouse_id=poolhouse).select_related('rater')
         filter = self.request.query_params.get('filter')
 
         try:
