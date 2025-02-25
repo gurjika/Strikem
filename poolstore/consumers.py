@@ -9,9 +9,9 @@ from poolstore.tasks import invitation_cleanup
 from .models import NotificationChoices
 from datetime import datetime, timezone
 from django.core.cache import cache
+import logging
 
-
-
+logger = logging.getLogger(__name__)
 
 class BaseNotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -28,124 +28,69 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, code=None):
-   
-
-        await self.channel_layer.group_discard(
-            self.room_name_for_specific_user,
-            self.channel_name
-        )
-
-
-
+        groups = [self.room_name_for_specific_user, self.matchmake_room_name, self.poolhouse_room_name]
+        for group in groups:
+            await self.channel_layer.group_discard(group, self.channel_name)
 
     async def receive(self, text_data=None, bytes_data=None):
-
-
-
-        text_data_json = json.loads(text_data)
-        print('action: ', text_data_json.get('action'))
-        print('protocol: ', text_data_json.get('protocol'))
-        print('payload: ', text_data_json)
-
+        try:
+            text_data_json = json.loads(text_data)
+        except json.JSONDecodeError:
+            await self.send(json.dumps({"error": "Invalid JSON"}))
+            return
         action = text_data_json.get('action')
+        protocol = text_data_json.get('protocol')
 
-        
+        logger.info(f"action: {action}, protocol: {protocol}, payload: {text_data_json}")
 
         if action == 'matchup':
-            self.current = 'matchup'
-
-
-            if text_data_json.get('protocol') == 'initial':
-
-                
-                await self.channel_layer.group_discard(
-                    self.matchmake_room_name,
-                    self.channel_name
-                )
-
-                await self.channel_layer.group_discard(
-                    self.poolhouse_room_name,
-                    self.channel_name,
-                )
-
-            else:
-
-                await self.matchup(text_data_json)
-
-
+            await self.handle_matchup(text_data_json)
         elif action == 'change_matchup':
-            matchup_id = text_data_json.get('matchup_id')
-            cache.delete(f'{self.user.username}_{matchup_id}')
-            self.matchup_state = matchup_id
-
-
+            await self.handle_change_matchup(text_data_json)
         elif action == self.matchmake_room_name:
-            self.matchup_state = ''
-
-            self.current = self.matchmake_room_name
-            if text_data_json.get('protocol') == 'initial':
-                
-
-                await self.channel_layer.group_discard(
-                    self.poolhouse_room_name,
-                    self.channel_name,
-                )
-
-
-                await self.channel_layer.group_add(
-                    self.matchmake_room_name,
-                    self.channel_name
-                )
-
-
-            else:
-                await self.matchmake(text_data_json)
-
-
+            await self.handle_matchmake(text_data_json)
         elif action == 'poolhouse':
-            self.matchup_state = ''
-
-            poolhouse_name = text_data_json.get('poolhouseName')
-            self.poolhouse_room_name = f'poolhouse_{poolhouse_name}'
-            self.current = self.poolhouse_room_name
-
-            await self.channel_layer.group_discard(
-                self.matchmake_room_name,
-                self.channel_name
-            )
-
-            await self.channel_layer.group_add(
-                self.poolhouse_room_name,
-                self.channel_name
-            )
-
-            print('poolhouse', self.poolhouse_room_name)
-
-
+            await self.handle_poolhouse(text_data_json)
         elif action == 'base':
-            self.matchup_state = ''
+            await self.handle_base()
 
-            self.current = 'base'
-            await self.channel_layer.group_discard(
-                self.matchmake_room_name,
-                self.channel_name
-            )
+    async def handle_matchup(self, data):
+        self.current = 'matchup'
+        if data.get('protocol') == 'initial':
+            await self.channel_layer.group_discard(self.matchmake_room_name, self.channel_name)
+            await self.channel_layer.group_discard(self.poolhouse_room_name, self.channel_name)
+        else:
+            await self.matchup(data)
 
-            await self.channel_layer.group_discard(
-                self.poolhouse_room_name,
-                self.channel_name
-            )
-
-
-
-
+    async def handle_change_matchup(self, data):
+        matchup_id = data.get('matchup_id')
+        cache.delete(f'{self.user.username}_{matchup_id}')
+        self.matchup_state = matchup_id
 
 
+    async def handle_matchmake(self, data):
+        self.matchup_state = ''
+        self.current = self.matchmake_room_name
+        if data.get('protocol') == 'initial':
+            await self.channel_layer.group_discard(self.poolhouse_room_name, self.channel_name)
+            await self.channel_layer.group_add(self.matchmake_room_name, self.channel_name)
+        else:
+            await self.matchmake(data)
 
+    async def handle_poolhouse(self, data):
+        self.matchup_state = ''
+        poolhouse_name = data.get('poolhouseName')
+        self.poolhouse_room_name = f'poolhouse_{poolhouse_name}'
+        self.current = self.poolhouse_room_name
+        await self.channel_layer.group_discard(self.matchmake_room_name, self.channel_name)
+        await self.channel_layer.group_add(self.poolhouse_room_name, self.channel_name)
+        logger.info(f"Joined poolhouse: {self.poolhouse_room_name}")
 
-
-
-
+    async def handle_base(self):
+        self.matchup_state = ''
+        self.current = 'base'
+        await self.channel_layer.group_discard(self.matchmake_room_name, self.channel_name)
+        await self.channel_layer.group_discard(self.poolhouse_room_name, self.channel_name)
 
     async def display_invite(self, event):
         invite_sender_username = event['invite_sender_username']
@@ -282,36 +227,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         self.opponent_username = text_data_json.get('opponent_username')
         username = text_data_json.get('username')
         message = text_data_json.get('message')
-        # user_state = text_data_json.get('user_state')
-        # protocol = text_data_json.get('protocol')
-
         player = await database_sync_to_async(Player.objects.get)(user=self.user)
-
-        # if protocol == 'acknowledge':
-        #     active_user_username = text_data_json['active_user']
-        #     await self.channel_layer.group_send(
-        #         f'user_{active_user_username}',
-        #         {
-                    
-        #             'type': 'handle_acknowledge',
-        #             'active_user': self.user.username
-        #         },
-        #     )
-
-        # if user_state:
-        #     opponents = await database_sync_to_async(list)(player.get_opponents())
-                
-        #     for opponent in opponents:
-        #         await self.channel_layer.group_send(
-        #             f'user_{opponent.user.username}', 
-        #             {
-        #                 'type': 'handle_user_state',
-        #                 'username': self.user.username,
-        #                 'user_state': 'joined'
-        #             }
-        #         )
-
-
        
         if message:
             
@@ -347,8 +263,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             }
 
 
-
-
             if is_outdated or last_message is None:
                 message_json['sub_protocol'] = 'last_message_outdated'
                 new_message.after_outdated = True
@@ -358,7 +272,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                     f'user_{self.opponent_username}',
                     message_json
                 )
-
 
 
             else:
@@ -388,38 +301,12 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             response_player = await database_sync_to_async(Player.objects.get)(user__username=username)
             inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
             if invite_response == 'accept':
-
-
-                # IF PLAYER ACCEPTS CREATE MATCHUP AND REMOVE THE PLAYER FROM THE INVITING PLAYERS' LIST
-
-
-
-                # match_make_instance_accepter = await database_sync_to_async(MatchMake.objects.get)(player=response_player)
-                
-                # try:
-                #     match_make_instance_inviter = await database_sync_to_async(MatchMake.objects.get)(player=inviter_player)
-                #     await database_sync_to_async(match_make_instance_inviter.delete)()
-                # except MatchMake.DoesNotExist:
-                #     pass
-                
-                # invitations = await database_sync_to_async(Invitation.objects.filter)(Q(player_inviting=response_player, player_invited=inviter_player) |Q(player_inviting=inviter_player, player_invited=response_player))
-
-
-
-
-
-                invitation_cleanup.apply_async((response_player.id, inviter_player.id))
-   
-                # create_notification.apply_async((invite_sender_username, 'invitation', ), eta=start_time, task_id=f'custom_task_id_{obj.id}')
-                
+                invitation_cleanup.apply_async((response_player.id, inviter_player.id))                
 
                 response_player.inviting_to_play = False
                 await database_sync_to_async(response_player.save)()
                 inviter_player.inviting_to_play = False
-                await database_sync_to_async(inviter_player.save)()
-
-                # await database_sync_to_async(match_make_instance_accepter.delete)()
-                
+                await database_sync_to_async(inviter_player.save)()                
 
                 mathup_object = await database_sync_to_async(Matchup.objects.create)(player_accepting=response_player, player_inviting=inviter_player)
                 
@@ -439,7 +326,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'matchup_id': str(mathup_object.id)
                     }
                 )
-
 
                 # SENDING ACCEPTING NOTIFICATION TO THE ACCEPTER
 
@@ -505,19 +391,12 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-
-            
-            
-
         if control_user:
             if not player.inviting_to_play:
 
 
                 player.inviting_to_play = True
                 await database_sync_to_async(player.save)()
-
-                # await database_sync_to_async(MatchMake.objects.create)(player=player)
-
 
                 await self.channel_layer.group_send(
                     self.GROUP_NAME,
@@ -533,10 +412,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 player.inviting_to_play = False
                 await database_sync_to_async(player.save)()
 
-                # match_make_instance = await database_sync_to_async(MatchMake.objects.get)(player=player)
-
-                # await database_sync_to_async(match_make_instance.delete)()
-
                 player_invitations = await database_sync_to_async(Invitation.objects.filter)(player_invited=player)
 
                 await database_sync_to_async(player_invitations.delete)()
@@ -549,22 +424,13 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                         'username': username,
                         'protocol': 'delete'
                     }
-                ) 
-
+                )
 
 
 
     async def control_user(self, event):
-
-
         username = event['username']
         protocol = event['protocol']
-
-        # FOR HTMX 
-        # html = get_template('poolstore/partials/matchmakers.html').render(
-        #     context={'username': username}
-        # )
-        # await self.send(text_data=html)
 
         await self.send(text_data=json.dumps(
             {
@@ -586,15 +452,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             extra=extra,
             type=type,
         )
-        
-        # if type == 'MSG':
-        #     last_message = Notification.objects.filter(player=player, type='MSG').order_by('-timestamp').first()
-            
-        #     if last_message:
-        #         last_message.delete()
-
-
-
 
 
     async def accepting_player_cleanup(self, event):
