@@ -14,7 +14,7 @@ class TestUtils:
     def test_generate_random_string(self):
         result = generate_random_string()
         assert len(result) == 7
-        assert isinstance(result, str)\
+        assert isinstance(result, str)
         
     def test_get_nearby_players(self):
         pass

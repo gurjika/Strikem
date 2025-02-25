@@ -22,13 +22,18 @@ class TestStart:
         response = self.client.get(url)
         assert response.status_code == 200
 
+    def test_poolhouses_200(self, test_poolhouse):
+        url = reverse("table-list", kwargs={'poolhouse_pk': test_poolhouse.id})
+        response = self.client.get(url)
+        assert response.status_code == 200
+
     def test_history_no_auth_200(self, test_user):
         url = reverse('history-list', kwargs={'player_pk': test_user.player.id})
         response = self.client.get(url)
         assert response.status_code == 200
 
-    def test_game_session_non_staff_403(self, test_user):
-        url = reverse('game-session-list', kwargs={'poolhouse_pk': 1})
+    def test_game_session_non_staff_403(self, test_user, test_poolhouse):
+        url = reverse('game-session-list', kwargs={'poolhouse_pk': test_poolhouse.id})
         self.client.force_authenticate(user=test_user)
         response = self.client.get(url)
         assert response.status_code == 403
@@ -95,6 +100,12 @@ class TestStart:
         url = reverse('filter-rating-list', kwargs={'poolhouse_pk': test_poolhouse.id})
         response = self.client.get(f'{url}?filter={rating}')
         assert response.status_code == 200
+
+    def test_reservation_non_staff_403(self, test_user, test_poolhouse):
+        url = reverse('game-session-list', kwargs={'poolhouse_pk': test_poolhouse.id})
+        self.client.force_authenticate(user=test_user)
+        response = self.client.get(url)
+        assert response.status_code == 403
 
     def test_reservation_staff_200(self, test_staff_user, test_poolhouse):
         url = reverse('reservation-list', kwargs={'poolhouse_pk': test_poolhouse.id})
