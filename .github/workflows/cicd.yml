@@ -81,7 +81,7 @@ jobs:
 
     - name: Run tests
       run: |
-        docker compose run pytest -v -s
+        docker compose run dpytest -v -s
 
     - name: Run migrations
       run: |
