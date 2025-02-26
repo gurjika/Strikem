@@ -42,58 +42,56 @@ jobs:
               echo "GOOGLE_OAUTH2_PROJECT_ID=${{ secrets.GOOGLE_OAUTH2_PROJECT_ID }}" >> .env
               echo "GOOGLE_OAUTH2_CLIENT_ID_F=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID_F }}" >> .env
 
-                      
-
               docker compose down
               git pull origin daphne_deploy
               docker compose up --build --detach
               docker compose run django python manage.py collectstatic --no-input
 
-  # build:
-  #   runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-  #   services:
-  #     docker:
-  #       image: docker:20.10
-  #       ports:
-  #         - 8000:8000
+    services:
+      docker:
+        image: docker:20.10
+        ports:
+          - 8000:8000
 
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v2
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-  #   - name: Set up Docker Buildx
-  #     uses: docker/setup-buildx-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-  #   - name: Cache Docker layers
-  #     uses: actions/cache@v3
-  #     with:
-  #       path: /tmp/.buildx-cache
-  #       key: ${{ runner.os }}-buildx-${{ github.sha }}
-  #       restore-keys: |
-  #         ${{ runner.os }}-buildx-
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
   
-  #   - name: Build Docker images
-  #     run: |
-  #       docker compose build
+    - name: Build Docker images
+      run: |
+        docker compose build
 
-  #   - name: Start services
-  #     run: |
-  #       docker compose up -d
+    - name: Start services
+      run: |
+        docker compose up -d
 
-  #   - name: Wait for MySQL to be ready
-  #     run: |
-  #       ./wait-for-it.sh mysql:3306 -- echo "MySQL is up"
+    - name: Run tests
+      run: |
+        docker compose run pytest -v -s
 
-  #   - name: Run migrations
-  #     run: |
-  #       docker compose run --rm django python manage.py migrate
+    - name: Run migrations
+      run: |
+        docker compose run --rm django python manage.py migrate
 
 
-  #   - name: Stop and remove services
-  #     if: always()
-  #     run: |
-  #       docker compose down
+    - name: Stop and remove services
+      if: always()
+      run: |
+        docker compose down
 
 
 
