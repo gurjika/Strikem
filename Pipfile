@@ -34,6 +34,7 @@ pipenv = "*"
 pytest = "*"
 pytest-django = "*"
 model-bakery = "*"
+pytest-xdist = "*"
 
 [dev-packages]
 

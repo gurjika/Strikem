@@ -33,3 +33,13 @@ def test_staff_user(test_poolhouse):
     user = User.objects.create(username='staff', email='staff@s.com', is_staff=True)
     PoolHouseStaff.objects.create(user=user, poolhouse=test_poolhouse)
     return user
+
+
+@pytest.fixture
+def in_memory_channel_layers(settings):
+    settings.CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        },
+    }
+    yield

@@ -42,7 +42,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         action = text_data_json.get('action')
         protocol = text_data_json.get('protocol')
 
-        logger.info(f"action: {action}, protocol: {protocol}, payload: {text_data_json}")
+        logger.info(f"action: {action}, \n protocol: {protocol}, \n payload: {text_data_json}")
 
         if action == 'matchup':
             await self.handle_matchup(text_data_json)
@@ -469,7 +469,6 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
     async def update_table(self, event):
         protocol = event['protocol']
 
-        print(event)
         data = {
             'changed_table_local_id': event['local_table_id'],
             'changed_table_id': event['table_id'],
