@@ -14,7 +14,7 @@ class TestPOST:
     def teardown_method(self, method):
         pass
 
-    def test_reserve_table_proper(self, test_user, test_poolhouse):
+    def test_reserve_table_proper_200(self, test_user, test_poolhouse):
         table = baker.make(PoolTable, poolhouse=test_poolhouse)
         url = reverse('table-reserve', kwargs={'poolhouse_pk': test_poolhouse.id, 'pk': table.id})
         self.client.force_authenticate(user=test_user)
@@ -22,7 +22,7 @@ class TestPOST:
         assert response.status_code == 200
 
 
-    def test_reserve_table_non_proper_between_ress(self, test_user, test_poolhouse):
+    def test_reserve_table_non_proper_between_ress_400(self, test_user, test_poolhouse):
         table = baker.make(PoolTable, poolhouse=test_poolhouse)
         start_time = timezone.now() - timedelta(minutes=30)
         end_time = timezone.now() + timedelta(minutes=30)
@@ -41,7 +41,7 @@ class TestPOST:
         assert response.status_code == 400
 
 
-    def test_reserve_table_proper_after_res_exact(self, test_user, test_poolhouse):
+    def test_reserve_table_proper_after_res_exact_200(self, test_user, test_poolhouse):
         table = baker.make(PoolTable, poolhouse=test_poolhouse)
         start_time = timezone.now() - timedelta(minutes=30)
         end_time = timezone.now() + timedelta(minutes=30)
@@ -60,7 +60,7 @@ class TestPOST:
         assert response.status_code == 200
 
 
-    def test_reserve_table_proper_before_res_exact(self, test_user, test_poolhouse):
+    def test_reserve_table_proper_before_res_exact_200(self, test_user, test_poolhouse):
         table = baker.make(PoolTable, poolhouse=test_poolhouse)
         start_time = timezone.now() - timedelta(minutes=30)
         end_time = timezone.now() + timedelta(minutes=30)
