@@ -11,7 +11,7 @@ jobs:
   deploy:
     name: deploy to digitalocean
     runs-on: ubuntu-latest
-    # needs: build
+    needs: build
     if: github.ref == 'refs/heads/daphne_deploy' && github.event_name == 'push'
     steps: 
       - name: deploy to digitalocean
@@ -79,9 +79,13 @@ jobs:
       run: |
         docker compose up -d
 
-    - name: Run tests
+    - name: Run tests (excluding WebSocket tests)
       run: |
-        docker compose run dpytest -v -s
+        docker compose run django pytest -v -s --ignore=tests/asgi/
+
+    - name: Run WebSocket tests in Daphne
+      run: |
+        docker compose run daphne pytest -v -s tests/asgi/
 
     - name: Run migrations
       run: |
