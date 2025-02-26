@@ -35,11 +35,3 @@ def test_staff_user(test_poolhouse):
     return user
 
 
-@pytest.fixture
-def in_memory_channel_layers(settings):
-    settings.CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels.layers.InMemoryChannelLayer",
-        },
-    }
-    yield

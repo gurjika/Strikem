@@ -17,7 +17,7 @@ def user_a():
 
 
 @pytest_asyncio.fixture(scope='function')
-async def communicator(user_a, in_memory_channel_layers):
+async def communicator(user_a):
     communicator = WebsocketCommunicator(BaseNotificationConsumer.as_asgi(), f"/ws/base/")
     communicator.scope['user'] = user_a
     yield communicator
