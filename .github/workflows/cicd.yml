@@ -77,7 +77,7 @@ jobs:
 
     - name: Start services
       run: |
-        docker compose up -d
+        docker compose up --build -d
 
     - name: Run tests (excluding WebSocket tests)
       run: |
