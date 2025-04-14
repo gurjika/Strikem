@@ -220,7 +220,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 TIME_ZONE = 'Asia/Tbilisi'
 
-CELERY_BROKER_URL = 'redis://redis:6379/1'
+CELERY_BROKER_URL = 'redis://elasticache-strikem.mkl1yv.ng.0001.euw1.cache.amazonaws.com:6379/1'
 
 
 REST_FRAMEWORK = {
