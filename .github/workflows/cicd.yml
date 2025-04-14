@@ -3,7 +3,7 @@ name: Zip and Upload to S3
 on:
   push:
     branches:
-      - master
+      - aws_deploy
   workflow_dispatch:
 
 jobs:
