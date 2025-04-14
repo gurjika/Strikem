@@ -110,11 +110,11 @@ REMOTE_DB_USER = os.environ.get('REMOTE_DB_USER')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': REMOTE_DB_NAME,
-        'USER': REMOTE_DB_USER,
-        'PASSWORD': REMOTE_DB_PASSWORD,
-        'HOST': REMOTE_DB_HOST,   
-        'PORT': REMOTE_DB_PORT
+        'NAME': 'strikem',
+        'USER': 'admin',
+        'PASSWORD': 'mysqlpassword',
+        'HOST': 'database-1.chw2ywc68gw1.eu-west-1.rds.amazonaws.com',   
+        'PORT': 3306
     }
 }
 
@@ -189,7 +189,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],
+            "hosts": [("elasticache-strikem.mkl1yv.ng.0001.euw1.cache.amazonaws.com", 6379)],
         },
     },
 }
@@ -238,7 +238,6 @@ SIMPLE_JWT = {
 
 
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 
@@ -286,7 +285,7 @@ DEFAULT_FROM_EMAIL = 'noreply@poolhub.com'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/2', 
+        'LOCATION': 'redis://elasticache-strikem.mkl1yv.ng.0001.euw1.cache.amazonaws.com:6379/2', 
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -315,7 +314,7 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 
 
 AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
-CELERY_RESULT_BACKEND = 'redis://redis:6379/1'
+CELERY_RESULT_BACKEND = 'redis://elasticache-strikem.mkl1yv.ng.0001.euw1.cache.amazonaws.com:6379/1'
 
 # AWS_CLOUDFRONT_KEY_ID = os.environ.get('AWS_CLOUDFRONT_KEY_ID')
 # AWS_CLOUDFRONT_KEY = os.environ.get('AWS_CLOUDFRONT_KEY').encode('ascii').strip()
