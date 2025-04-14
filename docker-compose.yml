@@ -15,18 +15,6 @@ services:
 #       - poolhubdata:/var/lib/mysql 
 
 
-  redis:
-    image: redis
-    expose:
-      - "6379"
-    volumes:
-      - redis-data:/data  # Mount a volume to persist data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 1s
-      retries: 5
-    command: ["redis-server", "--appendonly", "yes"]  # Enable AOF persistence
 
  
 
@@ -69,7 +57,6 @@ services:
 
     depends_on:
       # - mysql
-      - redis
       - celery
 
     restart: on-failure
@@ -79,9 +66,7 @@ services:
     command: celery -A poolhub worker --loglevel=info
     volumes:
       - .:/app
-    depends_on:
-      redis:
-        condition: service_healthy
+
       
       
 
@@ -90,10 +75,6 @@ services:
     command: celery -A poolhub beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=info
     volumes:
       - .:/app
-    depends_on:
-      redis:
-        condition: service_healthy
-
 
 
 
@@ -126,9 +107,6 @@ services:
       - GOOGLE_OAUTH2_CLIENT_SECRET=${GOOGLE_OAUTH2_CLIENT_SECRET}
       - GOOGLE_OAUTH2_PROJECT_ID=${GOOGLE_OAUTH2_PROJECT_ID}
 
-    depends_on:
-      # - mysql
-      - redis
 
 
   nginx:
@@ -179,4 +157,3 @@ volumes:
   # poolhubdata:
   certbot-etc:
   certbot-var:
-  redis-data:
