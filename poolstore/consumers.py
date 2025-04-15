@@ -10,6 +10,9 @@ from .models import NotificationChoices
 from datetime import datetime, timezone
 from django.core.cache import cache
 import logging
+import boto3
+from asgiref.sync import sync_to_async
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -21,6 +24,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         self.current = ''
         self.user = self.scope['user']
         self.room_name_for_specific_user = f"user_{self.user.username}"
+        self.matchup_state = ''
 
         await self.channel_layer.group_add(
             self.room_name_for_specific_user,
@@ -282,6 +286,63 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 )
 
 
+    def publish_to_sns_delete_over_invite(response_player_id, inviter_player_id):
+        sns_client = boto3.client('sns', region_name='your-region')
+        SNS_TOPIC_ARN = 'arn:aws:sns:eu-west-1:010526243843:sns-topic-strikem'
+
+        message = {
+            'response_player_id': response_player_id,
+            'inviter_player_id': inviter_player_id
+        }
+
+        response = sns_client.publish(
+            TopicArn=SNS_TOPIC_ARN,
+            Message=json.dumps(message),
+            Subject='InvitationCleanupEvent',
+            MessageAttributes={
+                'eventType': {
+                    'DataType': 'String',
+                    'StringValue': 'InvitationCleanup'
+                },
+                'inviterId': {
+                    'DataType': 'Number',
+                    'StringValue': str(inviter_player_id)
+                }
+            }
+        )
+
+        return response['MessageId']
+
+    def publish_to_sns_delete_denied(nid):
+        sns_client = boto3.client('sns', region_name='your-region')
+        SNS_TOPIC_ARN = 'arn:aws:sns:eu-west-1:010526243843:sns-topic-strikem'
+
+        message = {
+            'nid': nid
+        }
+
+        response = sns_client.publish(
+            TopicArn=SNS_TOPIC_ARN,
+            Message=json.dumps(message),
+            Subject='InvitationCleanupEvent',
+            MessageAttributes={
+                'eventType': {
+                    'DataType': 'String',
+                    'StringValue': 'InvitationDeniedDelete'
+                },
+                'inviterId': {
+                    'DataType': 'Number',
+                    'StringValue': str(nid)
+                }
+            }
+        )
+
+        return response['MessageId']
+
+
+
+
+
     async def matchmake(self, text_data=None, bytes_data=None):
 
         self.GROUP_NAME = 'matchmake'
@@ -302,7 +363,9 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             response_player = await database_sync_to_async(Player.objects.get)(user__username=username)
             inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
             if invite_response == 'accept':
-                invitation_cleanup.apply_async((response_player.id, inviter_player.id))                
+                safe_publish_to_sns = sync_to_async(self.publish_to_sns)
+
+                await safe_publish_to_sns(response_player.id, inviter_player.id)
 
                 response_player.inviting_to_play = False
                 await database_sync_to_async(response_player.save)()
@@ -352,9 +415,10 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 await database_sync_to_async(invitation.delete)()
 
                 invitation_denied = await database_sync_to_async(InvitationDenied.objects.create)(player_invited=response_player, player_denied=inviter_player)
-                current_utc = datetime.now(timezone.utc)
+                safe_publish_to_sns = sync_to_async(self.publish_to_sns_delete_denied)
 
-                delete_denied_invite.apply_async((invitation_denied.id,), eta=current_utc + timedelta(seconds=3))
+                await safe_publish_to_sns(invitation_denied.id)
+
                 await self.create_notification(player=invite_sender_username, sent_by=username, type=NotificationChoices.REJECTED, body=None, extra=None)
 
                 
