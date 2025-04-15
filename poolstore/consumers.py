@@ -12,6 +12,10 @@ from django.core.cache import cache
 import logging
 import boto3
 from asgiref.sync import sync_to_async
+import os
+
+sns_client = boto3.client('sns', region_name='eu-west-1')
+SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC')
 
 
 logger = logging.getLogger(__name__)
@@ -287,8 +291,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
 
     def publish_to_sns_delete_over_invite(self, response_player_id, inviter_player_id):
-        sns_client = boto3.client('sns', region_name='eu-west-1')
-        SNS_TOPIC_ARN = 'arn:aws:sns:eu-west-1:010526243843:sns-topic-strikem'
+ 
 
         message = {
             'player_1_id': response_player_id,
@@ -314,8 +317,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         return response['MessageId']
 
     def publish_to_sns_delete_denied(self, nid):
-        sns_client = boto3.client('sns', region_name='eu-west-1')
-        SNS_TOPIC_ARN = 'arn:aws:sns:eu-west-1:010526243843:sns-topic-strikem'
+
 
         message = {
             'nid': nid

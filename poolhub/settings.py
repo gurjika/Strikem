@@ -97,7 +97,7 @@ WSGI_APPLICATION = 'poolhub.wsgi.application'
 # DB_PASSWORD = os.environ.get('DB_PASSWORD')
 # DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 
-
+REDIS_HOST = os.environ.get('REDIS_HOST')
 REMOTE_DB_HOST = os.environ.get('REMOTE_DB_HOST')
 REMOTE_DB_PORT = os.environ.get('REMOTE_DB_PORT')
 REMOTE_DB_PASSWORD = os.environ.get('REMOTE_DB_PASSWORD')
@@ -110,11 +110,11 @@ REMOTE_DB_USER = os.environ.get('REMOTE_DB_USER')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'strikem',
-        'USER': 'admin',
-        'PASSWORD': 'mysqlpassword',
-        'HOST': 'database-1.chw2ywc68gw1.eu-west-1.rds.amazonaws.com',   
-        'PORT': 3306
+        'NAME': REMOTE_DB_NAME,
+        'USER': REMOTE_DB_USER,
+        'PASSWORD': REMOTE_DB_PASSWORD,
+        'HOST': REMOTE_DB_HOST,   
+        'PORT': REMOTE_DB_PORT
     }
 }
 
@@ -189,7 +189,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("elasticache-strikem.mkl1yv.ng.0001.euw1.cache.amazonaws.com", 6379)],
+            "hosts": [(REDIS_HOST, 6379)],
         },
     },
 }
@@ -220,7 +220,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 TIME_ZONE = 'Asia/Tbilisi'
 
-CELERY_BROKER_URL = 'redis://elasticache-strikem.mkl1yv.ng.0001.euw1.cache.amazonaws.com:6379/1'
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:6379/1'
 
 
 REST_FRAMEWORK = {
@@ -285,7 +285,7 @@ DEFAULT_FROM_EMAIL = 'noreply@poolhub.com'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://elasticache-strikem.mkl1yv.ng.0001.euw1.cache.amazonaws.com:6379/2', 
+        'LOCATION': f'redis://{REDIS_HOST}:6379/2', 
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -314,7 +314,7 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 
 
 AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
-CELERY_RESULT_BACKEND = 'redis://elasticache-strikem.mkl1yv.ng.0001.euw1.cache.amazonaws.com:6379/1'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:6379/1'
 
 # AWS_CLOUDFRONT_KEY_ID = os.environ.get('AWS_CLOUDFRONT_KEY_ID')
 # AWS_CLOUDFRONT_KEY = os.environ.get('AWS_CLOUDFRONT_KEY').encode('ascii').strip()
