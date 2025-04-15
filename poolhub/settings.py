@@ -313,6 +313,8 @@ AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 
 
+
+
 AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
 CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:6379/1'
 
