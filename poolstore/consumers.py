@@ -291,8 +291,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
         SNS_TOPIC_ARN = 'arn:aws:sns:eu-west-1:010526243843:sns-topic-strikem'
 
         message = {
-            'response_player_id': response_player_id,
-            'inviter_player_id': inviter_player_id
+            'player_1_id': response_player_id,
+            'player_2_id': inviter_player_id
         }
 
         response = sns_client.publish(
@@ -363,7 +363,7 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
             response_player = await database_sync_to_async(Player.objects.get)(user__username=username)
             inviter_player = await database_sync_to_async(Player.objects.get)(user__username=invite_sender_username)
             if invite_response == 'accept':
-                safe_publish_to_sns = sync_to_async(self.publish_to_sns)
+                safe_publish_to_sns = sync_to_async(self.publish_to_sns_delete_over_invite)
 
                 await safe_publish_to_sns(response_player.id, inviter_player.id)
 
