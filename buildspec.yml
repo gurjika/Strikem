@@ -22,3 +22,5 @@ phases:
     commands:
       - echo "Now running tests using the .env file"
       - pytest -s -v
+      - echo running migrations
+      - python manage.py migrate
