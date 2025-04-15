@@ -5,19 +5,17 @@ phases:
     runtime-versions:
       python: 3.11
     commands:
-      - echo "Installing dependencies..."
-      - pip install --upgrade pip
-      - pip install -r requirements.txt
-
+      - pip install --upgrade awscli jq
   pre_build:
     commands:
-      - echo "Running pre-build checks..."
-      - pytest -v -s
+      - echo "Fetching secrets and writing to .env in the project directory"
+      - |
+        aws secretsmanager get-secret-value --secret-id prod/strikem \
+        --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > $CODEBUILD_SRC_DIR/.env
+
+      - echo ".env file created:"
+      - cat $CODEBUILD_SRC_DIR/.env
   build:
     commands:
-      - echo "Checking if FastAPI app runs without errors..."
-
-
-artifacts:
-  files:
-    - '**/*'
+      - echo "Now running tests using the .env file"
+      - pytest -s -v
