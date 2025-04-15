@@ -286,8 +286,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
                 )
 
 
-    def publish_to_sns_delete_over_invite(response_player_id, inviter_player_id):
-        sns_client = boto3.client('sns', region_name='your-region')
+    def publish_to_sns_delete_over_invite(self, response_player_id, inviter_player_id):
+        sns_client = boto3.client('sns', region_name='eu-west-1')
         SNS_TOPIC_ARN = 'arn:aws:sns:eu-west-1:010526243843:sns-topic-strikem'
 
         message = {
@@ -313,8 +313,8 @@ class BaseNotificationConsumer(AsyncWebsocketConsumer):
 
         return response['MessageId']
 
-    def publish_to_sns_delete_denied(nid):
-        sns_client = boto3.client('sns', region_name='your-region')
+    def publish_to_sns_delete_denied(self, nid):
+        sns_client = boto3.client('sns', region_name='eu-west-1')
         SNS_TOPIC_ARN = 'arn:aws:sns:eu-west-1:010526243843:sns-topic-strikem'
 
         message = {
