@@ -4,8 +4,6 @@ from .models import Invitation, InvitationDenied, Matchup, Notification, Player,
 from channels.db import database_sync_to_async
 from datetime import timedelta
 import datetime
-from .tasks import delete_denied_invite
-from poolstore.tasks import invitation_cleanup 
 from .models import NotificationChoices
 from datetime import datetime, timezone
 from django.core.cache import cache
