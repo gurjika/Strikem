@@ -5,4 +5,4 @@ Strikem is a real-time platform for billiards enthusiasts, offering features lik
 
 ## AWS
 
-![Strikem-final](https://github.com/user-attachments/assets/82784007-544b-4292-ae03-09d8f1f9668d)
+![Strikem-finished](https://github.com/user-attachments/assets/267f7bc6-8b15-43de-94b5-5bd13ddabd38)
