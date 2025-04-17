@@ -18,7 +18,7 @@ Strikem is a real-time platform for billiards enthusiasts, offering features lik
 
 - Gunicorn: Handles WSGI requests for HTTP traffic.
 - Daphne: Handles ASGI requests for WebSocket traffic.
-- Docker and Docker Compose: Orchestrates **separate containers for ASGI and WSGI apps**, databases, caching, and static file handling.
+- Docker and Docker Compose: Orchestrates **separate containers for ASGI and WSGI apps**, caching, and static file handling.
 - DigitalOcean: Cloud platform for hosting Strikem’s containers.
 
 ## Key Features
