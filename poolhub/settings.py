@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['134.122.88.48', 'strikem.site', '127.0.0.1', 'localhost', 'strikem.vercel.app']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -97,7 +97,7 @@ WSGI_APPLICATION = 'poolhub.wsgi.application'
 # DB_PASSWORD = os.environ.get('DB_PASSWORD')
 # DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
 
-
+REDIS_HOST = os.environ.get('REDIS_HOST')
 REMOTE_DB_HOST = os.environ.get('REMOTE_DB_HOST')
 REMOTE_DB_PORT = os.environ.get('REMOTE_DB_PORT')
 REMOTE_DB_PASSWORD = os.environ.get('REMOTE_DB_PASSWORD')
@@ -189,7 +189,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],
+            "hosts": [(REDIS_HOST, 6379)],
         },
     },
 }
@@ -220,7 +220,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 TIME_ZONE = 'Asia/Tbilisi'
 
-CELERY_BROKER_URL = 'redis://redis:6379/1'
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:6379/1'
 
 
 REST_FRAMEWORK = {
@@ -238,7 +238,6 @@ SIMPLE_JWT = {
 
 
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 
@@ -286,7 +285,7 @@ DEFAULT_FROM_EMAIL = 'noreply@poolhub.com'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/2', 
+        'LOCATION': f'redis://{REDIS_HOST}:6379/2', 
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -314,8 +313,10 @@ AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 
 
+
+
 AWS_S3_CUSTOM_DOMAIN = 'd2fa3ckosxh4zl.cloudfront.net'
-CELERY_RESULT_BACKEND = 'redis://redis:6379/1'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:6379/1'
 
 # AWS_CLOUDFRONT_KEY_ID = os.environ.get('AWS_CLOUDFRONT_KEY_ID')
 # AWS_CLOUDFRONT_KEY = os.environ.get('AWS_CLOUDFRONT_KEY').encode('ascii').strip()

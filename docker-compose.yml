@@ -1,44 +1,9 @@
 services:
-#   mysql:
-#     image: mysql:8.0
-#     ports:
-#       - 3306:3306
-
-#     environment:
-    
-#       - MYSQL_DATABASE=poolhub
-#       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
-
-
-#     volumes:
-
-#       - poolhubdata:/var/lib/mysql 
-
-
-  redis:
-    image: redis
-    expose:
-      - "6379"
-    volumes:
-      - redis-data:/data  # Mount a volume to persist data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 1s
-      retries: 5
-    command: ["redis-server", "--appendonly", "yes"]  # Enable AOF persistence
-
- 
-
 
   django:
 
     build: .
     command: ["gunicorn", "poolhub.wsgi:application", "-b", "0.0.0.0:8000", '--reload', '--log-level=debug']
-    # ./wait-for-it.sh", "mysql:3306", "--",
-
-    # ports:
-    #   - "8000:8000"
 
     volumes:
       - .:/app
@@ -68,8 +33,6 @@ services:
 
 
     depends_on:
-      # - mysql
-      - redis
       - celery
 
     restart: on-failure
@@ -79,9 +42,7 @@ services:
     command: celery -A poolhub worker --loglevel=info
     volumes:
       - .:/app
-    depends_on:
-      redis:
-        condition: service_healthy
+
       
       
 
@@ -90,19 +51,12 @@ services:
     command: celery -A poolhub beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=info
     volumes:
       - .:/app
-    depends_on:
-      redis:
-        condition: service_healthy
-
 
 
 
   daphne:
     build: .
     command: ["daphne", "-u", "/tmp/daphne.sock", "--application-close-timeout", "10", "poolhub.asgi:application"]
-    # "--bind", "0.0.0.0", "--port", "8001"
-    # ports:
-    #   - "8001:8001"
     volumes:
       - .:/app
       - daphne-socket:/tmp
@@ -126,57 +80,26 @@ services:
       - GOOGLE_OAUTH2_CLIENT_SECRET=${GOOGLE_OAUTH2_CLIENT_SECRET}
       - GOOGLE_OAUTH2_PROJECT_ID=${GOOGLE_OAUTH2_PROJECT_ID}
 
-    depends_on:
-      # - mysql
-      - redis
 
 
   nginx:
     image: nginx:latest
-    # command: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; nginx -s reload; sleep 12h & wait $${!}; done;'"
 
 
     ports:
       - "80:80"  
-      - "443:443"
+   
 
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./staticfiles:/app/static
       - ./media:/app/media
       - daphne-socket:/tmp
-      - certbot-etc:/etc/letsencrypt  # For SSL certificates
-      - certbot-var:/var/lib/certbot   # For Certbot challenges
-      - /var/www/certbot:/var/www/certbot 
+
     depends_on:
       - django
       - daphne
     restart: always
 
-
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - certbot-etc:/etc/letsencrypt  # Stores the certificates
-      - certbot-var:/var/lib/certbot   # Stores Certbot state
-      # - ./certbot/www:/var/www/certbot # Webroot for HTTP challenges
-      - /var/www/certbot:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; certbot certonly --webroot -w /var/www/certbot --email lgurjidze@gmail.com --agree-tos --no-eff-email -d strikem.site; while :; do sleep 12h; done;'"
-
-    depends_on:
-      - nginx
-    
-    restart: always
-
-
-
-
-
-
-
 volumes:
   daphne-socket:
-  # poolhubdata:
-  certbot-etc:
-  certbot-var:
-  redis-data:

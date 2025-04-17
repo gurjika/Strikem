@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - pip install --upgrade awscli jq
+      - echo "Installing dependencies..."
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+  pre_build:
+    commands:
+      - echo "Fetching secrets and writing to .env in the project directory"
+      - |
+        aws secretsmanager get-secret-value --secret-id prod/strikem \
+        --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > $CODEBUILD_SRC_DIR/.env
+
+      - echo ".env file created:"
+      - cat $CODEBUILD_SRC_DIR/.env
+  build:
+    commands:
+      - echo "Now running tests using the .env file"
+      - pytest -s -v
+      - echo running migrations
+      - python manage.py migrate
+
+artifacts:
+  files:
+    - '**/*'

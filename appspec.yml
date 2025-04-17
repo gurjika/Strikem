@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+files:
+  - source: ./
+    destination: /home/ec2-user/app
+
+hooks:
+  BeforeInstall:
+    - location: cicd_scripts/clear.sh
+      timeout: 600
+      runas: ec2-user
+
+
+  ApplicationStart:
+    - location: cicd_scripts/start_server.sh
+      timeout: 600
+      runas: ec2-user
