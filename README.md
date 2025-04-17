@@ -8,7 +8,7 @@ Strikem is a real-time platform for billiards enthusiasts, offering features lik
 - Backend Framework: Django Rest Framework (DRF)
 - Real-Time Communication: Django Channels, Redis
 - Task Management: Celery with Celery Beat for scheduled tasks
-- Database: MySQL (hosted separately)
+- Database: MySQL (RDS)
 - Media Storage: AWS S3 Bucket
 - Web Server: Nginx (reverse proxy and static file serving)
 - Application Server: Gunicorn
@@ -18,8 +18,14 @@ Strikem is a real-time platform for billiards enthusiasts, offering features lik
 
 - Gunicorn: Handles WSGI requests for HTTP traffic.
 - Daphne: Handles ASGI requests for WebSocket traffic.
-- Docker and Docker Compose: Orchestrates **separate containers for ASGI and WSGI apps**, databases, caching, and static file handling.
-- DigitalOcean: Cloud platform for hosting Strikem’s containers.
+- Docker and Docker Compose: Orchestrates **separate containers for ASGI and WSGI apps**
+- **AWS**: Cloud platform for hosting Strikem’s containers.
+> 📁 **Note:** AWS architecture and infrastructure details are documented in a [separate repository](https://github.com/gurjika/Strikem-AWS-docs).
+
+## AWS Architecture Visualisation For Strikem
+
+![Strikem-finished](https://github.com/user-attachments/assets/267f7bc6-8b15-43de-94b5-5bd13ddabd38)
+
 
 ## Key Features
 
@@ -55,15 +61,7 @@ To run this project locally:
 
 3. Create a `.env` file and specify the required environment variables:
     ```env
-    SECRET_KEY=your_django_secret_key
-    DB_HOST=db
-    DB_PASSWORD=your_db_password
-    EMAIL_HOST_PASSWORD=your_email_password
-    AWS_ACCESS_KEY_ID=your_aws_access_key
-    AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-    AWS_STORAGE_BUCKET_NAME=bucket_name
-    AWS_S3_REGION_NAME=region_name
-    GOOGLE_MAPS_API_KEY=api_key_maps
+    ...
     ```
 
 4. Run the application using Docker Compose:
