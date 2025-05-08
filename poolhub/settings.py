@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['134.122.88.48', 'strikem.site', '127.0.0.1', 'localhost', 'strikem.vercel.app']
+ALLOWED_HOSTS = ['104.248.44.18', 'strikem.site', '127.0.0.1', 'localhost', 'strikem.vercel.app']
 
 
 # Application definition
