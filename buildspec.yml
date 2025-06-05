@@ -13,7 +13,7 @@ phases:
     commands:
       - echo "Fetching secrets and writing to .env in the project directory"
       - |
-        aws secretsmanager get-secret-value --secret-id prod/logiks \
+        aws secretsmanager get-secret-value --secret-id prod/strikem \
         --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > $CODEBUILD_SRC_DIR/.env
 
       - echo ".env file created:"
